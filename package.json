@@ -1,0 +1,32 @@
+{
+  "name": "rte",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/services/node-factory.js",
+  "browser": "./dist/services/browser-factory.js",
+  "scripts": {
+    "test": "mocha ./tests/unit.js",
+    "webpack": "webpack --watch"
+  },
+  "devDependencies": {
+    "babel-core": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-register": "^6.18.0",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
+    "chai-shallow-deep-equal": "^1.4.0",
+    "coveralls": "^2.11.14",
+    "express": "^4.14.0",
+    "express-prettify": "0.0.6",
+    "json-loader": "^0.5.4",
+    "mocha": "^3.0.2",
+    "mocha-lcov-reporter": "^1.2.0",
+    "morgan": "^1.7.0",
+    "serve-favicon": "^2.3.2",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2",
+    "webpack-stream": "^3.2.0",
+    "yargs": "5.0.0"
+  }
+}
