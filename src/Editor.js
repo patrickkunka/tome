@@ -26,6 +26,10 @@ class Editor {
                 markup = new Markup(markup);
             }
 
+            // Selection completely envelopes markup
+
+            if (start > fromIndex && end < toIndex) continue;
+
             if (start <= fromIndex && end >= toIndex) {
                 // Selection within markup or equal to markup
 
@@ -41,8 +45,6 @@ class Editor {
 
                 newMarkup[1] += adjustment;
                 newMarkup[2] += adjustment;
-            } else if (end < fromIndex) {
-                // Markup before Selection (maintain)
             } else if (fromIndex < start && toIndex > start && toIndex < end) {
                 // Selection partially envelopes markup from start
 
@@ -51,11 +53,7 @@ class Editor {
             } else if (fromIndex > start && fromIndex < end && toIndex > end) {
                 // Selection partially envelopes markup from end
 
-                newMarkup[2] += ((end - fromIndex) + totalAdded);
-            } else {
-                // Selection completely envelopes markup
-
-                continue;
+                newMarkup[2] = fromIndex + totalAdded;
             }
 
             newMarkups.push(newMarkup);

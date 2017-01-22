@@ -143,11 +143,11 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'dolor.', 6, 12);
+        const newState = Editor.insertCharacters(state, 'dolor.', 5, 12);
 
-        assert.equal(newState.text, 'Lorem dolor.');
+        assert.equal(newState.text, 'Loremdolor.');
         assert.equal(newState.markups[0][1], 0);
-        assert.equal(newState.markups[0][2], 12);
+        assert.equal(newState.markups[0][2], 11);
         assert.isNotOk(newState.markups[1]);
     });
 
