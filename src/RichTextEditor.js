@@ -54,15 +54,9 @@ class RichTextEditor {
 
         this.root = RichTextEditor.buildModelFromState(this.state);
 
-        // let newCaretOffset = -1;
-
         this.render();
 
-        // // position cursor at end of "to" offset (move out of class)
-
-        // newCaretOffset = range.from.offset + characters.length;
-
-        // this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
+        this.positionCaret(this.state.selection);
 
         e.preventDefault();
     }
@@ -123,10 +117,32 @@ class RichTextEditor {
         return new Range(from, to);
     }
 
-    positionCaretByPathAndOffset(path, offset) {
+    positionCaret([start, end]) {
         const range = document.createRange();
-        const node = this.getNodeByPath(path, this.dom.root);
         const selection = window.getSelection();
+
+        let childNodes = this.root.childNodes;
+        let virtualNode = null;
+        let node = null;
+        let offset = -1;
+
+        for (let i = 0; (virtualNode = childNodes[i]); i++) {
+            if (virtualNode.end < start) continue;
+
+            if (virtualNode.childNodes.length) {
+                childNodes = virtualNode.childNodes;
+
+                i = -1;
+
+                continue;
+            }
+
+            offset = start - virtualNode.start;
+
+            break;
+        }
+
+        node = this.getNodeByPath(virtualNode.path, this.dom.root);
 
         range.setStart(node, offset);
         range.collapse(true);

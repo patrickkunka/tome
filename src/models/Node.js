@@ -5,6 +5,7 @@ class Node {
         this.end        = -1;
         this.tag        = '';
         this.text       = '';
+        this.path       = [];
 
         Object.seal(this);
     }

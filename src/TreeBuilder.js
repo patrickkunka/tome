@@ -4,6 +4,9 @@ class TreeBuilder {
     static buildTree(text, markups, parent, startIndex=0) {
         let lastSibling = null;
 
+        let path = null;
+        let index = 0;
+
         for (let i = startIndex; i < markups.length; i++) {
             const markup = markups[i];
 
@@ -19,7 +22,9 @@ class TreeBuilder {
                 if (lastSibling.end < parent.end) {
                     // Preceeded by text node
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text));
+                    path = parent.path.slice().concat([index++]);
+
+                    parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text, path));
                 }
 
                 return i - 1;
@@ -31,26 +36,33 @@ class TreeBuilder {
                 if (markup[1] > lastIndex) {
                     // Preceeded by text node
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text));
+                    path = parent.path.slice().concat([index++]);
+
+                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text, path));
                 }
 
-                lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text);
+                path = parent.path.slice().concat([index++]);
+
+                lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
 
                 // Create internal text node
 
-                lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text));
+                path = path.slice().concat(0);
+
+                lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
 
                 parent.childNodes.push(lastSibling);
             }
         }
     }
 
-    static getNode(tag, start, end, text) {
+    static getNode(tag, start, end, text, path) {
         const node = new Node();
 
         node.tag = tag;
         node.start = start;
         node.end = end;
+        node.path = path;
 
         if (!tag) {
             node.text = text.slice(start, end + 1);

@@ -86,6 +86,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _Dom = __webpack_require__(3);
@@ -186,15 +188,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.root = RichTextEditor.buildModelFromState(this.state);
 	
-	            // let newCaretOffset = -1;
-	
 	            this.render();
 	
-	            // // position cursor at end of "to" offset (move out of class)
-	
-	            // newCaretOffset = range.from.offset + characters.length;
-	
-	            // this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
+	            this.positionCaret(this.state.selection);
 	
 	            e.preventDefault();
 	        }
@@ -258,11 +254,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return new _Range2.default(from, to);
 	        }
 	    }, {
-	        key: 'positionCaretByPathAndOffset',
-	        value: function positionCaretByPathAndOffset(path, offset) {
+	        key: 'positionCaret',
+	        value: function positionCaret(_ref) {
+	            var _ref2 = _slicedToArray(_ref, 2),
+	                start = _ref2[0],
+	                end = _ref2[1];
+	
 	            var range = document.createRange();
-	            var node = this.getNodeByPath(path, this.dom.root);
 	            var selection = window.getSelection();
+	
+	            var childNodes = this.root.childNodes;
+	            var virtualNode = null;
+	            var node = null;
+	            var offset = -1;
+	
+	            for (var i = 0; virtualNode = childNodes[i]; i++) {
+	                if (virtualNode.end < start) continue;
+	
+	                if (virtualNode.childNodes.length) {
+	                    childNodes = virtualNode.childNodes;
+	
+	                    i = -1;
+	
+	                    continue;
+	                }
+	
+	                offset = start - virtualNode.start;
+	
+	                break;
+	            }
+	
+	            node = this.getNodeByPath(virtualNode.path, this.dom.root);
 	
 	            range.setStart(node, offset);
 	            range.collapse(true);
@@ -665,6 +687,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.end = -1;
 	    this.tag = '';
 	    this.text = '';
+	    this.path = [];
 	
 	    Object.seal(this);
 	};
@@ -750,6 +773,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var lastSibling = null;
 	
+	            var path = null;
+	            var index = 0;
+	
 	            for (var i = startIndex; i < markups.length; i++) {
 	                var markup = markups[i];
 	
@@ -765,7 +791,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (lastSibling.end < parent.end) {
 	                        // Preceeded by text node
 	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text));
+	                        path = parent.path.slice().concat([index++]);
+	
+	                        parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text, path));
 	                    }
 	
 	                    return i - 1;
@@ -777,14 +805,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (markup[1] > lastIndex) {
 	                        // Preceeded by text node
 	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text));
+	                        path = parent.path.slice().concat([index++]);
+	
+	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text, path));
 	                    }
 	
-	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text);
+	                    path = parent.path.slice().concat([index++]);
+	
+	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
 	
 	                    // Create internal text node
 	
-	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text));
+	                    path = path.slice().concat(0);
+	
+	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
 	
 	                    parent.childNodes.push(lastSibling);
 	                }
@@ -792,12 +826,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'getNode',
-	        value: function getNode(tag, start, end, text) {
+	        value: function getNode(tag, start, end, text, path) {
 	            var node = new _Node2.default();
 	
 	            node.tag = tag;
 	            node.start = start;
 	            node.end = end;
+	            node.path = path;
 	
 	            if (!tag) {
 	                node.text = text.slice(start, end + 1);
@@ -975,6 +1010,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
 	
 	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment);
+	
+	            newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
 	
 	            return newState;
 	        }

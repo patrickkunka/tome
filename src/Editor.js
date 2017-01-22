@@ -12,6 +12,8 @@ class Editor {
 
         newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment);
 
+        newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
+
         return newState;
     }
 
