@@ -1,13 +1,10 @@
 import RichTextEditor from './RichTextEditor';
 import data           from './data.json';
 
-function factory(el, configRaw) {
+function factory(el) {
     const richTextEditor = new RichTextEditor();
 
-    richTextEditor.attach(el, configRaw || {
-        text: data.text,
-        format: data.format
-    });
+    richTextEditor.attach(el, data);
 
     return richTextEditor;
 }

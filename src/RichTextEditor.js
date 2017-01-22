@@ -1,44 +1,34 @@
-import Config       from './Config';
 import Dom          from './Dom';
 import Util         from './Util';
-import Formatlet    from './models/Formatlet';
+import Markup       from './models/Markup';
 import Node         from './models/Node';
 import Caret        from './models/Caret';
 import Range        from './models/Range';
+import State        from './models/State';
+import Editor       from './Editor';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 
 class RichTextEditor {
     constructor() {
-        this.dom    = new Dom();
-        this.config = new Config();
-        this.root   = null;
+        this.dom        = new Dom();
+        this.state      = new State();
+        this.root       = null;
+        this.history    = [];
     }
 
-    attach(el, configRaw) {
+    attach(el, initialState) {
         this.dom.root = el;
 
-        Util.extend(this.config, configRaw);
+        Util.extend(this.state, initialState);
 
-        this.transformData();
+        this.state.markups = this.state.markups.map(markup => new Markup(markup));
+
+        this.root = RichTextEditor.buildModelFromState(this.state);
 
         this.render();
 
         this.bindEvents();
-    }
-
-    transformData() {
-        const text = this.config.text;
-        const format = this.config.format.map(format => new Formatlet(format));
-
-        this.root = new Node();
-
-        this.root.start = 0;
-        this.root.end = text.length - 1;
-
-        TreeBuilder.buildTree(text, format, this.root);
-
-        console.log(this.root);
     }
 
     render() {
@@ -53,18 +43,26 @@ class RichTextEditor {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
         const characters = e.key;
+        const fromIndex = range.from.node.start + range.from.offset;
+        const toIndex = range.to.node.start + range.to.offset;
 
-        let newCaretOffset = -1;
+        const newState = Editor.insertCharacters(this.state, characters, fromIndex, toIndex);
 
-        TreeBuilder.insertCharacters(e.key, range);
+        this.history.push(this.state);
+
+        this.state = newState;
+
+        this.root = RichTextEditor.buildModelFromState(this.state);
+
+        // let newCaretOffset = -1;
 
         this.render();
 
-        // position cursor at end of "to" offset (move out of class)
+        // // position cursor at end of "to" offset (move out of class)
 
-        newCaretOffset = range.from.offset + characters.length;
+        // newCaretOffset = range.from.offset + characters.length;
 
-        this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
+        // this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
 
         e.preventDefault();
     }
@@ -85,8 +83,6 @@ class RichTextEditor {
         let node = root;
         let index = -1;
         let i = 0;
-
-        console.log(path, node);
 
         while (typeof (index = path[i]) === 'number') {
             node = node.childNodes[index];
@@ -112,7 +108,7 @@ class RichTextEditor {
             virtualExtentNode = this.getNodeByPath(extentPath, this.root);
         }
 
-        isRtl = extentPath < anchorPath;
+        isRtl = extentPath < anchorPath || !(extentPath > anchorPath) && selection.anchorOffset > selection.extentOffset;
 
         from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
         from.offset = to.offset = isRtl ? selection.extentOffset : selection.anchorOffset;
@@ -137,6 +133,17 @@ class RichTextEditor {
 
         selection.removeAllRanges();
         selection.addRange(range);
+    }
+
+    static buildModelFromState(state) {
+        const root = new Node();
+
+        root.start = 0;
+        root.end = state.text.length - 1;
+
+        TreeBuilder.buildTree(state.text, state.markups, root);
+
+        return root;
     }
 }
 

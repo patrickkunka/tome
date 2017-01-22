@@ -60,19 +60,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(6);
+	var _data = __webpack_require__(11);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function factory(el, configRaw) {
+	function factory(el) {
 	    var richTextEditor = new _RichTextEditor2.default();
 	
-	    richTextEditor.attach(el, configRaw || {
-	        text: _data2.default.text,
-	        format: _data2.default.format
-	    });
+	    richTextEditor.attach(el, _data2.default);
 	
 	    return richTextEditor;
 	}
@@ -91,10 +88,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Config = __webpack_require__(2);
-	
-	var _Config2 = _interopRequireDefault(_Config);
-	
 	var _Dom = __webpack_require__(3);
 	
 	var _Dom2 = _interopRequireDefault(_Dom);
@@ -103,27 +96,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Formatlet = __webpack_require__(5);
+	var _Markup = __webpack_require__(5);
 	
-	var _Formatlet2 = _interopRequireDefault(_Formatlet);
+	var _Markup2 = _interopRequireDefault(_Markup);
 	
-	var _Node = __webpack_require__(7);
+	var _Node = __webpack_require__(6);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
-	var _Caret = __webpack_require__(10);
+	var _Caret = __webpack_require__(7);
 	
 	var _Caret2 = _interopRequireDefault(_Caret);
 	
-	var _Range = __webpack_require__(11);
+	var _Range = __webpack_require__(8);
 	
 	var _Range2 = _interopRequireDefault(_Range);
 	
-	var _TreeBuilder = __webpack_require__(8);
+	var _State = __webpack_require__(12);
+	
+	var _State2 = _interopRequireDefault(_State);
+	
+	var _Editor = __webpack_require__(13);
+	
+	var _Editor2 = _interopRequireDefault(_Editor);
+	
+	var _TreeBuilder = __webpack_require__(9);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(9);
+	var _Renderer = __webpack_require__(10);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
@@ -136,39 +137,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, RichTextEditor);
 	
 	        this.dom = new _Dom2.default();
-	        this.config = new _Config2.default();
+	        this.state = new _State2.default();
 	        this.root = null;
+	        this.history = [];
 	    }
 	
 	    _createClass(RichTextEditor, [{
 	        key: 'attach',
-	        value: function attach(el, configRaw) {
+	        value: function attach(el, initialState) {
 	            this.dom.root = el;
 	
-	            _Util2.default.extend(this.config, configRaw);
+	            _Util2.default.extend(this.state, initialState);
 	
-	            this.transformData();
+	            this.state.markups = this.state.markups.map(function (markup) {
+	                return new _Markup2.default(markup);
+	            });
+	
+	            this.root = RichTextEditor.buildModelFromState(this.state);
 	
 	            this.render();
 	
 	            this.bindEvents();
-	        }
-	    }, {
-	        key: 'transformData',
-	        value: function transformData() {
-	            var text = this.config.text;
-	            var format = this.config.format.map(function (format) {
-	                return new _Formatlet2.default(format);
-	            });
-	
-	            this.root = new _Node2.default();
-	
-	            this.root.start = 0;
-	            this.root.end = text.length - 1;
-	
-	            _TreeBuilder2.default.buildTree(text, format, this.root);
-	
-	            console.log(this.root);
 	        }
 	    }, {
 	        key: 'render',
@@ -186,18 +175,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
 	            var characters = e.key;
+	            var fromIndex = range.from.node.start + range.from.offset;
+	            var toIndex = range.to.node.start + range.to.offset;
 	
-	            var newCaretOffset = -1;
+	            var newState = _Editor2.default.insertCharacters(this.state, characters, fromIndex, toIndex);
 	
-	            _TreeBuilder2.default.insertCharacters(e.key, range);
+	            this.history.push(this.state);
+	
+	            this.state = newState;
+	
+	            this.root = RichTextEditor.buildModelFromState(this.state);
+	
+	            // let newCaretOffset = -1;
 	
 	            this.render();
 	
-	            // position cursor at end of "to" offset (move out of class)
+	            // // position cursor at end of "to" offset (move out of class)
 	
-	            newCaretOffset = range.from.offset + characters.length;
+	            // newCaretOffset = range.from.offset + characters.length;
 	
-	            this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
+	            // this.positionCaretByPathAndOffset(range.from.path, newCaretOffset);
 	
 	            e.preventDefault();
 	        }
@@ -220,8 +217,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var node = root;
 	            var index = -1;
 	            var i = 0;
-	
-	            console.log(path, node);
 	
 	            while (typeof (index = path[i]) === 'number') {
 	                node = node.childNodes[index];
@@ -248,7 +243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                virtualExtentNode = this.getNodeByPath(extentPath, this.root);
 	            }
 	
-	            isRtl = extentPath < anchorPath;
+	            isRtl = extentPath < anchorPath || !(extentPath > anchorPath) && selection.anchorOffset > selection.extentOffset;
 	
 	            from.node = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
 	            from.offset = to.offset = isRtl ? selection.extentOffset : selection.anchorOffset;
@@ -275,6 +270,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            selection.removeAllRanges();
 	            selection.addRange(range);
 	        }
+	    }], [{
+	        key: 'buildModelFromState',
+	        value: function buildModelFromState(state) {
+	            var root = new _Node2.default();
+	
+	            root.start = 0;
+	            root.end = state.text.length - 1;
+	
+	            _TreeBuilder2.default.buildTree(state.text, state.markups, root);
+	
+	            return root;
+	        }
 	    }]);
 	
 	    return RichTextEditor;
@@ -283,29 +290,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = RichTextEditor;
 
 /***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Config = function Config() {
-	    _classCallCheck(this, Config);
-	
-	    this.text = '';
-	    this.format = [];
-	
-	    Object.seal(this);
-	};
-	
-	exports.default = Config;
-
-/***/ },
+/* 2 */,
 /* 3 */
 /***/ function(module, exports) {
 
@@ -602,7 +587,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 5 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -612,55 +597,56 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Formatlet = function Formatlet(_ref) {
-	    var _ref2 = _slicedToArray(_ref, 3),
-	        tag = _ref2[0],
-	        start = _ref2[1],
-	        end = _ref2[2];
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
-	    _classCallCheck(this, Formatlet);
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	    this.tag = tag;
-	    this.start = start;
-	    this.end = end;
+	var Markup = function (_Array) {
+	    _inherits(Markup, _Array);
 	
-	    Object.seal(this);
-	};
+	    function Markup(_ref) {
+	        var _ref2 = _slicedToArray(_ref, 3),
+	            tag = _ref2[0],
+	            start = _ref2[1],
+	            end = _ref2[2];
 	
-	exports.default = Formatlet;
+	        _classCallCheck(this, Markup);
+	
+	        var _this = _possibleConstructorReturn(this, (Markup.__proto__ || Object.getPrototypeOf(Markup)).call(this));
+	
+	        _this[0] = tag;
+	        _this[1] = start;
+	        _this[2] = end;
+	
+	        Object.defineProperties(_this, {
+	            type: {
+	                get: function get() {
+	                    return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].indexOf(this[0]) > -1 ? 'block' : 'inline';
+	                }
+	            },
+	            isBlock: {
+	                get: function get() {
+	                    return this.type === 'block';
+	                }
+	            },
+	            isInline: {
+	                get: function get() {
+	                    return this.type === 'inline';
+	                }
+	            }
+	        });
+	
+	        Object.seal(_this);
+	        return _this;
+	    }
+	
+	    return Markup;
+	}(Array);
+	
+	exports.default = Markup;
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
-		"format": [
-			[
-				"p",
-				0,
-				26
-			],
-			[
-				"em",
-				6,
-				16
-			],
-			[
-				"strong",
-				12,
-				16
-			],
-			[
-				"h2",
-				28,
-				50
-			]
-		]
-	};
-
-/***/ },
-/* 7 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -686,7 +672,54 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Node;
 
 /***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Caret = function Caret() {
+	    _classCallCheck(this, Caret);
+	
+	    this.path = null;
+	    this.node = null;
+	    this.offset = null;
+	
+	    Object.seal(this);
+	};
+	
+	exports.default = Caret;
+
+/***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Range = function Range(from, to) {
+	    _classCallCheck(this, Range);
+	
+	    this.from = from;
+	    this.to = to;
+	
+	    Object.seal(this);
+	};
+	
+	exports.default = Range;
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -697,7 +730,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Node = __webpack_require__(7);
+	var _Node = __webpack_require__(6);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
@@ -712,21 +745,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(TreeBuilder, null, [{
 	        key: 'buildTree',
-	        value: function buildTree(text, formattings, parent) {
+	        value: function buildTree(text, markups, parent) {
 	            var startIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
 	
 	            var lastSibling = null;
 	
-	            for (var i = startIndex; i < formattings.length; i++) {
-	                var formatting = formattings[i];
+	            for (var i = startIndex; i < markups.length; i++) {
+	                var markup = markups[i];
 	
-	                if (lastSibling && formatting.end <= lastSibling.end) {
+	                if (lastSibling && markup[2] <= lastSibling.end) {
 	                    // Recurse down
 	
 	                    lastSibling.childNodes.length = 0;
 	
-	                    i = TreeBuilder.buildTree(text, formattings, lastSibling, i);
-	                } else if (formatting.start > parent.end) {
+	                    i = TreeBuilder.buildTree(text, markups, lastSibling, i);
+	                } else if (markup[1] > parent.end) {
 	                    // Return up
 	
 	                    if (lastSibling.end < parent.end) {
@@ -741,17 +774,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    // First child or sibling
 	
-	                    if (formatting.start > lastIndex) {
+	                    if (markup[1] > lastIndex) {
 	                        // Preceeded by text node
 	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, formatting.start - 1, text));
+	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text));
 	                    }
 	
-	                    lastSibling = TreeBuilder.getNode(formatting.tag, formatting.start, formatting.end, text);
+	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text);
 	
 	                    // Create internal text node
 	
-	                    lastSibling.childNodes.push(TreeBuilder.getNode('', formatting.start, formatting.end, text));
+	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text));
 	
 	                    parent.childNodes.push(lastSibling);
 	                }
@@ -795,7 +828,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -847,34 +880,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Caret = function Caret() {
-	    _classCallCheck(this, Caret);
-	
-	    this.path = null;
-	    this.node = null;
-	    this.offset = null;
-	
-	    Object.seal(this);
-	};
-	
-	exports.default = Caret;
-
-/***/ },
 /* 11 */
 /***/ function(module, exports) {
 
-	"use strict";
+	module.exports = {
+		"text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
+		"markups": [
+			[
+				"p",
+				0,
+				26
+			],
+			[
+				"em",
+				6,
+				16
+			],
+			[
+				"strong",
+				12,
+				16
+			],
+			[
+				"h2",
+				28,
+				50
+			]
+		]
+	};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -882,16 +921,124 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Range = function Range(from, to) {
-	    _classCallCheck(this, Range);
+	var State = function State() {
+	    _classCallCheck(this, State);
 	
-	    this.from = from;
-	    this.to = to;
+	    this.text = '';
+	    this.markups = [];
+	    this.selection = [];
 	
 	    Object.seal(this);
 	};
 	
-	exports.default = Range;
+	exports.default = State;
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _State = __webpack_require__(12);
+	
+	var _State2 = _interopRequireDefault(_State);
+	
+	var _Markup = __webpack_require__(5);
+	
+	var _Markup2 = _interopRequireDefault(_Markup);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Editor = function () {
+	    function Editor() {
+	        _classCallCheck(this, Editor);
+	    }
+	
+	    _createClass(Editor, null, [{
+	        key: 'insertCharacters',
+	        value: function insertCharacters(state, characters, fromIndex, toIndex) {
+	            var newState = new _State2.default();
+	            var totalDeleted = toIndex - fromIndex;
+	            var totalAdded = characters.length;
+	            var adjustment = totalAdded - totalDeleted;
+	
+	            newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
+	
+	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment);
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'adjustMarkups',
+	        value: function adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
+	            var newMarkups = [];
+	
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup = markup,
+	                    _markup2 = _slicedToArray(_markup, 3),
+	                    tag = _markup2[0],
+	                    start = _markup2[1],
+	                    end = _markup2[2];
+	
+	                var newMarkup = new _Markup2.default(markup);
+	
+	                if (!(markup instanceof _Markup2.default)) {
+	                    markup = new _Markup2.default(markup);
+	                }
+	
+	                if (start <= fromIndex && end >= toIndex) {
+	                    // Selection within markup or equal to markup
+	
+	                    newMarkup[2] += adjustment;
+	
+	                    if (markup.isInline && start === fromIndex && fromIndex === toIndex) {
+	                        // Collapsed caret at start of inline markup
+	
+	                        newMarkup[1] += adjustment;
+	                    }
+	                } else if (start > toIndex) {
+	                    // Markup after Selection
+	
+	                    newMarkup[1] += adjustment;
+	                    newMarkup[2] += adjustment;
+	                } else if (end < fromIndex) {
+	                    // Markup before Selection (maintain)
+	                } else if (fromIndex < start && toIndex > start && toIndex < end) {
+	                    // Selection partially envelopes markup from start
+	
+	                    newMarkup[1] += adjustment + (toIndex - start);
+	                    newMarkup[2] += adjustment;
+	                } else if (fromIndex > start && fromIndex < end && toIndex > end) {
+	                    // Selection partially envelopes markup from end
+	
+	                    newMarkup[2] += end - fromIndex + totalAdded;
+	                } else {
+	                    // Selection completely envelopes markup
+	
+	                    continue;
+	                }
+	
+	                newMarkups.push(newMarkup);
+	            }
+	
+	            return newMarkups;
+	        }
+	    }]);
+	
+	    return Editor;
+	}();
+	
+	exports.default = Editor;
 
 /***/ }
 /******/ ])

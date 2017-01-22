@@ -1,19 +1,19 @@
 import Node from './models/Node';
 
 class TreeBuilder {
-    static buildTree(text, formattings, parent, startIndex=0) {
+    static buildTree(text, markups, parent, startIndex=0) {
         let lastSibling = null;
 
-        for (let i = startIndex; i < formattings.length; i++) {
-            const formatting = formattings[i];
+        for (let i = startIndex; i < markups.length; i++) {
+            const markup = markups[i];
 
-            if (lastSibling && formatting.end <= lastSibling.end) {
+            if (lastSibling && markup[2] <= lastSibling.end) {
                 // Recurse down
 
                 lastSibling.childNodes.length = 0;
 
-                i = TreeBuilder.buildTree(text, formattings, lastSibling, i);
-            } else if (formatting.start > parent.end) {
+                i = TreeBuilder.buildTree(text, markups, lastSibling, i);
+            } else if (markup[1] > parent.end) {
                 // Return up
 
                 if (lastSibling.end < parent.end) {
@@ -28,17 +28,17 @@ class TreeBuilder {
 
                 // First child or sibling
 
-                if (formatting.start > lastIndex) {
+                if (markup[1] > lastIndex) {
                     // Preceeded by text node
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, formatting.start - 1, text));
+                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text));
                 }
 
-                lastSibling = TreeBuilder.getNode(formatting.tag, formatting.start, formatting.end, text);
+                lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text);
 
                 // Create internal text node
 
-                lastSibling.childNodes.push(TreeBuilder.getNode('', formatting.start, formatting.end, text));
+                lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text));
 
                 parent.childNodes.push(lastSibling);
             }

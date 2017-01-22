@@ -1,6 +1,6 @@
 {
     "text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
-    "format": [
+    "markups": [
         ["p", 0, 26],
         ["em", 6, 16],
         ["strong", 12, 16],
