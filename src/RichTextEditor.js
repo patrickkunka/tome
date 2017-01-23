@@ -155,7 +155,7 @@ class RichTextEditor {
         const root = new Node();
 
         root.start = 0;
-        root.end = state.text.length - 1;
+        root.end = state.length;
 
         TreeBuilder.buildTree(state.text, state.markups, root);
 

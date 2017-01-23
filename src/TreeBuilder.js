@@ -53,6 +53,16 @@ class TreeBuilder {
 
                 parent.childNodes.push(lastSibling);
             }
+
+            if (parent.isBlock) {
+                // TODO: need a way to detect that this is the last inline node in a
+                // block parent, but there are characters subsequent characters
+                // unaccounted for as there are no further markups
+
+                // path = parent.path.slice().concat([index++]);
+
+                // parent.childNodes.push(TreeBuilder.getNode('', markup[2], text.length, text, path));
+            }
         }
     }
 

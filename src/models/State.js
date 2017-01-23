@@ -6,6 +6,10 @@ class State {
 
         Object.seal(this);
     }
+
+    get length() {
+        return this.text.length;
+    }
 }
 
 export default State;

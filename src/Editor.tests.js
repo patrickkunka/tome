@@ -244,4 +244,40 @@ describe('Editor', () => {
         assert.equal(newState.markups[1][2], 11);
         assert.isNotOk(newState.markups[2]);
     });
+
+    it('should combine two block markups which are each partially enveloped', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['p', 19, 28]
+            ]
+        };
+
+        const newState = Editor.insertCharacters(state, '', 11, 22);
+
+        assert.equal(newState.text, 'Lorem ipsum amet.');
+        assert.equal(newState.markups[0][2], 17);
+        assert.isNotOk(newState.markups[1]);
+    });
+
+    it('should combine two block markups containing inline markups which are each partially enveloped', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['em', 6, 11],
+                ['p', 19, 28]
+            ]
+        };
+
+        const newState = Editor.insertCharacters(state, '', 11, 22);
+
+        assert.equal(newState.text, 'Lorem ipsum amet.');
+        assert.equal(newState.markups[0][2], 17);
+        assert.isOk(newState.markups[1]);
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 11);
+        assert.isNotOk(newState.markups[2]);
+    });
 });

@@ -10,7 +10,7 @@ class Editor {
 
         newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
 
-        newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment);
+        newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment, newState.text);
 
         newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
 
@@ -24,13 +24,17 @@ class Editor {
             const [tag, start, end] = markup;
             const newMarkup = new Markup(markup);
 
+            let removeMarkup = false;
+
             if (!(markup instanceof Markup)) {
                 markup = new Markup(markup);
             }
 
             // Selection completely envelopes markup
 
-            if (start > fromIndex && end < toIndex) continue;
+            if (start > fromIndex && end < toIndex) {
+                removeMarkup = true;
+            }
 
             if (start <= fromIndex && end >= toIndex) {
                 // Selection within markup or equal to markup
@@ -50,18 +54,50 @@ class Editor {
             } else if (fromIndex < start && toIndex > start && toIndex < end) {
                 // Selection partially envelopes markup from start
 
-                newMarkup[1] += (adjustment + (toIndex - start));
-                newMarkup[2] += adjustment;
+                if (markup.isInline) {
+                    newMarkup[1] += (adjustment + (toIndex - start));
+                    newMarkup[2] += adjustment;
+                } else {
+                    // Previous block markup will consume this one, remove
+
+                    removeMarkup = true;
+                }
             } else if (fromIndex > start && fromIndex < end && toIndex > end) {
                 // Selection partially envelopes markup from end
 
-                newMarkup[2] = fromIndex + totalAdded;
+                if (markup.isInline) {
+                    // Extend inline markup to end of insertion
+
+                    newMarkup[2] = fromIndex + totalAdded;
+                } else {
+                    const nextBlockMarkup = Editor.getNextBlockMarkup(markups, i);
+
+                    // Extend block markup to end of next block +/- adjustment
+
+                    newMarkup[2] = nextBlockMarkup[2] + adjustment;
+                }
             }
 
-            newMarkups.push(newMarkup);
+            if (!removeMarkup) {
+                newMarkups.push(newMarkup);
+            }
         }
 
         return newMarkups;
+    }
+
+    static getNextBlockMarkup(markups, index) {
+        for (let i = index + 1, markup; (markup = markups[i]); i++) {
+            if (!(markup instanceof Markup)) {
+                markup = new Markup(markup);
+            }
+
+            if (markup.isBlock) {
+                return markup;
+            }
+        }
+
+        return null;
     }
 }
 

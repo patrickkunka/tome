@@ -298,7 +298,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var root = new _Node2.default();
 	
 	            root.start = 0;
-	            root.end = state.text.length - 1;
+	            root.end = state.length;
 	
 	            _TreeBuilder2.default.buildTree(state.text, state.markups, root);
 	
@@ -750,17 +750,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var State = function State() {
-	    _classCallCheck(this, State);
+	var State = function () {
+	    function State() {
+	        _classCallCheck(this, State);
 	
-	    this.text = '';
-	    this.markups = [];
-	    this.selection = [];
+	        this.text = '';
+	        this.markups = [];
+	        this.selection = [];
 	
-	    Object.seal(this);
-	};
+	        Object.seal(this);
+	    }
+	
+	    _createClass(State, [{
+	        key: 'length',
+	        get: function get() {
+	            return this.text.length;
+	        }
+	    }]);
+	
+	    return State;
+	}();
 	
 	exports.default = State;
 
@@ -805,7 +818,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
 	
-	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment);
+	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment, newState.text);
 	
 	            newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
 	
@@ -825,13 +838,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                var newMarkup = new _Markup2.default(markup);
 	
+	                var removeMarkup = false;
+	
 	                if (!(markup instanceof _Markup2.default)) {
 	                    markup = new _Markup2.default(markup);
 	                }
 	
 	                // Selection completely envelopes markup
 	
-	                if (start > fromIndex && end < toIndex) continue;
+	                if (start > fromIndex && end < toIndex) {
+	                    removeMarkup = true;
+	                }
 	
 	                if (start <= fromIndex && end >= toIndex) {
 	                    // Selection within markup or equal to markup
@@ -851,18 +868,51 @@ return /******/ (function(modules) { // webpackBootstrap
 	                } else if (fromIndex < start && toIndex > start && toIndex < end) {
 	                    // Selection partially envelopes markup from start
 	
-	                    newMarkup[1] += adjustment + (toIndex - start);
-	                    newMarkup[2] += adjustment;
+	                    if (markup.isInline) {
+	                        newMarkup[1] += adjustment + (toIndex - start);
+	                        newMarkup[2] += adjustment;
+	                    } else {
+	                        // Previous block markup will consume this one, remove
+	
+	                        removeMarkup = true;
+	                    }
 	                } else if (fromIndex > start && fromIndex < end && toIndex > end) {
 	                    // Selection partially envelopes markup from end
 	
-	                    newMarkup[2] = fromIndex + totalAdded;
+	                    if (markup.isInline) {
+	                        // Extend inline markup to end of insertion
+	
+	                        newMarkup[2] = fromIndex + totalAdded;
+	                    } else {
+	                        var nextBlockMarkup = Editor.getNextBlockMarkup(markups, i);
+	
+	                        // Extend block markup to end of next block +/- adjustment
+	
+	                        newMarkup[2] = nextBlockMarkup[2] + adjustment;
+	                    }
 	                }
 	
-	                newMarkups.push(newMarkup);
+	                if (!removeMarkup) {
+	                    newMarkups.push(newMarkup);
+	                }
 	            }
 	
 	            return newMarkups;
+	        }
+	    }, {
+	        key: 'getNextBlockMarkup',
+	        value: function getNextBlockMarkup(markups, index) {
+	            for (var i = index + 1, markup; markup = markups[i]; i++) {
+	                if (!(markup instanceof _Markup2.default)) {
+	                    markup = new _Markup2.default(markup);
+	                }
+	
+	                if (markup.isBlock) {
+	                    return markup;
+	                }
+	            }
+	
+	            return null;
 	        }
 	    }]);
 	
@@ -951,6 +1001,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
 	
 	                    parent.childNodes.push(lastSibling);
+	                }
+	
+	                if (parent.isBlock) {
+	                    // TODO: need a way to detect that this is the last inline node in a
+	                    // block parent, but there are characters subsequent characters
+	                    // unaccounted for as there are no further markups
+	
+	                    // path = parent.path.slice().concat([index++]);
+	
+	                    // parent.childNodes.push(TreeBuilder.getNode('', markup[2], text.length, text, path));
 	                }
 	            }
 	        }
