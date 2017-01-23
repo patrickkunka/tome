@@ -37,7 +37,24 @@ describe('Editor', () => {
         assert.equal(newState.markups[0][2], 18);
     });
 
-    it('should extend the markup if characters are inserted at its end', () => {
+    it('should extend an inline markup if characters are inserted at its end', () => {
+        const state = {
+            text: 'Lorem ipsum dolor sit amet.',
+            markups: [
+                ['p', 0, 27],
+                ['em', 6, 17]
+            ]
+        };
+
+        const newState = Editor.insertCharacters(state, 's', 17, 17);
+
+        assert.equal(newState.text, 'Lorem ipsum dolors sit amet.');
+        assert.equal(newState.markups[0][2], 28);
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 18);
+    });
+
+    it('should extend a block markup if characters are inserted at its end', () => {
         const state = {
             text: 'Lorem ipsum.',
             markups: [
@@ -66,7 +83,7 @@ describe('Editor', () => {
         assert.equal(newState.markups[0][2], 16);
     });
 
-    it('should shunt an inline markup if characters are inserted at its start', () => {
+    it('should shunt an inline markup at the start if characters are inserted at its start', () => {
         const state = {
             text: 'Lorem ipsum.',
             markups: [
@@ -80,6 +97,24 @@ describe('Editor', () => {
         assert.equal(newState.text, 'Foo Lorem ipsum.');
         assert.equal(newState.markups[0][1], 0);
         assert.equal(newState.markups[0][2], 16);
+        assert.equal(newState.markups[1][1], 4);
+        assert.equal(newState.markups[1][2], 9);
+    });
+
+    it('should shunt an inline markup if characters are replaced at its start', () => {
+        const state = {
+            text: 'Lorem ipsum.',
+            markups: [
+                ['p', 0, 12],
+                ['strong', 6, 11]
+            ]
+        };
+
+        const newState = Editor.insertCharacters(state, 'f', 3, 6);
+
+        assert.equal(newState.text, 'Lorfipsum.');
+        assert.equal(newState.markups[0][1], 0);
+        assert.equal(newState.markups[0][2], 10);
         assert.equal(newState.markups[1][1], 4);
         assert.equal(newState.markups[1][2], 9);
     });

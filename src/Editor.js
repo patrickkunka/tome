@@ -42,8 +42,8 @@ class Editor {
 
                     newMarkup[1] += adjustment;
                 }
-            } else if (start > toIndex) {
-                // Markup after Selection
+            } else if (start >= toIndex) {
+                // Markup starts after Selection
 
                 newMarkup[1] += adjustment;
                 newMarkup[2] += adjustment;

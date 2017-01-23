@@ -1,9 +1,9 @@
 {
     "text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
     "markups": [
-        ["p", 0, 26],
-        ["em", 6, 16],
-        ["strong", 12, 16],
+        ["p", 0, 27],
+        ["em", 6, 17],
+        ["strong", 12, 17],
         ["h2", 28, 50]
     ]
 }

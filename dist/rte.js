@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(11);
+	var _data = __webpack_require__(12);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -90,43 +90,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Dom = __webpack_require__(3);
+	var _Dom = __webpack_require__(2);
 	
 	var _Dom2 = _interopRequireDefault(_Dom);
 	
-	var _Util = __webpack_require__(4);
+	var _Util = __webpack_require__(3);
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Markup = __webpack_require__(5);
+	var _Markup = __webpack_require__(4);
 	
 	var _Markup2 = _interopRequireDefault(_Markup);
 	
-	var _Node = __webpack_require__(6);
+	var _Node = __webpack_require__(5);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
-	var _Caret = __webpack_require__(7);
+	var _Caret = __webpack_require__(6);
 	
 	var _Caret2 = _interopRequireDefault(_Caret);
 	
-	var _Range = __webpack_require__(8);
+	var _Range = __webpack_require__(7);
 	
 	var _Range2 = _interopRequireDefault(_Range);
 	
-	var _State = __webpack_require__(12);
+	var _State = __webpack_require__(8);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
-	var _Editor = __webpack_require__(13);
+	var _Editor = __webpack_require__(9);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
-	var _TreeBuilder = __webpack_require__(9);
+	var _TreeBuilder = __webpack_require__(10);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(10);
+	var _Renderer = __webpack_require__(11);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
@@ -312,8 +312,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = RichTextEditor;
 
 /***/ },
-/* 2 */,
-/* 3 */
+/* 2 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -335,7 +334,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Dom;
 
 /***/ },
-/* 4 */
+/* 3 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -606,7 +605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Util;
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -668,7 +667,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Markup;
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -695,7 +694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Node;
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -719,7 +718,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Caret;
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -742,210 +741,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Range;
 
 /***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _Node = __webpack_require__(6);
-	
-	var _Node2 = _interopRequireDefault(_Node);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var TreeBuilder = function () {
-	    function TreeBuilder() {
-	        _classCallCheck(this, TreeBuilder);
-	    }
-	
-	    _createClass(TreeBuilder, null, [{
-	        key: 'buildTree',
-	        value: function buildTree(text, markups, parent) {
-	            var startIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-	
-	            var lastSibling = null;
-	
-	            var path = null;
-	            var index = 0;
-	
-	            for (var i = startIndex; i < markups.length; i++) {
-	                var markup = markups[i];
-	
-	                if (lastSibling && markup[2] <= lastSibling.end) {
-	                    // Recurse down
-	
-	                    lastSibling.childNodes.length = 0;
-	
-	                    i = TreeBuilder.buildTree(text, markups, lastSibling, i);
-	                } else if (markup[1] > parent.end) {
-	                    // Return up
-	
-	                    if (lastSibling.end < parent.end) {
-	                        // Preceeded by text node
-	
-	                        path = parent.path.slice().concat([index++]);
-	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text, path));
-	                    }
-	
-	                    return i - 1;
-	                } else {
-	                    var lastIndex = lastSibling ? lastSibling.end + 1 : parent.start;
-	
-	                    // First child or sibling
-	
-	                    if (markup[1] > lastIndex) {
-	                        // Preceeded by text node
-	
-	                        path = parent.path.slice().concat([index++]);
-	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text, path));
-	                    }
-	
-	                    path = parent.path.slice().concat([index++]);
-	
-	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
-	
-	                    // Create internal text node
-	
-	                    path = path.slice().concat(0);
-	
-	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
-	
-	                    parent.childNodes.push(lastSibling);
-	                }
-	            }
-	        }
-	    }, {
-	        key: 'getNode',
-	        value: function getNode(tag, start, end, text, path) {
-	            var node = new _Node2.default();
-	
-	            node.tag = tag;
-	            node.start = start;
-	            node.end = end;
-	            node.path = path;
-	
-	            if (!tag) {
-	                node.text = text.slice(start, end + 1);
-	            }
-	
-	            return node;
-	        }
-	    }, {
-	        key: 'insertCharacters',
-	        value: function insertCharacters(characters, range) {
-	            if (range.from.node === range.to.node) {
-	                var node = range.from.node;
-	
-	                // Same node
-	
-	                node.text = node.text.slice(0, range.from.offset) + characters + node.text.slice(range.to.offset);
-	            }
-	
-	            // TODO: increment all start/end values in subsequent nodes
-	
-	            // TODO: return closest common ancestor node for re-rendering (not in this class)
-	        }
-	    }]);
-	
-	    return TreeBuilder;
-	}();
-	
-	exports.default = TreeBuilder;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var Renderer = function () {
-	    function Renderer() {
-	        _classCallCheck(this, Renderer);
-	    }
-	
-	    _createClass(Renderer, null, [{
-	        key: 'renderNodes',
-	        value: function renderNodes(nodes) {
-	            return nodes.map(Renderer.renderNode).join('');
-	        }
-	    }, {
-	        key: 'renderNode',
-	        value: function renderNode(node) {
-	            var html = '';
-	
-	            if (node.tag) {
-	                html += '<' + node.tag + '>';
-	            }
-	
-	            if (node.childNodes.length) {
-	                html += Renderer.renderNodes(node.childNodes);
-	            } else {
-	                html += node.text;
-	            }
-	
-	            if (node.tag) {
-	                html += '</' + node.tag + '>';
-	            }
-	
-	            return html;
-	        }
-	    }]);
-	
-	    return Renderer;
-	}();
-	
-	exports.default = Renderer;
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
-		"markups": [
-			[
-				"p",
-				0,
-				26
-			],
-			[
-				"em",
-				6,
-				16
-			],
-			[
-				"strong",
-				12,
-				16
-			],
-			[
-				"h2",
-				28,
-				50
-			]
-		]
-	};
-
-/***/ },
-/* 12 */
+/* 8 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -969,7 +765,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = State;
 
 /***/ },
-/* 13 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -982,11 +778,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _State = __webpack_require__(12);
+	var _State = __webpack_require__(8);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
-	var _Markup = __webpack_require__(5);
+	var _Markup = __webpack_require__(4);
 	
 	var _Markup2 = _interopRequireDefault(_Markup);
 	
@@ -1047,8 +843,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                        newMarkup[1] += adjustment;
 	                    }
-	                } else if (start > toIndex) {
-	                    // Markup after Selection
+	                } else if (start >= toIndex) {
+	                    // Markup starts after Selection
 	
 	                    newMarkup[1] += adjustment;
 	                    newMarkup[2] += adjustment;
@@ -1074,6 +870,209 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 	
 	exports.default = Editor;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Node = __webpack_require__(5);
+	
+	var _Node2 = _interopRequireDefault(_Node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var TreeBuilder = function () {
+	    function TreeBuilder() {
+	        _classCallCheck(this, TreeBuilder);
+	    }
+	
+	    _createClass(TreeBuilder, null, [{
+	        key: 'buildTree',
+	        value: function buildTree(text, markups, parent) {
+	            var startIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+	
+	            var lastSibling = null;
+	
+	            var path = null;
+	            var index = 0;
+	
+	            for (var i = startIndex; i < markups.length; i++) {
+	                var markup = markups[i];
+	
+	                if (lastSibling && markup[2] <= lastSibling.end) {
+	                    // Recurse down
+	
+	                    lastSibling.childNodes.length = 0;
+	
+	                    i = TreeBuilder.buildTree(text, markups, lastSibling, i);
+	                } else if (markup[1] > parent.end) {
+	                    // Return up
+	
+	                    if (lastSibling.end < parent.end) {
+	                        // Preceeded by text node
+	
+	                        path = parent.path.slice().concat([index++]);
+	
+	                        parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end, parent.end, text, path));
+	                    }
+	
+	                    return i - 1;
+	                } else {
+	                    var lastIndex = lastSibling ? lastSibling.end + 1 : parent.start;
+	
+	                    // First child or sibling
+	
+	                    if (markup[1] > lastIndex) {
+	                        // Preceeded by text node
+	
+	                        path = parent.path.slice().concat([index++]);
+	
+	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1], text, path));
+	                    }
+	
+	                    path = parent.path.slice().concat([index++]);
+	
+	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
+	
+	                    // Create internal text node
+	
+	                    path = path.slice().concat(0);
+	
+	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
+	
+	                    parent.childNodes.push(lastSibling);
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'getNode',
+	        value: function getNode(tag, start, end, text, path) {
+	            var node = new _Node2.default();
+	
+	            node.tag = tag;
+	            node.start = start;
+	            node.end = end;
+	            node.path = path;
+	
+	            if (!tag) {
+	                node.text = text.slice(start, end);
+	            }
+	
+	            return node;
+	        }
+	    }, {
+	        key: 'insertCharacters',
+	        value: function insertCharacters(characters, range) {
+	            if (range.from.node === range.to.node) {
+	                var node = range.from.node;
+	
+	                // Same node
+	
+	                node.text = node.text.slice(0, range.from.offset) + characters + node.text.slice(range.to.offset);
+	            }
+	
+	            // TODO: increment all start/end values in subsequent nodes
+	
+	            // TODO: return closest common ancestor node for re-rendering (not in this class)
+	        }
+	    }]);
+	
+	    return TreeBuilder;
+	}();
+	
+	exports.default = TreeBuilder;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Renderer = function () {
+	    function Renderer() {
+	        _classCallCheck(this, Renderer);
+	    }
+	
+	    _createClass(Renderer, null, [{
+	        key: 'renderNodes',
+	        value: function renderNodes(nodes) {
+	            return nodes.map(Renderer.renderNode).join('');
+	        }
+	    }, {
+	        key: 'renderNode',
+	        value: function renderNode(node) {
+	            var html = '';
+	
+	            if (node.tag) {
+	                html += '<' + node.tag + '>';
+	            }
+	
+	            if (node.childNodes.length) {
+	                html += Renderer.renderNodes(node.childNodes);
+	            } else {
+	                html += node.text;
+	            }
+	
+	            if (node.tag) {
+	                html += '</' + node.tag + '>';
+	            }
+	
+	            return html;
+	        }
+	    }]);
+	
+	    return Renderer;
+	}();
+	
+	exports.default = Renderer;
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
+		"markups": [
+			[
+				"p",
+				0,
+				27
+			],
+			[
+				"em",
+				6,
+				17
+			],
+			[
+				"strong",
+				12,
+				17
+			],
+			[
+				"h2",
+				28,
+				50
+			]
+		]
+	};
 
 /***/ }
 /******/ ])

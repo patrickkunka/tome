@@ -24,7 +24,7 @@ class TreeBuilder {
 
                     path = parent.path.slice().concat([index++]);
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end + 1, parent.end, text, path));
+                    parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end, parent.end, text, path));
                 }
 
                 return i - 1;
@@ -38,7 +38,7 @@ class TreeBuilder {
 
                     path = parent.path.slice().concat([index++]);
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1] - 1, text, path));
+                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1], text, path));
                 }
 
                 path = parent.path.slice().concat([index++]);
@@ -65,7 +65,7 @@ class TreeBuilder {
         node.path = path;
 
         if (!tag) {
-            node.text = text.slice(start, end + 1);
+            node.text = text.slice(start, end);
         }
 
         return node;
