@@ -157,6 +157,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.root = RichTextEditor.buildModelFromState(this.state);
 	
+	            console.log(this.root);
+	
 	            this.render();
 	
 	            this.bindEvents();
@@ -297,10 +299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function buildModelFromState(state) {
 	            var root = new _Node2.default();
 	
-	            root.start = 0;
-	            root.end = state.length;
-	
-	            _TreeBuilder2.default.buildTree(state.text, state.markups, root);
+	            _TreeBuilder2.default.buildTreeFromRoot(root, state.text, state.markups);
 	
 	            return root;
 	        }
@@ -676,20 +675,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Node = function Node() {
-	    _classCallCheck(this, Node);
+	var Node = function () {
+	    function Node() {
+	        _classCallCheck(this, Node);
 	
-	    this.childNodes = [];
-	    this.start = -1;
-	    this.end = -1;
-	    this.tag = '';
-	    this.text = '';
-	    this.path = [];
+	        this.childNodes = [];
+	        this.parent = null;
+	        this.start = -1;
+	        this.end = -1;
+	        this.tag = '';
+	        this.text = '';
+	        this.path = [];
 	
-	    Object.seal(this);
-	};
+	        Object.seal(this);
+	    }
+	
+	    _createClass(Node, [{
+	        key: 'isTextNode',
+	        get: function get() {
+	            return this.tag === '';
+	        }
+	    }]);
+	
+	    return Node;
+	}();
 	
 	exports.default = Node;
 
@@ -947,103 +960,122 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(TreeBuilder, null, [{
-	        key: 'buildTree',
-	        value: function buildTree(text, markups, parent) {
-	            var startIndex = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+	        key: 'buildTreeFromRoot',
 	
-	            var lastSibling = null;
+	        /**
+	         * @param   {Node}            root
+	         * @param   {string}          text
+	         * @param   {Array.<Markup>}  markups
+	         * @return  {void}
+	         */
 	
-	            var path = null;
-	            var index = 0;
+	        value: function buildTreeFromRoot(root, text, markups) {
+	            var openNodes = [];
 	
-	            for (var i = startIndex; i < markups.length; i++) {
-	                var markup = markups[i];
+	            var isAtLeaf = false;
+	            var node = root;
 	
-	                if (lastSibling && markup[2] <= lastSibling.end) {
-	                    // Recurse down
+	            node.start = 0;
+	            node.end = text.length;
 	
-	                    lastSibling.childNodes.length = 0;
+	            for (var i = 0; i <= text.length; i++) {
+	                var requiresNewLeaf = false;
 	
-	                    i = TreeBuilder.buildTree(text, markups, lastSibling, i);
-	                } else if (markup[1] > parent.end) {
-	                    // Return up
+	                for (var j = 0, markup; markup = markups[j]; j++) {
+	                    var closedNode = null;
 	
-	                    if (lastSibling.end < parent.end) {
-	                        // Preceeded by text node
+	                    if (markup[2] !== i) continue;
 	
-	                        path = parent.path.slice().concat([index++]);
+	                    if (isAtLeaf) {
+	                        var textNode = openNodes.pop();
 	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end, parent.end, text, path));
+	                        TreeBuilder.closeNode(textNode, i, text);
+	
+	                        isAtLeaf = false;
 	                    }
 	
-	                    return i - 1;
-	                } else {
-	                    var lastIndex = lastSibling ? lastSibling.end + 1 : parent.start;
+	                    requiresNewLeaf = true;
 	
-	                    // First child or sibling
+	                    closedNode = openNodes.pop();
 	
-	                    if (markup[1] > lastIndex) {
-	                        // Preceeded by text node
+	                    TreeBuilder.closeNode(closedNode, i, text);
 	
-	                        path = parent.path.slice().concat([index++]);
-	
-	                        parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1], text, path));
-	                    }
-	
-	                    path = parent.path.slice().concat([index++]);
-	
-	                    lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
-	
-	                    // Create internal text node
-	
-	                    path = path.slice().concat(0);
-	
-	                    lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
-	
-	                    parent.childNodes.push(lastSibling);
+	                    node = closedNode.parent;
 	                }
 	
-	                if (parent.isBlock) {
-	                    // TODO: need a way to detect that this is the last inline node in a
-	                    // block parent, but there are characters subsequent characters
-	                    // unaccounted for as there are no further markups
+	                for (var _j = 0, _markup; _markup = markups[_j]; _j++) {
+	                    var newNode = null;
 	
-	                    // path = parent.path.slice().concat([index++]);
+	                    if (_markup[1] !== i) continue;
 	
-	                    // parent.childNodes.push(TreeBuilder.getNode('', markup[2], text.length, text, path));
+	                    if (isAtLeaf) {
+	                        var _textNode = openNodes.pop();
+	
+	                        TreeBuilder.closeNode(_textNode, i, text);
+	
+	                        isAtLeaf = false;
+	                    }
+	
+	                    newNode = TreeBuilder.getOpenNode(_markup[0], i, node);
+	
+	                    openNodes.push(newNode);
+	
+	                    node.childNodes.push(newNode);
+	
+	                    node = newNode;
+	
+	                    requiresNewLeaf = true;
+	                }
+	
+	                if (requiresNewLeaf && i !== text.length) {
+	                    var leaf = TreeBuilder.getOpenNode('', i, node);
+	
+	                    openNodes.push(leaf);
+	
+	                    node.childNodes.push(leaf);
+	
+	                    isAtLeaf = true;
 	                }
 	            }
 	        }
+	
+	        /**
+	         * @param   {string}    tag
+	         * @param   {number}    i
+	         * @param   {Node}      parent
+	         * @return  {Node}
+	         */
+	
 	    }, {
-	        key: 'getNode',
-	        value: function getNode(tag, start, end, text, path) {
+	        key: 'getOpenNode',
+	        value: function getOpenNode(tag, start, parent) {
 	            var node = new _Node2.default();
 	
 	            node.tag = tag;
+	            node.parent = parent;
 	            node.start = start;
-	            node.end = end;
-	            node.path = path;
+	            node.path = parent.path.slice();
 	
-	            if (!tag) {
-	                node.text = text.slice(start, end);
-	            }
+	            node.path.push(parent.childNodes.length);
 	
 	            return node;
 	        }
+	
+	        /**
+	         * @param   {Node}      node
+	         * @param   {number}    end
+	         * @param   {string}    text
+	         * @return  {void}
+	         */
+	
 	    }, {
-	        key: 'insertCharacters',
-	        value: function insertCharacters(characters, range) {
-	            if (range.from.node === range.to.node) {
-	                var node = range.from.node;
+	        key: 'closeNode',
+	        value: function closeNode(node, end, text) {
+	            node.end = end;
 	
-	                // Same node
-	
-	                node.text = node.text.slice(0, range.from.offset) + characters + node.text.slice(range.to.offset);
+	            if (node.isTextNode) {
+	                node.text = text.slice(node.start, node.end);
 	            }
-	
-	            // TODO: increment all start/end values in subsequent nodes
-	
-	            // TODO: return closest common ancestor node for re-rendering (not in this class)
 	        }
 	    }]);
 	

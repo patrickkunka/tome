@@ -26,6 +26,8 @@ class RichTextEditor {
 
         this.root = RichTextEditor.buildModelFromState(this.state);
 
+        console.log(this.root);
+
         this.render();
 
         this.bindEvents();
@@ -154,10 +156,7 @@ class RichTextEditor {
     static buildModelFromState(state) {
         const root = new Node();
 
-        root.start = 0;
-        root.end = state.length;
-
-        TreeBuilder.buildTree(state.text, state.markups, root);
+        TreeBuilder.buildTreeFromRoot(root, state.text, state.markups);
 
         return root;
     }

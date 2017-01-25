@@ -1,99 +1,116 @@
 import Node from './models/Node';
 
 class TreeBuilder {
-    static buildTree(text, markups, parent, startIndex=0) {
-        let lastSibling = null;
+    /**
+     * @param   {Node}            root
+     * @param   {string}          text
+     * @param   {Array.<Markup>}  markups
+     * @return  {void}
+     */
 
-        let path = null;
-        let index = 0;
+    static buildTreeFromRoot(root, text, markups) {
+        const openNodes = [];
 
-        for (let i = startIndex; i < markups.length; i++) {
-            const markup = markups[i];
+        let isAtLeaf = false;
+        let node = root;
 
-            if (lastSibling && markup[2] <= lastSibling.end) {
-                // Recurse down
+        node.start = 0;
+        node.end = text.length;
 
-                lastSibling.childNodes.length = 0;
+        for (let i = 0; i <= text.length; i++) {
+            let requiresNewLeaf = false;
 
-                i = TreeBuilder.buildTree(text, markups, lastSibling, i);
-            } else if (markup[1] > parent.end) {
-                // Return up
+            for (let j = 0, markup; (markup = markups[j]); j++) {
+                let closedNode = null;
 
-                if (lastSibling.end < parent.end) {
-                    // Preceeded by text node
+                if (markup[2] !== i) continue;
 
-                    path = parent.path.slice().concat([index++]);
+                if (isAtLeaf) {
+                    const textNode = openNodes.pop();
 
-                    parent.childNodes.push(TreeBuilder.getNode('', lastSibling.end, parent.end, text, path));
+                    TreeBuilder.closeNode(textNode, i, text);
+
+                    isAtLeaf = false;
                 }
 
-                return i - 1;
-            } else {
-                const lastIndex = lastSibling ? lastSibling.end + 1 : parent.start;
+                requiresNewLeaf = true;
 
-                // First child or sibling
+                closedNode = openNodes.pop();
 
-                if (markup[1] > lastIndex) {
-                    // Preceeded by text node
+                TreeBuilder.closeNode(closedNode, i, text);
 
-                    path = parent.path.slice().concat([index++]);
-
-                    parent.childNodes.push(TreeBuilder.getNode('', lastIndex, markup[1], text, path));
-                }
-
-                path = parent.path.slice().concat([index++]);
-
-                lastSibling = TreeBuilder.getNode(markup[0], markup[1], markup[2], text, path);
-
-                // Create internal text node
-
-                path = path.slice().concat(0);
-
-                lastSibling.childNodes.push(TreeBuilder.getNode('', markup[1], markup[2], text, path));
-
-                parent.childNodes.push(lastSibling);
+                node = closedNode.parent;
             }
 
-            if (parent.isBlock) {
-                // TODO: need a way to detect that this is the last inline node in a
-                // block parent, but there are characters subsequent characters
-                // unaccounted for as there are no further markups
+            for (let j = 0, markup; (markup = markups[j]); j++) {
+                let newNode = null;
 
-                // path = parent.path.slice().concat([index++]);
+                if (markup[1] !== i) continue;
 
-                // parent.childNodes.push(TreeBuilder.getNode('', markup[2], text.length, text, path));
+                if (isAtLeaf) {
+                    const textNode = openNodes.pop();
+
+                    TreeBuilder.closeNode(textNode, i, text);
+
+                    isAtLeaf = false;
+                }
+
+                newNode = TreeBuilder.getOpenNode(markup[0], i, node);
+
+                openNodes.push(newNode);
+
+                node.childNodes.push(newNode);
+
+                node = newNode;
+
+                requiresNewLeaf = true;
+            }
+
+            if (requiresNewLeaf && i !== text.length) {
+                const leaf = TreeBuilder.getOpenNode('', i, node);
+
+                openNodes.push(leaf);
+
+                node.childNodes.push(leaf);
+
+                isAtLeaf = true;
             }
         }
     }
 
-    static getNode(tag, start, end, text, path) {
+    /**
+     * @param   {string}    tag
+     * @param   {number}    i
+     * @param   {Node}      parent
+     * @return  {Node}
+     */
+
+    static getOpenNode(tag, start, parent) {
         const node = new Node();
 
-        node.tag = tag;
-        node.start = start;
-        node.end = end;
-        node.path = path;
+        node.tag    = tag;
+        node.parent = parent;
+        node.start  = start;
+        node.path   = parent.path.slice();
 
-        if (!tag) {
-            node.text = text.slice(start, end);
-        }
+        node.path.push(parent.childNodes.length);
 
         return node;
     }
 
-    static insertCharacters(characters, range) {
-        if (range.from.node === range.to.node) {
-            const node = range.from.node;
+    /**
+     * @param   {Node}      node
+     * @param   {number}    end
+     * @param   {string}    text
+     * @return  {void}
+     */
 
+    static closeNode(node, end, text) {
+        node.end = end;
 
-            // Same node
-
-            node.text = node.text.slice(0, range.from.offset) + characters + node.text.slice(range.to.offset);
+        if (node.isTextNode) {
+            node.text = text.slice(node.start, node.end);
         }
-
-        // TODO: increment all start/end values in subsequent nodes
-
-        // TODO: return closest common ancestor node for re-rendering (not in this class)
     }
 }
 
