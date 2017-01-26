@@ -118,6 +118,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _State2 = _interopRequireDefault(_State);
 	
+	var _EventHandler = __webpack_require__(13);
+	
+	var _EventHandler2 = _interopRequireDefault(_EventHandler);
+	
 	var _Editor = __webpack_require__(9);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
@@ -132,6 +136,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var RichTextEditor = function () {
@@ -140,6 +146,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        this.dom = new _Dom2.default();
 	        this.state = new _State2.default();
+	        this.eventHandler = new _EventHandler2.default();
 	        this.root = null;
 	        this.history = [];
 	    }
@@ -161,7 +168,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.render();
 	
-	            this.bindEvents();
+	            this.eventHandler.bindEvents(this.dom.root, this);
 	        }
 	    }, {
 	        key: 'render',
@@ -169,20 +176,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.dom.root.innerHTML = _Renderer2.default.renderNodes(this.root.childNodes);
 	        }
 	    }, {
-	        key: 'bindEvents',
-	        value: function bindEvents() {
-	            this.dom.root.addEventListener('keypress', this.handleKeypress.bind(this));
+	        key: 'performCommand',
+	        value: function performCommand(command) {
+	            var args = Array.from(arguments).slice(1);
+	
+	            var fn = this[command];
+	
+	            if (typeof fn !== 'function') {
+	                throw new Error('[RichTextEditor] No method for command "' + command + '"');
+	            }
+	
+	            this[command].apply(this, _toConsumableArray(args));
 	        }
 	    }, {
-	        key: 'handleKeypress',
-	        value: function handleKeypress(e) {
+	        key: 'insert',
+	        value: function insert(characters) {
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
-	            var characters = e.key;
-	            var fromIndex = range.from.node.start + range.from.offset;
-	            var toIndex = range.to.node.start + range.to.offset;
 	
-	            var newState = _Editor2.default.insertCharacters(this.state, characters, fromIndex, toIndex);
+	            var newState = _Editor2.default.insertCharacters(this.state, characters, range.from, range.to);
 	
 	            this.history.push(this.state);
 	
@@ -193,8 +205,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.render();
 	
 	            this.positionCaret(this.state.selection);
-	
-	            e.preventDefault();
 	        }
 	    }, {
 	        key: 'getPathFromNode',
@@ -224,6 +234,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return node || null;
 	        }
+	
+	        /**
+	         * @param   {Selection} selection
+	         * @return  {Range}
+	         */
+	
 	    }, {
 	        key: 'getRangeFromSelection',
 	        value: function getRangeFromSelection(selection) {
@@ -253,7 +269,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                to.path = isRtl ? anchorPath : extentPath;
 	            }
 	
-	            return new _Range2.default(from, to);
+	            return new _Range2.default(from.node.start + from.offset, to.node.start + to.offset);
 	        }
 	    }, {
 	        key: 'positionCaret',
@@ -596,6 +612,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return index;
 	        }
+	
+	        /**
+	         * Converts a dash or snake-case string to camel case.
+	         *
+	         * @param   {string}    str
+	         * @return  {string}
+	         */
+	
+	    }, {
+	        key: 'camelCase',
+	        value: function camelCase(str) {
+	            return str.toLowerCase().replace(/([_-][a-z0-9])/g, function ($1) {
+	                return $1.toUpperCase().replace(/[_-]/, '');
+	            });
+	        }
+	
+	        /**
+	         * Converts a dash or snake-case string to pascal case.
+	         *
+	         * @param   {string}    str
+	         * @return  {string}
+	         */
+	
+	    }, {
+	        key: 'pascalCase',
+	        value: function pascalCase(str) {
+	            return (str = Util.camelCase(str)).charAt(0).toUpperCase() + str.slice(1);
+	        }
+	
+	        /**
+	         * Converts a camel or pascal-case string to dash case.
+	         *
+	         * @param   {string}    str
+	         * @return  {string}
+	         */
+	
+	    }, {
+	        key: 'dashCase',
+	        value: function dashCase(str) {
+	            return str.replace(/([A-Z])/g, '-$1').replace(/^-/, '').toLowerCase();
+	        }
 	    }]);
 	
 	    return Util;
@@ -742,7 +799,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Range = function Range(from, to) {
+	var Range = function Range() {
+	    var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+	    var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+	
 	    _classCallCheck(this, Range);
 	
 	    this.from = from;
@@ -1165,6 +1225,116 @@ return /******/ (function(modules) { // webpackBootstrap
 			]
 		]
 	};
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Util = __webpack_require__(3);
+	
+	var _Util2 = _interopRequireDefault(_Util);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var EventHandler = function () {
+	    function EventHandler() {
+	        _classCallCheck(this, EventHandler);
+	    }
+	
+	    _createClass(EventHandler, [{
+	        key: 'bindEvents',
+	        value: function bindEvents(root, richTextEditor) {
+	            this.delegator = this.delegator.bind(this, richTextEditor);
+	
+	            root.addEventListener('keypress', this.delegator);
+	            root.addEventListener('keydown', this.delegator);
+	        }
+	    }, {
+	        key: 'unbindEvents',
+	        value: function unbindEvents(root) {
+	            root.removeEventListener('keypress', this.delegator);
+	            root.removeEventListener('keydown', this.delegator);
+	        }
+	    }, {
+	        key: 'delegator',
+	        value: function delegator(richTextEditor, e) {
+	            var eventType = e.type;
+	            var fn = this['handle' + _Util2.default.pascalCase(eventType)];
+	
+	            if (typeof fn !== 'function') {
+	                throw new Error('[EventHandler] No handler found for event "' + eventType + '"');
+	            }
+	
+	            fn(e, richTextEditor);
+	        }
+	    }, {
+	        key: 'handleKeypress',
+	        value: function handleKeypress(e, richTextEditor) {
+	            e.preventDefault();
+	
+	            richTextEditor.performCommand('insert', e.key);
+	        }
+	    }, {
+	        key: 'handleKeydown',
+	        value: function handleKeydown(e, richTextEditor) {
+	            var key = e.key.toLowerCase();
+	
+	            var command = '';
+	
+	            if (e.metaKey) {
+	                switch (key) {
+	                    case 'c':
+	                        command = 'copy';
+	
+	                        break;
+	                    case 'v':
+	                        command = 'paste';
+	
+	                        break;
+	                    case 'z':
+	                        command = e.shiftKey ? 'redo' : 'undo';
+	
+	                        break;
+	                }
+	            }
+	
+	            switch (key) {
+	                case 'enter':
+	                    command = 'return';
+	
+	                    break;
+	                case 'backspace':
+	                    command = 'backspace';
+	
+	                    break;
+	                case 'delete':
+	                    command = 'delete';
+	
+	                    break;
+	            }
+	
+	            if (!command) return;
+	
+	            e.preventDefault();
+	
+	            richTextEditor.performCommand(command);
+	        }
+	    }]);
+	
+	    return EventHandler;
+	}();
+	
+	exports.default = EventHandler;
 
 /***/ }
 /******/ ])

@@ -1,7 +1,7 @@
 class Range {
-    constructor(from, to) {
-        this.from = from;
-        this.to = to;
+    constructor(from=-1, to=-1) {
+        this.from   = from;
+        this.to     = to;
 
         Object.seal(this);
     }

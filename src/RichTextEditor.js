@@ -5,16 +5,18 @@ import Node         from './models/Node';
 import Caret        from './models/Caret';
 import Range        from './models/Range';
 import State        from './models/State';
+import EventHandler from './EventHandler';
 import Editor       from './Editor';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 
 class RichTextEditor {
     constructor() {
-        this.dom        = new Dom();
-        this.state      = new State();
-        this.root       = null;
-        this.history    = [];
+        this.dom            = new Dom();
+        this.state          = new State();
+        this.eventHandler   = new EventHandler();
+        this.root           = null;
+        this.history        = [];
     }
 
     attach(el, initialState) {
@@ -30,25 +32,30 @@ class RichTextEditor {
 
         this.render();
 
-        this.bindEvents();
+        this.eventHandler.bindEvents(this.dom.root, this);
     }
 
     render() {
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
     }
 
-    bindEvents() {
-        this.dom.root.addEventListener('keypress', this.handleKeypress.bind(this));
+    performCommand(command) {
+        const args = Array.from(arguments).slice(1);
+
+        const fn = this[command];
+
+        if (typeof fn !== 'function') {
+            throw new Error(`[RichTextEditor] No method for command "${command}"`);
+        }
+
+        this[command](...args);
     }
 
-    handleKeypress(e) {
+    insert(characters) {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
-        const characters = e.key;
-        const fromIndex = range.from.node.start + range.from.offset;
-        const toIndex = range.to.node.start + range.to.offset;
 
-        const newState = Editor.insertCharacters(this.state, characters, fromIndex, toIndex);
+        const newState = Editor.insertCharacters(this.state, characters, range.from, range.to);
 
         this.history.push(this.state);
 
@@ -59,8 +66,6 @@ class RichTextEditor {
         this.render();
 
         this.positionCaret(this.state.selection);
-
-        e.preventDefault();
     }
 
     getPathFromNode(node) {
@@ -89,6 +94,11 @@ class RichTextEditor {
         return node || null;
     }
 
+    /**
+     * @param   {Selection} selection
+     * @return  {Range}
+     */
+
     getRangeFromSelection(selection) {
         const anchorPath = this.getPathFromNode(selection.anchorNode);
         const virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
@@ -116,7 +126,7 @@ class RichTextEditor {
             to.path     = isRtl ? anchorPath : extentPath;
         }
 
-        return new Range(from, to);
+        return new Range(from.node.start + from.offset, to.node.start + to.offset);
     }
 
     positionCaret([start, end]) {
