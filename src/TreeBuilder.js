@@ -108,7 +108,7 @@ class TreeBuilder {
     static closeNode(node, end, text) {
         node.end = end;
 
-        if (node.isTextNode) {
+        if (node.isText) {
             node.text = text.slice(node.start, node.end);
         }
     }

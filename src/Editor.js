@@ -1,18 +1,117 @@
 import State    from './models/State';
 import Markup   from './models/Markup';
+import Util     from './Util';
 
 class Editor {
-    static insertCharacters(state, characters, fromIndex, toIndex) {
+    static left(state, range) {
+        const newState = Util.extend(new State(), state);
+        const isRange = range.from !== range.to;
+
+        newState.selection = isRange ? [range.from, range.from] : [range.from - 1, range.from - 1];
+
+        return newState;
+    }
+
+    static right(state, range) {
+        const newState = Util.extend(new State(), state);
+        const isRange = range.from !== range.to;
+
+        newState.selection = isRange ? [range.to, range.to] : [range.to + 1, range.to + 1];
+
+        return newState;
+    }
+
+    static home(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        let markup = null;
+
+        for (let i = 0; (markup = state.markups[i]); i++) {
+            if (markup[1] <= range.from && markup[2] >= range.from) {
+                break;
+            }
+        }
+
+        newState.selection = [markup[1], markup[1]];
+
+        return newState;
+    }
+
+    static homeSelect(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        let markup = null;
+
+        for (let i = 0; (markup = state.markups[i]); i++) {
+            if (markup[1] <= range.from && markup[2] >= range.from) {
+                break;
+            }
+        }
+
+        newState.selection = [markup[1], range.from];
+
+        return newState;
+    }
+
+    static end(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        let markup = null;
+
+        for (let i = 0; (markup = state.markups[i]); i++) {
+            if (markup[1] <= range.to && markup[2] >= range.to) {
+                break;
+            }
+        }
+
+        newState.selection = [markup[2], markup[2]];
+
+        return newState;
+    }
+
+    static endSelect(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        let markup = null;
+
+        for (let i = 0; (markup = state.markups[i]); i++) {
+            if (markup[1] <= range.to && markup[2] >= range.to) {
+                break;
+            }
+        }
+
+        newState.selection = [range.from, markup[2]];
+
+        return newState;
+    }
+
+    static insert(state, range, characters) {
         const newState = new State();
-        const totalDeleted = toIndex - fromIndex;
+        const totalDeleted = range.to - range.from;
         const totalAdded = characters.length;
         const adjustment = totalAdded - totalDeleted;
 
-        newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
+        newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 
-        newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment, newState.text);
+        newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 
-        newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
+        newState.selection = [range.from + totalAdded, range.from + totalAdded];
+
+        return newState;
+    }
+
+    static backspace(state, range) {
+        const newState = new State();
+        const isRange = range.from !== range.to;
+        const fromIndex = isRange ? range.from : range.to - 1;
+        const adjustment = fromIndex - range.to;
+
+        if (range.to === 0) return state;
+
+        newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
+        newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
+
+        newState.selection = [fromIndex, fromIndex];
 
         return newState;
     }

@@ -39,23 +39,19 @@ class RichTextEditor {
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
     }
 
-    performCommand(command) {
-        const args = Array.from(arguments).slice(1);
-
-        const fn = this[command];
-
-        if (typeof fn !== 'function') {
-            throw new Error(`[RichTextEditor] No method for command "${command}"`);
-        }
-
-        this[command](...args);
-    }
-
-    insert(characters) {
+    performCommand(command, content) {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
 
-        const newState = Editor.insertCharacters(this.state, characters, range.from, range.to);
+        const fn = Editor[command];
+
+        if (typeof fn !== 'function') {
+            throw new Error(`[RichTextEditor] No editor method for command "${command}"`);
+        }
+
+        const newState = fn(this.state, range, content);
+
+        if (newState === this.state) return;
 
         this.history.push(this.state);
 
@@ -133,10 +129,12 @@ class RichTextEditor {
         const range = document.createRange();
         const selection = window.getSelection();
 
-        let childNodes = this.root.childNodes;
+        let childNodes  = this.root.childNodes;
         let virtualNode = null;
-        let node = null;
-        let offset = -1;
+        let nodeLeft    = null;
+        let nodeRight   = null;
+        let offsetStart = -1;
+        let offsetEnd   = -1;
 
         for (let i = 0; (virtualNode = childNodes[i]); i++) {
             if (virtualNode.end < start) continue;
@@ -149,15 +147,36 @@ class RichTextEditor {
                 continue;
             }
 
-            offset = start - virtualNode.start;
+            offsetStart = start - virtualNode.start;
 
             break;
         }
 
-        node = this.getNodeByPath(virtualNode.path, this.dom.root);
+        range.setStart(nodeLeft, offsetStart);
 
-        range.setStart(node, offset);
-        range.collapse(true);
+        if (start === end) {
+            range.collapse(true);
+        } else {
+            nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
+
+            for (let i = 0; (virtualNode = childNodes[i]); i++) {
+                if (virtualNode.end < end) continue;
+
+                if (virtualNode.childNodes.length) {
+                    childNodes = virtualNode.childNodes;
+
+                    i = -1;
+
+                    continue;
+                }
+
+                offsetEnd = end - virtualNode.start;
+
+                break;
+            }
+
+            range.setEnd(nodeRight, offsetEnd);
+        }
 
         selection.removeAllRanges();
         selection.addRange(range);

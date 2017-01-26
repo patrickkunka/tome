@@ -45,6 +45,10 @@ class EventHandler {
                     command = 'paste';
 
                     break;
+                case 's':
+                    command = 'save';
+
+                    break;
                 case 'z':
                     command = e.shiftKey ? 'redo' : 'undo';
 
@@ -65,6 +69,20 @@ class EventHandler {
                 command = 'delete';
 
                 break;
+            case 'arrowleft':
+                if (e.metaKey) {
+                    command = e.shiftKey ? 'homeSelect' : 'home';
+                } else {
+                    command = 'left';
+                }
+
+                break;
+            case 'arrowright':
+                if (e.metaKey) {
+                    command = e.shiftKey ? 'endSelect' : 'end';
+                } else {
+                    command = 'right';
+                }
         }
 
         if (!command) return;

@@ -136,8 +136,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var RichTextEditor = function () {
@@ -177,24 +175,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    }, {
 	        key: 'performCommand',
-	        value: function performCommand(command) {
-	            var args = Array.from(arguments).slice(1);
-	
-	            var fn = this[command];
-	
-	            if (typeof fn !== 'function') {
-	                throw new Error('[RichTextEditor] No method for command "' + command + '"');
-	            }
-	
-	            this[command].apply(this, _toConsumableArray(args));
-	        }
-	    }, {
-	        key: 'insert',
-	        value: function insert(characters) {
+	        value: function performCommand(command, content) {
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
 	
-	            var newState = _Editor2.default.insertCharacters(this.state, characters, range.from, range.to);
+	            var fn = _Editor2.default[command];
+	
+	            if (typeof fn !== 'function') {
+	                throw new Error('[RichTextEditor] No editor method for command "' + command + '"');
+	            }
+	
+	            var newState = fn(this.state, range, content);
+	
+	            if (newState === this.state) return;
 	
 	            this.history.push(this.state);
 	
@@ -283,8 +276,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var childNodes = this.root.childNodes;
 	            var virtualNode = null;
-	            var node = null;
-	            var offset = -1;
+	            var nodeLeft = null;
+	            var nodeRight = null;
+	            var offsetStart = -1;
+	            var offsetEnd = -1;
 	
 	            for (var i = 0; virtualNode = childNodes[i]; i++) {
 	                if (virtualNode.end < start) continue;
@@ -297,15 +292,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    continue;
 	                }
 	
-	                offset = start - virtualNode.start;
+	                offsetStart = start - virtualNode.start;
 	
 	                break;
 	            }
 	
-	            node = this.getNodeByPath(virtualNode.path, this.dom.root);
+	            range.setStart(nodeLeft, offsetStart);
 	
-	            range.setStart(node, offset);
-	            range.collapse(true);
+	            if (start === end) {
+	                range.collapse(true);
+	            } else {
+	                nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
+	
+	                for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
+	                    if (virtualNode.end < end) continue;
+	
+	                    if (virtualNode.childNodes.length) {
+	                        childNodes = virtualNode.childNodes;
+	
+	                        _i = -1;
+	
+	                        continue;
+	                    }
+	
+	                    offsetEnd = end - virtualNode.start;
+	
+	                    break;
+	                }
+	
+	                range.setEnd(nodeRight, offsetEnd);
+	            }
 	
 	            selection.removeAllRanges();
 	            selection.addRange(range);
@@ -752,9 +768,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(Node, [{
-	        key: 'isTextNode',
+	        key: 'isText',
 	        get: function get() {
 	            return this.tag === '';
+	        }
+	    }, {
+	        key: 'isBlock',
+	        get: function get() {
+	            return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].indexOf(this.tag);
+	        }
+	    }, {
+	        key: 'isInline',
+	        get: function get() {
+	            return !this.isText && !this.isBlock;
 	        }
 	    }]);
 	
@@ -872,6 +898,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Markup2 = _interopRequireDefault(_Markup);
 	
+	var _Util = __webpack_require__(3);
+	
+	var _Util2 = _interopRequireDefault(_Util);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -882,18 +912,123 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(Editor, null, [{
-	        key: 'insertCharacters',
-	        value: function insertCharacters(state, characters, fromIndex, toIndex) {
+	        key: 'left',
+	        value: function left(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	            var isRange = range.from !== range.to;
+	
+	            newState.selection = isRange ? [range.from, range.from] : [range.from - 1, range.from - 1];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'right',
+	        value: function right(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	            var isRange = range.from !== range.to;
+	
+	            newState.selection = isRange ? [range.to, range.to] : [range.to + 1, range.to + 1];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'home',
+	        value: function home(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            var markup = null;
+	
+	            for (var i = 0; markup = state.markups[i]; i++) {
+	                if (markup[1] <= range.from && markup[2] >= range.from) {
+	                    break;
+	                }
+	            }
+	
+	            newState.selection = [markup[1], markup[1]];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'homeSelect',
+	        value: function homeSelect(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            var markup = null;
+	
+	            for (var i = 0; markup = state.markups[i]; i++) {
+	                if (markup[1] <= range.from && markup[2] >= range.from) {
+	                    break;
+	                }
+	            }
+	
+	            newState.selection = [markup[1], range.from];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'end',
+	        value: function end(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            var markup = null;
+	
+	            for (var i = 0; markup = state.markups[i]; i++) {
+	                if (markup[1] <= range.to && markup[2] >= range.to) {
+	                    break;
+	                }
+	            }
+	
+	            newState.selection = [markup[2], markup[2]];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'endSelect',
+	        value: function endSelect(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            var markup = null;
+	
+	            for (var i = 0; markup = state.markups[i]; i++) {
+	                if (markup[1] <= range.to && markup[2] >= range.to) {
+	                    break;
+	                }
+	            }
+	
+	            newState.selection = [range.from, markup[2]];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'insert',
+	        value: function insert(state, range, characters) {
 	            var newState = new _State2.default();
-	            var totalDeleted = toIndex - fromIndex;
+	            var totalDeleted = range.to - range.from;
 	            var totalAdded = characters.length;
 	            var adjustment = totalAdded - totalDeleted;
 	
-	            newState.text = state.text.slice(0, fromIndex) + characters + state.text.slice(toIndex);
+	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 	
-	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, toIndex, totalAdded, adjustment, newState.text);
+	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 	
-	            newState.selection = [fromIndex + totalAdded, fromIndex + totalAdded];
+	            newState.selection = [range.from + totalAdded, range.from + totalAdded];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'backspace',
+	        value: function backspace(state, range) {
+	            var newState = new _State2.default();
+	            var isRange = range.from !== range.to;
+	            var fromIndex = isRange ? range.from : range.to - 1;
+	            var adjustment = fromIndex - range.to;
+	
+	            if (range.to === 0) return state;
+	
+	            newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
+	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
+	
+	            newState.selection = [fromIndex, fromIndex];
 	
 	            return newState;
 	        }
@@ -1133,7 +1268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function closeNode(node, end, text) {
 	            node.end = end;
 	
-	            if (node.isTextNode) {
+	            if (node.isText) {
 	                node.text = text.slice(node.start, node.end);
 	            }
 	        }
@@ -1166,11 +1301,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(Renderer, null, [{
 	        key: 'renderNodes',
 	        value: function renderNodes(nodes) {
-	            return nodes.map(Renderer.renderNode).join('');
+	            var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+	
+	            return nodes.map(function (node) {
+	                return Renderer.renderNode(node, parent);
+	            }).join('');
 	        }
 	    }, {
 	        key: 'renderNode',
-	        value: function renderNode(node) {
+	        value: function renderNode(node, parent) {
 	            var html = '';
 	
 	            if (node.tag) {
@@ -1178,9 +1317,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            if (node.childNodes.length) {
-	                html += Renderer.renderNodes(node.childNodes);
-	            } else {
+	                html += Renderer.renderNodes(node.childNodes, node);
+	            } else if (parent) {
+	                // Text leaf node
+	
 	                html += node.text;
+	            } else {
+	                // Top-level text node between two blocks, interpret as new line
+	
+	                html += '\n';
+	            }
+	
+	            if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
+	                html += '&#8203;';
 	            }
 	
 	            if (node.tag) {
@@ -1301,6 +1450,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        command = 'paste';
 	
 	                        break;
+	                    case 's':
+	                        command = 'save';
+	
+	                        break;
 	                    case 'z':
 	                        command = e.shiftKey ? 'redo' : 'undo';
 	
@@ -1321,6 +1474,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    command = 'delete';
 	
 	                    break;
+	                case 'arrowleft':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'homeSelect' : 'home';
+	                    } else {
+	                        command = 'left';
+	                    }
+	
+	                    break;
+	                case 'arrowright':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'endSelect' : 'end';
+	                    } else {
+	                        command = 'right';
+	                    }
 	            }
 	
 	            if (!command) return;
