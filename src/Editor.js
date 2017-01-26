@@ -7,7 +7,19 @@ class Editor {
         const newState = Util.extend(new State(), state);
         const isRange = range.from !== range.to;
 
+        if (!isRange && range.from === 0) return state;
+
         newState.selection = isRange ? [range.from, range.from] : [range.from - 1, range.from - 1];
+
+        return newState;
+    }
+
+    static leftSelect(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        if (range.from === 0) return state;
+
+        newState.selection = [range.from - 1, range.to];
 
         return newState;
     }
@@ -16,7 +28,19 @@ class Editor {
         const newState = Util.extend(new State(), state);
         const isRange = range.from !== range.to;
 
+        if (!isRange && range.to === state.text.length) return state;
+
         newState.selection = isRange ? [range.to, range.to] : [range.to + 1, range.to + 1];
+
+        return newState;
+    }
+
+    static rightSelect(state, range) {
+        const newState = Util.extend(new State(), state);
+
+        if (range.to === state.text.length) return state;
+
+        newState.selection = [range.from, range.to + 1];
 
         return newState;
     }
@@ -88,10 +112,22 @@ class Editor {
     static insert(state, range, characters) {
         const newState = new State();
         const totalDeleted = range.to - range.from;
-        const totalAdded = characters.length;
-        const adjustment = totalAdded - totalDeleted;
+
+        let totalAdded = characters.length;
+        let adjustment = totalAdded - totalDeleted;
+        // let collapsed = '';
+        // let totalCollapsed = 0;
 
         newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
+
+        // collapsed = newState.text.replace(/ {2,}/g, ' ');
+
+        // if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+        //     totalAdded -= totalCollapsed;
+        //     adjustment -= totalCollapsed;
+
+        //     newState.text = collapsed;
+        // }
 
         newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 
@@ -112,6 +148,22 @@ class Editor {
         newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
 
         newState.selection = [fromIndex, fromIndex];
+
+        return newState;
+    }
+
+    static delete(state, range) {
+        const newState = new State();
+        const isRange = range.from !== range.to;
+        const toIndex = isRange ? range.to : range.from + 1;
+        const adjustment = range.from - toIndex;
+
+        if (range.from === state.text.length) return state;
+
+        newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
+        newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
+
+        newState.selection = [range.from, range.from];
 
         return newState;
     }

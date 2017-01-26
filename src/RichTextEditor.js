@@ -152,13 +152,13 @@ class RichTextEditor {
             break;
         }
 
+        nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
+
         range.setStart(nodeLeft, offsetStart);
 
         if (start === end) {
             range.collapse(true);
         } else {
-            nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
-
             for (let i = 0; (virtualNode = childNodes[i]); i++) {
                 if (virtualNode.end < end) continue;
 
@@ -174,6 +174,8 @@ class RichTextEditor {
 
                 break;
             }
+
+            nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
 
             range.setEnd(nodeRight, offsetEnd);
         }

@@ -297,13 +297,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                break;
 	            }
 	
+	            nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
+	
 	            range.setStart(nodeLeft, offsetStart);
 	
 	            if (start === end) {
 	                range.collapse(true);
 	            } else {
-	                nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
-	
 	                for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
 	                    if (virtualNode.end < end) continue;
 	
@@ -319,6 +319,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    break;
 	                }
+	
+	                nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
 	
 	                range.setEnd(nodeRight, offsetEnd);
 	            }
@@ -917,7 +919,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var newState = _Util2.default.extend(new _State2.default(), state);
 	            var isRange = range.from !== range.to;
 	
+	            if (!isRange && range.from === 0) return state;
+	
 	            newState.selection = isRange ? [range.from, range.from] : [range.from - 1, range.from - 1];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'leftSelect',
+	        value: function leftSelect(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            if (range.from === 0) return state;
+	
+	            newState.selection = [range.from - 1, range.to];
 	
 	            return newState;
 	        }
@@ -927,7 +942,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var newState = _Util2.default.extend(new _State2.default(), state);
 	            var isRange = range.from !== range.to;
 	
+	            if (!isRange && range.to === state.text.length) return state;
+	
 	            newState.selection = isRange ? [range.to, range.to] : [range.to + 1, range.to + 1];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'rightSelect',
+	        value: function rightSelect(state, range) {
+	            var newState = _Util2.default.extend(new _State2.default(), state);
+	
+	            if (range.to === state.text.length) return state;
+	
+	            newState.selection = [range.from, range.to + 1];
 	
 	            return newState;
 	        }
@@ -1004,10 +1032,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function insert(state, range, characters) {
 	            var newState = new _State2.default();
 	            var totalDeleted = range.to - range.from;
+	
 	            var totalAdded = characters.length;
 	            var adjustment = totalAdded - totalDeleted;
+	            // let collapsed = '';
+	            // let totalCollapsed = 0;
 	
 	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
+	
+	            // collapsed = newState.text.replace(/ {2,}/g, ' ');
+	
+	            // if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	            //     totalAdded -= totalCollapsed;
+	            //     adjustment -= totalCollapsed;
+	
+	            //     newState.text = collapsed;
+	            // }
 	
 	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 	
@@ -1029,6 +1069,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
 	
 	            newState.selection = [fromIndex, fromIndex];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'delete',
+	        value: function _delete(state, range) {
+	            var newState = new _State2.default();
+	            var isRange = range.from !== range.to;
+	            var toIndex = isRange ? range.to : range.from + 1;
+	            var adjustment = range.from - toIndex;
+	
+	            if (range.from === state.text.length) return state;
+	
+	            newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
+	            newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
+	
+	            newState.selection = [range.from, range.from];
 	
 	            return newState;
 	        }
@@ -1474,11 +1531,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    command = 'delete';
 	
 	                    break;
+	                case 'arrowup':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
+	                    } else {
+	                        // TODO: line up if neccessary
+	                        command = '';
+	                    }
+	
+	                    break;
+	                case 'arrowdown':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
+	                    } else {
+	                        // TODO: line down if neccessary
+	                        command = '';
+	                    }
+	
+	                    break;
 	                case 'arrowleft':
 	                    if (e.metaKey) {
 	                        command = e.shiftKey ? 'homeSelect' : 'home';
 	                    } else {
-	                        command = 'left';
+	                        command = e.shiftKey ? 'leftSelect' : 'left';
 	                    }
 	
 	                    break;
@@ -1486,8 +1561,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (e.metaKey) {
 	                        command = e.shiftKey ? 'endSelect' : 'end';
 	                    } else {
-	                        command = 'right';
+	                        command = e.shiftKey ? 'rightSelect' : 'right';
 	                    }
+	
+	                    break;
 	            }
 	
 	            if (!command) return;

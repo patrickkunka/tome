@@ -69,11 +69,29 @@ class EventHandler {
                 command = 'delete';
 
                 break;
+            case 'arrowup':
+                if (e.metaKey) {
+                    command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
+                } else {
+                    // TODO: line up if neccessary
+                    command = '';
+                }
+
+                break;
+            case 'arrowdown':
+                if (e.metaKey) {
+                    command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
+                } else {
+                    // TODO: line down if neccessary
+                    command = '';
+                }
+
+                break;
             case 'arrowleft':
                 if (e.metaKey) {
                     command = e.shiftKey ? 'homeSelect' : 'home';
                 } else {
-                    command = 'left';
+                    command = e.shiftKey ? 'leftSelect' : 'left';
                 }
 
                 break;
@@ -81,8 +99,10 @@ class EventHandler {
                 if (e.metaKey) {
                     command = e.shiftKey ? 'endSelect' : 'end';
                 } else {
-                    command = 'right';
+                    command = e.shiftKey ? 'rightSelect' : 'right';
                 }
+
+                break;
         }
 
         if (!command) return;
