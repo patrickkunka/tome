@@ -17,7 +17,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 's', 5, 5);
+        const newState = Editor.insert(state, {from: 5, to: 5}, 's');
 
         assert.equal(newState.text, 'Lorems ipsum');
         assert.equal(newState.markups[0][2], 12);
@@ -31,7 +31,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, ' dolor', 11, 11);
+        const newState = Editor.insert(state, {from: 11, to: 11}, ' dolor');
 
         assert.equal(newState.text, 'Lorem ipsum dolor.');
         assert.equal(newState.markups[0][2], 18);
@@ -46,7 +46,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 's', 17, 17);
+        const newState = Editor.insert(state, {from: 17, to: 17}, 's');
 
         assert.equal(newState.text, 'Lorem ipsum dolors sit amet.');
         assert.equal(newState.markups[0][2], 28);
@@ -62,7 +62,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, ' Sit', 12, 12);
+        const newState = Editor.insert(state, {from: 12, to: 12}, ' Sit');
 
         assert.equal(newState.text, 'Lorem ipsum. Sit');
         assert.equal(newState.markups[0][2], 16);
@@ -76,7 +76,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'Foo ', 0, 0);
+        const newState = Editor.insert(state, {from: 0, to: 0}, 'Foo ');
 
         assert.equal(newState.text, 'Foo Lorem ipsum.');
         assert.equal(newState.markups[0][1], 0);
@@ -92,7 +92,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'Foo ', 0, 0);
+        const newState = Editor.insert(state, {from: 0, to: 0}, 'Foo ');
 
         assert.equal(newState.text, 'Foo Lorem ipsum.');
         assert.equal(newState.markups[0][1], 0);
@@ -110,7 +110,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'f', 3, 6);
+        const newState = Editor.insert(state, {from: 3, to: 6}, 'f');
 
         assert.equal(newState.text, 'Lorfipsum.');
         assert.equal(newState.markups[0][1], 0);
@@ -128,7 +128,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, ' dolor', 11, 11);
+        const newState = Editor.insert(state, {from: 11, to: 11}, ' dolor');
 
         assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.');
         assert.equal(newState.markups[0][1], 0);
@@ -146,7 +146,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, ', consectetur', 21, 21);
+        const newState = Editor.insert(state, {from: 21, to: 21}, ', consectetur');
 
         assert.equal(newState.text, 'Lorem ipsum. Sit amet, consectetur.');
         assert.equal(newState.markups[0][1], 0);
@@ -162,7 +162,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'dolor', 6, 11);
+        const newState = Editor.insert(state, {from: 6, to: 11}, 'dolor');
 
         assert.equal(newState.text, 'Lorem dolor.');
         assert.equal(newState.markups[0][1], 0);
@@ -178,7 +178,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'dolor.', 5, 12);
+        const newState = Editor.insert(state, {from: 5, to: 12}, 'dolor.');
 
         assert.equal(newState.text, 'Loremdolor.');
         assert.equal(newState.markups[0][1], 0);
@@ -195,7 +195,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'foo', 3, 8);
+        const newState = Editor.insert(state, {from: 3, to: 8}, 'foo');
 
         assert.equal(newState.text, 'Lorfoosum.');
         assert.equal(newState.markups[0][1], 0);
@@ -214,7 +214,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'foo', 3, 8);
+        const newState = Editor.insert(state, {from: 3, to: 8}, 'foo');
 
         assert.equal(newState.text, 'Lorfoosum.');
         assert.equal(newState.markups[0][1], 0);
@@ -234,7 +234,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, 'foo', 8, 14);
+        const newState = Editor.insert(state, {from: 8, to: 14}, 'foo');
 
         assert.equal(newState.text, 'Lorem ipfoolor.');
         assert.equal(newState.markups[0][1], 0);
@@ -254,7 +254,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, '', 11, 22);
+        const newState = Editor.insert(state, {from: 11, to: 22}, '');
 
         assert.equal(newState.text, 'Lorem ipsum amet.');
         assert.equal(newState.markups[0][2], 17);
@@ -271,7 +271,7 @@ describe('Editor', () => {
             ]
         };
 
-        const newState = Editor.insertCharacters(state, '', 11, 22);
+        const newState = Editor.insert(state, {from: 11, to: 22}, '');
 
         assert.equal(newState.text, 'Lorem ipsum amet.');
         assert.equal(newState.markups[0][2], 17);

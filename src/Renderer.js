@@ -12,14 +12,10 @@ class Renderer {
 
         if (node.childNodes.length) {
             html += Renderer.renderNodes(node.childNodes, node);
-        } else if (parent) {
+        } else {
             // Text leaf node
 
             html += node.text;
-        } else {
-            // Top-level text node between two blocks, interpret as new line
-
-            html += '\n';
         }
 
         if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {

@@ -23,9 +23,9 @@ class TreeBuilder {
             for (let j = 0, markup; (markup = markups[j]); j++) {
                 let closedNode = null;
 
-                if (markup[2] !== i) continue;
+                if (markup[2] !== i || markup[1] === markup[2]) continue;
 
-                if (isAtLeaf) {
+                if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
                     const textNode = openNodes.pop();
 
                     TreeBuilder.closeNode(textNode, i, text);
@@ -64,6 +64,18 @@ class TreeBuilder {
                 node = newNode;
 
                 requiresNewLeaf = true;
+
+                if (markup[1] === markup[2]) {
+                    // Empty tag
+
+                    TreeBuilder.closeNode(node, i, text);
+
+                    node = node.parent;
+
+                    openNodes.pop();
+
+                    requiresNewLeaf = false;
+                }
             }
 
             if (requiresNewLeaf && i !== text.length) {

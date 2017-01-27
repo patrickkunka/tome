@@ -115,19 +115,29 @@ class Editor {
 
         let totalAdded = characters.length;
         let adjustment = totalAdded - totalDeleted;
-        // let collapsed = '';
-        // let totalCollapsed = 0;
+        let collapsed = '';
+        let totalCollapsed = 0;
 
         newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 
-        // collapsed = newState.text.replace(/ {2,}/g, ' ');
+        // Replace 3 or more spaces with a single space.
 
-        // if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-        //     totalAdded -= totalCollapsed;
-        //     adjustment -= totalCollapsed;
+        collapsed = newState.text.replace(/ {3,}/g, ' ');
 
-        //     newState.text = collapsed;
-        // }
+        // Replace 1 or more spaces before a new line with a single space
+
+        collapsed = newState.text.replace(/ +\n/g, ' \n');
+
+        // Disallow spaces at the start of a new line
+
+        collapsed = newState.text.replace(/\n */g, '\n');
+
+        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+            totalAdded -= totalCollapsed;
+            adjustment -= totalCollapsed;
+
+            newState.text = collapsed;
+        }
 
         newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 

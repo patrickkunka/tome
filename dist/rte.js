@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(12);
+	var _data = __webpack_require__(14);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -1035,19 +1035,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var totalAdded = characters.length;
 	            var adjustment = totalAdded - totalDeleted;
-	            // let collapsed = '';
-	            // let totalCollapsed = 0;
+	            var collapsed = '';
+	            var totalCollapsed = 0;
 	
 	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 	
-	            // collapsed = newState.text.replace(/ {2,}/g, ' ');
+	            // Replace 3 or more spaces with a single space.
 	
-	            // if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-	            //     totalAdded -= totalCollapsed;
-	            //     adjustment -= totalCollapsed;
+	            collapsed = newState.text.replace(/ {3,}/g, ' ');
 	
-	            //     newState.text = collapsed;
-	            // }
+	            // Replace 1 or more spaces before a new line with a single space
+	
+	            collapsed = newState.text.replace(/ +\n/g, ' \n');
+	
+	            // Disallow spaces at the start of a new line
+	
+	            collapsed = newState.text.replace(/\n */g, '\n');
+	
+	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	                totalAdded -= totalCollapsed;
+	                adjustment -= totalCollapsed;
+	
+	                newState.text = collapsed;
+	            }
 	
 	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
 	
@@ -1236,9 +1246,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                for (var j = 0, markup; markup = markups[j]; j++) {
 	                    var closedNode = null;
 	
-	                    if (markup[2] !== i) continue;
+	                    if (markup[2] !== i || markup[1] === markup[2]) continue;
 	
-	                    if (isAtLeaf) {
+	                    if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
 	                        var textNode = openNodes.pop();
 	
 	                        TreeBuilder.closeNode(textNode, i, text);
@@ -1277,6 +1287,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    node = newNode;
 	
 	                    requiresNewLeaf = true;
+	
+	                    if (_markup[1] === _markup[2]) {
+	                        // Empty tag
+	
+	                        TreeBuilder.closeNode(node, i, text);
+	
+	                        node = node.parent;
+	
+	                        openNodes.pop();
+	
+	                        requiresNewLeaf = false;
+	                    }
 	                }
 	
 	                if (requiresNewLeaf && i !== text.length) {
@@ -1375,14 +1397,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            if (node.childNodes.length) {
 	                html += Renderer.renderNodes(node.childNodes, node);
-	            } else if (parent) {
+	            } else {
 	                // Text leaf node
 	
 	                html += node.text;
-	            } else {
-	                // Top-level text node between two blocks, interpret as new line
-	
-	                html += '\n';
 	            }
 	
 	            if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
@@ -1403,36 +1421,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
-		"markups": [
-			[
-				"p",
-				0,
-				27
-			],
-			[
-				"em",
-				6,
-				17
-			],
-			[
-				"strong",
-				12,
-				17
-			],
-			[
-				"h2",
-				28,
-				50
-			]
-		]
-	};
-
-/***/ },
+/* 12 */,
 /* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1579,6 +1568,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 	
 	exports.default = EventHandler;
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	module.exports = {
+		"text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing",
+		"markups": [
+			[
+				"p",
+				0,
+				27
+			],
+			[
+				"em",
+				6,
+				17
+			],
+			[
+				"strong",
+				12,
+				17
+			],
+			[
+				"h2",
+				28,
+				50
+			]
+		]
+	};
 
 /***/ }
 /******/ ])

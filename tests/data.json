@@ -1,5 +1,5 @@
 {
-    "text": "Lorem ipsum dolor sit amet. Consectetur adipiscing",
+    "text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing",
     "markups": [
         ["p", 0, 27],
         ["em", 6, 17],
