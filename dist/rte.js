@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(14);
+	var _data = __webpack_require__(13);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -118,19 +118,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _State2 = _interopRequireDefault(_State);
 	
-	var _EventHandler = __webpack_require__(13);
+	var _EventHandler = __webpack_require__(9);
 	
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 	
-	var _Editor = __webpack_require__(9);
+	var _Editor = __webpack_require__(10);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
-	var _TreeBuilder = __webpack_require__(10);
+	var _TreeBuilder = __webpack_require__(11);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(11);
+	var _Renderer = __webpack_require__(12);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
@@ -151,14 +151,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(RichTextEditor, [{
 	        key: 'attach',
-	        value: function attach(el, initialState) {
+	        value: function attach(el) {
+	            var initialState = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new _State2.default();
+	
 	            this.dom.root = el;
 	
-	            _Util2.default.extend(this.state, initialState);
-	
-	            this.state.markups = this.state.markups.map(function (markup) {
-	                return new _Markup2.default(markup);
-	            });
+	            this.buildInitialState(initialState);
 	
 	            this.root = RichTextEditor.buildModelFromState(this.state);
 	
@@ -167,6 +165,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.render();
 	
 	            this.eventHandler.bindEvents(this.dom.root, this);
+	        }
+	
+	        /**
+	         * @param   {object} initialState
+	         * @return  {void}
+	         */
+	
+	    }, {
+	        key: 'buildInitialState',
+	        value: function buildInitialState(initialState) {
+	            _Util2.default.extend(this.state, initialState);
+	
+	            if (this.state.markups.length < 1) {
+	                this.state.markups.push(['p', 0, 0]);
+	            }
+	
+	            this.state.markups = this.state.markups.map(function (markup) {
+	                return new _Markup2.default(markup);
+	            });
 	        }
 	    }, {
 	        key: 'render',
@@ -198,6 +215,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.render();
 	
 	            this.positionCaret(this.state.selection);
+	        }
+	    }, {
+	        key: 'sanitizeSelection',
+	        value: function sanitizeSelection() {
+	            var selection = window.getSelection();
+	            var range = this.getRangeFromSelection(selection);
+	
+	            console.log(range);
+	
+	            this.positionCaret([range.from, range.to]);
 	        }
 	    }, {
 	        key: 'getPathFromNode',
@@ -244,6 +271,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var extentPath = anchorPath;
 	            var virtualExtentNode = virtualAnchorNode;
 	            var isRtl = false;
+	            var rangeFrom = -1;
+	            var rangeTo = -1;
 	
 	            if (!selection.isCollapsed) {
 	                extentPath = this.getPathFromNode(selection.extentNode);
@@ -262,7 +291,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                to.path = isRtl ? anchorPath : extentPath;
 	            }
 	
-	            return new _Range2.default(from.node.start + from.offset, to.node.start + to.offset);
+	            rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
+	            rangeTo = Math.min(to.node.start + to.offset, to.node.end);
+	
+	            return new _Range2.default(rangeFrom, rangeTo);
 	        }
 	    }, {
 	        key: 'positionCaret',
@@ -282,15 +314,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var offsetEnd = -1;
 	
 	            for (var i = 0; virtualNode = childNodes[i]; i++) {
+	                // Node ends before caret
+	
 	                if (virtualNode.end < start) continue;
 	
+	                // The desired node is this node, or within this node
+	
 	                if (virtualNode.childNodes.length) {
+	                    // Node has children, drop down until at leaf
+	
 	                    childNodes = virtualNode.childNodes;
 	
 	                    i = -1;
 	
 	                    continue;
 	                }
+	
+	                // At leaf
 	
 	                offsetStart = start - virtualNode.start;
 	
@@ -302,8 +342,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	            range.setStart(nodeLeft, offsetStart);
 	
 	            if (start === end) {
+	                // Single caret
+	
 	                range.collapse(true);
 	            } else {
+	                // Multi-character selection, reset child nodes
+	
+	                childNodes = this.root.childNodes;
+	
 	                for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
 	                    if (virtualNode.end < end) continue;
 	
@@ -888,6 +934,163 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Util = __webpack_require__(3);
+	
+	var _Util2 = _interopRequireDefault(_Util);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var EventHandler = function () {
+	    function EventHandler() {
+	        _classCallCheck(this, EventHandler);
+	    }
+	
+	    _createClass(EventHandler, [{
+	        key: 'bindEvents',
+	        value: function bindEvents(root, richTextEditor) {
+	            this.delegator = this.delegator.bind(this, richTextEditor);
+	
+	            root.addEventListener('keypress', this.delegator);
+	            root.addEventListener('keydown', this.delegator);
+	            root.addEventListener('click', this.delegator);
+	        }
+	    }, {
+	        key: 'unbindEvents',
+	        value: function unbindEvents(root) {
+	            root.removeEventListener('keypress', this.delegator);
+	            root.removeEventListener('keydown', this.delegator);
+	            root.removeEventListener('click', this.delegator);
+	        }
+	    }, {
+	        key: 'delegator',
+	        value: function delegator(richTextEditor, e) {
+	            var eventType = e.type;
+	            var fn = this['handle' + _Util2.default.pascalCase(eventType)];
+	
+	            if (typeof fn !== 'function') {
+	                throw new Error('[EventHandler] No handler found for event "' + eventType + '"');
+	            }
+	
+	            fn(e, richTextEditor);
+	        }
+	    }, {
+	        key: 'handleClick',
+	        value: function handleClick(e, richTextEditor) {
+	            richTextEditor.sanitizeSelection();
+	        }
+	    }, {
+	        key: 'handleKeypress',
+	        value: function handleKeypress(e, richTextEditor) {
+	            e.preventDefault();
+	
+	            richTextEditor.performCommand('insert', e.key);
+	        }
+	    }, {
+	        key: 'handleKeydown',
+	        value: function handleKeydown(e, richTextEditor) {
+	            var key = e.key.toLowerCase();
+	
+	            var command = '';
+	
+	            if (e.metaKey) {
+	                switch (key) {
+	                    case 'a':
+	                        return richTextEditor.sanitizeSelection();
+	                    case 'c':
+	                        command = 'copy';
+	
+	                        break;
+	                    case 'v':
+	                        command = 'paste';
+	
+	                        break;
+	                    case 's':
+	                        command = 'save';
+	
+	                        break;
+	                    case 'z':
+	                        command = e.shiftKey ? 'redo' : 'undo';
+	
+	                        break;
+	                }
+	            }
+	
+	            switch (key) {
+	                case 'enter':
+	                    command = e.shiftKey ? 'shiftReturn' : 'return';
+	
+	                    break;
+	                case 'backspace':
+	                    command = 'backspace';
+	
+	                    break;
+	                case 'delete':
+	                    command = 'delete';
+	
+	                    break;
+	                case 'arrowup':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
+	                    } else {
+	                        // TODO: line up if neccessary
+	                        command = '';
+	                    }
+	
+	                    break;
+	                case 'arrowdown':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
+	                    } else {
+	                        // TODO: line down if neccessary
+	                        command = '';
+	                    }
+	
+	                    break;
+	                case 'arrowleft':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'homeSelect' : 'home';
+	                    } else {
+	                        command = e.shiftKey ? 'leftSelect' : 'left';
+	                    }
+	
+	                    break;
+	                case 'arrowright':
+	                    if (e.metaKey) {
+	                        command = e.shiftKey ? 'endSelect' : 'end';
+	                    } else {
+	                        command = e.shiftKey ? 'rightSelect' : 'right';
+	                    }
+	
+	                    break;
+	            }
+	
+	            if (!command) return;
+	
+	            e.preventDefault();
+	
+	            richTextEditor.performCommand(command);
+	        }
+	    }]);
+	
+	    return EventHandler;
+	}();
+	
+	exports.default = EventHandler;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1040,17 +1243,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 	
-	            // Replace 3 or more spaces with a single space.
-	
-	            collapsed = newState.text.replace(/ {3,}/g, ' ');
-	
-	            // Replace 1 or more spaces before a new line with a single space
-	
-	            collapsed = newState.text.replace(/ +\n/g, ' \n');
-	
-	            // Disallow spaces at the start of a new line
-	
-	            collapsed = newState.text.replace(/\n */g, '\n');
+	            collapsed = Editor.collapseWhitespace(newState.text);
 	
 	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
 	                totalAdded -= totalCollapsed;
@@ -1066,16 +1259,45 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return newState;
 	        }
 	    }, {
+	        key: 'collapseWhitespace',
+	        value: function collapseWhitespace(text) {
+	            // Replace 3 or more spaces with a single space.
+	
+	            var collapsed = text.replace(/ {3,}/g, ' ');
+	
+	            // Replace 1 or more spaces before a new line with a single space
+	
+	            collapsed = text.replace(/ +\n/g, ' \n');
+	
+	            // Disallow spaces at the start of a new line
+	
+	            collapsed = text.replace(/\n */g, '\n');
+	
+	            return collapsed;
+	        }
+	    }, {
 	        key: 'backspace',
 	        value: function backspace(state, range) {
 	            var newState = new _State2.default();
 	            var isRange = range.from !== range.to;
 	            var fromIndex = isRange ? range.from : range.to - 1;
+	
 	            var adjustment = fromIndex - range.to;
+	            var totalCollapsed = -1;
+	            var collapsed = '';
 	
 	            if (range.to === 0) return state;
 	
 	            newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
+	
+	            collapsed = Editor.collapseWhitespace(newState.text);
+	
+	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	                adjustment -= totalCollapsed;
+	
+	                newState.text = collapsed;
+	            }
+	
 	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
 	
 	            newState.selection = [fromIndex, fromIndex];
@@ -1088,11 +1310,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var newState = new _State2.default();
 	            var isRange = range.from !== range.to;
 	            var toIndex = isRange ? range.to : range.from + 1;
+	
 	            var adjustment = range.from - toIndex;
+	            var totalCollapsed = -1;
+	            var collapsed = '';
 	
 	            if (range.from === state.text.length) return state;
 	
 	            newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
+	
+	            collapsed = Editor.collapseWhitespace(newState.text);
+	
+	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	                adjustment -= totalCollapsed;
+	
+	                newState.text = collapsed;
+	            }
+	
 	            newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
 	
 	            newState.selection = [range.from, range.from];
@@ -1119,13 +1353,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    markup = new _Markup2.default(markup);
 	                }
 	
-	                // Selection completely envelopes markup
+	                if (start >= fromIndex && end <= toIndex) {
+	                    // Selection completely envelopes markup
 	
-	                if (start > fromIndex && end < toIndex) {
-	                    removeMarkup = true;
-	                }
-	
-	                if (start <= fromIndex && end >= toIndex) {
+	                    if (start === fromIndex && totalAdded > 0) {
+	                        newMarkup[2] = start + totalAdded;
+	                    } else if (!markup.isBlock) {
+	                        removeMarkup = true;
+	                    }
+	                } else if (start <= fromIndex && end >= toIndex) {
 	                    // Selection within markup or equal to markup
 	
 	                    newMarkup[2] += adjustment;
@@ -1197,7 +1433,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Editor;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1260,7 +1496,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    closedNode = openNodes.pop();
 	
-	                    TreeBuilder.closeNode(closedNode, i, text);
+	                    TreeBuilder.closeNode(closedNode, i);
 	
 	                    node = closedNode.parent;
 	                }
@@ -1289,26 +1525,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    requiresNewLeaf = true;
 	
 	                    if (_markup[1] === _markup[2]) {
-	                        // Empty tag
+	                        // Empty tag, close immediately
 	
-	                        TreeBuilder.closeNode(node, i, text);
+	                        TreeBuilder.closeNode(node, i);
+	                    }
+	                }
+	
+	                if (requiresNewLeaf) {
+	                    var leaf = TreeBuilder.getOpenNode('', i, node);
+	
+	                    if (node.start === node.end) {
+	                        // Empty leaf in empty node, close immediately
+	
+	                        node.childNodes.push(leaf);
+	
+	                        TreeBuilder.closeNode(leaf, i);
 	
 	                        node = node.parent;
 	
 	                        openNodes.pop();
+	                    } else if (i < text.length) {
+	                        // Should open leaf node, but not at end of string
 	
-	                        requiresNewLeaf = false;
+	                        node.childNodes.push(leaf);
+	
+	                        openNodes.push(leaf);
+	
+	                        isAtLeaf = true;
 	                    }
-	                }
 	
-	                if (requiresNewLeaf && i !== text.length) {
-	                    var leaf = TreeBuilder.getOpenNode('', i, node);
-	
-	                    openNodes.push(leaf);
-	
-	                    node.childNodes.push(leaf);
-	
-	                    isAtLeaf = true;
+	                    requiresNewLeaf = false;
 	                }
 	            }
 	        }
@@ -1338,13 +1584,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        /**
 	         * @param   {Node}      node
 	         * @param   {number}    end
-	         * @param   {string}    text
+	         * @param   {string}    [text='']
 	         * @return  {void}
 	         */
 	
 	    }, {
 	        key: 'closeNode',
-	        value: function closeNode(node, end, text) {
+	        value: function closeNode(node, end) {
+	            var text = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+	
 	            node.end = end;
 	
 	            if (node.isText) {
@@ -1359,7 +1607,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1400,7 +1648,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            } else {
 	                // Text leaf node
 	
-	                html += node.text;
+	                html += node.text.length ? node.text : '&#8203;';
 	            }
 	
 	            if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
@@ -1421,156 +1669,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 12 */,
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _Util = __webpack_require__(3);
-	
-	var _Util2 = _interopRequireDefault(_Util);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var EventHandler = function () {
-	    function EventHandler() {
-	        _classCallCheck(this, EventHandler);
-	    }
-	
-	    _createClass(EventHandler, [{
-	        key: 'bindEvents',
-	        value: function bindEvents(root, richTextEditor) {
-	            this.delegator = this.delegator.bind(this, richTextEditor);
-	
-	            root.addEventListener('keypress', this.delegator);
-	            root.addEventListener('keydown', this.delegator);
-	        }
-	    }, {
-	        key: 'unbindEvents',
-	        value: function unbindEvents(root) {
-	            root.removeEventListener('keypress', this.delegator);
-	            root.removeEventListener('keydown', this.delegator);
-	        }
-	    }, {
-	        key: 'delegator',
-	        value: function delegator(richTextEditor, e) {
-	            var eventType = e.type;
-	            var fn = this['handle' + _Util2.default.pascalCase(eventType)];
-	
-	            if (typeof fn !== 'function') {
-	                throw new Error('[EventHandler] No handler found for event "' + eventType + '"');
-	            }
-	
-	            fn(e, richTextEditor);
-	        }
-	    }, {
-	        key: 'handleKeypress',
-	        value: function handleKeypress(e, richTextEditor) {
-	            e.preventDefault();
-	
-	            richTextEditor.performCommand('insert', e.key);
-	        }
-	    }, {
-	        key: 'handleKeydown',
-	        value: function handleKeydown(e, richTextEditor) {
-	            var key = e.key.toLowerCase();
-	
-	            var command = '';
-	
-	            if (e.metaKey) {
-	                switch (key) {
-	                    case 'c':
-	                        command = 'copy';
-	
-	                        break;
-	                    case 'v':
-	                        command = 'paste';
-	
-	                        break;
-	                    case 's':
-	                        command = 'save';
-	
-	                        break;
-	                    case 'z':
-	                        command = e.shiftKey ? 'redo' : 'undo';
-	
-	                        break;
-	                }
-	            }
-	
-	            switch (key) {
-	                case 'enter':
-	                    command = 'return';
-	
-	                    break;
-	                case 'backspace':
-	                    command = 'backspace';
-	
-	                    break;
-	                case 'delete':
-	                    command = 'delete';
-	
-	                    break;
-	                case 'arrowup':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
-	                    } else {
-	                        // TODO: line up if neccessary
-	                        command = '';
-	                    }
-	
-	                    break;
-	                case 'arrowdown':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
-	                    } else {
-	                        // TODO: line down if neccessary
-	                        command = '';
-	                    }
-	
-	                    break;
-	                case 'arrowleft':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'homeSelect' : 'home';
-	                    } else {
-	                        command = e.shiftKey ? 'leftSelect' : 'left';
-	                    }
-	
-	                    break;
-	                case 'arrowright':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'endSelect' : 'end';
-	                    } else {
-	                        command = e.shiftKey ? 'rightSelect' : 'right';
-	                    }
-	
-	                    break;
-	            }
-	
-	            if (!command) return;
-	
-	            e.preventDefault();
-	
-	            richTextEditor.performCommand(command);
-	        }
-	    }]);
-	
-	    return EventHandler;
-	}();
-	
-	exports.default = EventHandler;
-
-/***/ },
-/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = {

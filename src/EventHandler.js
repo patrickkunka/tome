@@ -6,11 +6,13 @@ class EventHandler {
 
         root.addEventListener('keypress', this.delegator);
         root.addEventListener('keydown', this.delegator);
+        root.addEventListener('click', this.delegator);
     }
 
     unbindEvents(root) {
         root.removeEventListener('keypress', this.delegator);
         root.removeEventListener('keydown', this.delegator);
+        root.removeEventListener('click', this.delegator);
     }
 
     delegator(richTextEditor, e) {
@@ -22,6 +24,10 @@ class EventHandler {
         }
 
         fn(e, richTextEditor);
+    }
+
+    handleClick(e, richTextEditor) {
+        richTextEditor.sanitizeSelection();
     }
 
     handleKeypress(e, richTextEditor) {
@@ -37,6 +43,8 @@ class EventHandler {
 
         if (e.metaKey) {
             switch (key) {
+                case 'a':
+                    return richTextEditor.sanitizeSelection();
                 case 'c':
                     command = 'copy';
 
@@ -58,7 +66,7 @@ class EventHandler {
 
         switch (key) {
             case 'enter':
-                command = 'return';
+                command = e.shiftKey ? 'shiftReturn' : 'return';
 
                 break;
             case 'backspace':

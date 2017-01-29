@@ -45,5 +45,8 @@ describe('TreeBuilder', () => {
         assert.equal(root.childNodes[0].tag, 'p');
         assert.equal(root.childNodes[0].start, 0);
         assert.equal(root.childNodes[0].end, 0);
+        assert.equal(root.childNodes[0].childNodes.length, 1);
+        assert.equal(root.childNodes[0].childNodes[0].start, 0);
+        assert.equal(root.childNodes[0].childNodes[0].end, 0);
     });
 });

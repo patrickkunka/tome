@@ -120,17 +120,7 @@ class Editor {
 
         newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
 
-        // Replace 3 or more spaces with a single space.
-
-        collapsed = newState.text.replace(/ {3,}/g, ' ');
-
-        // Replace 1 or more spaces before a new line with a single space
-
-        collapsed = newState.text.replace(/ +\n/g, ' \n');
-
-        // Disallow spaces at the start of a new line
-
-        collapsed = newState.text.replace(/\n */g, '\n');
+        collapsed = Editor.collapseWhitespace(newState.text);
 
         if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
             totalAdded -= totalCollapsed;
@@ -146,15 +136,43 @@ class Editor {
         return newState;
     }
 
+    static collapseWhitespace(text) {
+        // Replace 3 or more spaces with a single space.
+
+        let collapsed = text.replace(/ {3,}/g, ' ');
+
+        // Replace 1 or more spaces before a new line with a single space
+
+        collapsed = text.replace(/ +\n/g, ' \n');
+
+        // Disallow spaces at the start of a new line
+
+        collapsed = text.replace(/\n */g, '\n');
+
+        return collapsed;
+    }
+
     static backspace(state, range) {
         const newState = new State();
         const isRange = range.from !== range.to;
         const fromIndex = isRange ? range.from : range.to - 1;
-        const adjustment = fromIndex - range.to;
+
+        let adjustment = fromIndex - range.to;
+        let totalCollapsed = -1;
+        let collapsed = '';
 
         if (range.to === 0) return state;
 
         newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
+
+        collapsed = Editor.collapseWhitespace(newState.text);
+
+        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+            adjustment -= totalCollapsed;
+
+            newState.text = collapsed;
+        }
+
         newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
 
         newState.selection = [fromIndex, fromIndex];
@@ -166,11 +184,23 @@ class Editor {
         const newState = new State();
         const isRange = range.from !== range.to;
         const toIndex = isRange ? range.to : range.from + 1;
-        const adjustment = range.from - toIndex;
+
+        let adjustment = range.from - toIndex;
+        let totalCollapsed = -1;
+        let collapsed = '';
 
         if (range.from === state.text.length) return state;
 
         newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
+
+        collapsed = Editor.collapseWhitespace(newState.text);
+
+        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+            adjustment -= totalCollapsed;
+
+            newState.text = collapsed;
+        }
+
         newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
 
         newState.selection = [range.from, range.from];
@@ -191,13 +221,15 @@ class Editor {
                 markup = new Markup(markup);
             }
 
-            // Selection completely envelopes markup
+            if (start >= fromIndex && end <= toIndex) {
+                // Selection completely envelopes markup
 
-            if (start > fromIndex && end < toIndex) {
-                removeMarkup = true;
-            }
-
-            if (start <= fromIndex && end >= toIndex) {
+                if (start === fromIndex && totalAdded > 0) {
+                    newMarkup[2] = start + totalAdded;
+                } else if (!markup.isBlock) {
+                    removeMarkup = true;
+                }
+            } else if (start <= fromIndex && end >= toIndex) {
                 // Selection within markup or equal to markup
 
                 newMarkup[2] += adjustment;

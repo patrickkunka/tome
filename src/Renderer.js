@@ -15,7 +15,7 @@ class Renderer {
         } else {
             // Text leaf node
 
-            html += node.text;
+            html += node.text.length ? node.text : '&#8203;';
         }
 
         if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {

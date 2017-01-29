@@ -186,6 +186,27 @@ describe('Editor', () => {
         assert.isNotOk(newState.markups[1]);
     });
 
+    it('should completely remove inline any markups which are equal to the range', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                ['p', 0, 18],
+                ['strong', 6, 11]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 5, to: 11}, '');
+
+        assert.equal(newState.text, 'Lorem dolor.');
+        assert.equal(newState.markups.length, 1);
+        assert.equal(newState.markups[0][1], 0);
+        assert.equal(newState.markups[0][2], 12);
+    });
+
+    it('should preserve block markups which are equal to the range', () => {
+        // TODO
+    });
+
     it('should maintain inline markups which are partially enveloped by the range from the start', () => {
         const state = {
             text: 'Lorem ipsum.',

@@ -19,12 +19,10 @@ class RichTextEditor {
         this.history        = [];
     }
 
-    attach(el, initialState) {
+    attach(el, initialState=new State()) {
         this.dom.root = el;
 
-        Util.extend(this.state, initialState);
-
-        this.state.markups = this.state.markups.map(markup => new Markup(markup));
+        this.buildInitialState(initialState);
 
         this.root = RichTextEditor.buildModelFromState(this.state);
 
@@ -33,6 +31,21 @@ class RichTextEditor {
         this.render();
 
         this.eventHandler.bindEvents(this.dom.root, this);
+    }
+
+    /**
+     * @param   {object} initialState
+     * @return  {void}
+     */
+
+    buildInitialState(initialState) {
+        Util.extend(this.state, initialState);
+
+        if (this.state.markups.length < 1) {
+            this.state.markups.push(['p', 0, 0]);
+        }
+
+        this.state.markups = this.state.markups.map(markup => new Markup(markup));
     }
 
     render() {
@@ -62,6 +75,15 @@ class RichTextEditor {
         this.render();
 
         this.positionCaret(this.state.selection);
+    }
+
+    sanitizeSelection() {
+        const selection = window.getSelection();
+        const range = this.getRangeFromSelection(selection);
+
+        console.log(range);
+
+        this.positionCaret([range.from, range.to]);
     }
 
     getPathFromNode(node) {
@@ -104,6 +126,8 @@ class RichTextEditor {
         let extentPath = anchorPath;
         let virtualExtentNode = virtualAnchorNode;
         let isRtl = false;
+        let rangeFrom = -1;
+        let rangeTo = -1;
 
         if (!selection.isCollapsed) {
             extentPath = this.getPathFromNode(selection.extentNode);
@@ -122,7 +146,10 @@ class RichTextEditor {
             to.path     = isRtl ? anchorPath : extentPath;
         }
 
-        return new Range(from.node.start + from.offset, to.node.start + to.offset);
+        rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
+        rangeTo = Math.min(to.node.start + to.offset, to.node.end);
+
+        return new Range(rangeFrom, rangeTo);
     }
 
     positionCaret([start, end]) {
@@ -137,15 +164,23 @@ class RichTextEditor {
         let offsetEnd   = -1;
 
         for (let i = 0; (virtualNode = childNodes[i]); i++) {
+            // Node ends before caret
+
             if (virtualNode.end < start) continue;
 
+            // The desired node is this node, or within this node
+
             if (virtualNode.childNodes.length) {
+                // Node has children, drop down until at leaf
+
                 childNodes = virtualNode.childNodes;
 
                 i = -1;
 
                 continue;
             }
+
+            // At leaf
 
             offsetStart = start - virtualNode.start;
 
@@ -157,8 +192,14 @@ class RichTextEditor {
         range.setStart(nodeLeft, offsetStart);
 
         if (start === end) {
+            // Single caret
+
             range.collapse(true);
         } else {
+            // Multi-character selection, reset child nodes
+
+            childNodes = this.root.childNodes;
+
             for (let i = 0; (virtualNode = childNodes[i]); i++) {
                 if (virtualNode.end < end) continue;
 

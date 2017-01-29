@@ -37,7 +37,7 @@ class TreeBuilder {
 
                 closedNode = openNodes.pop();
 
-                TreeBuilder.closeNode(closedNode, i, text);
+                TreeBuilder.closeNode(closedNode, i);
 
                 node = closedNode.parent;
             }
@@ -66,26 +66,36 @@ class TreeBuilder {
                 requiresNewLeaf = true;
 
                 if (markup[1] === markup[2]) {
-                    // Empty tag
+                    // Empty tag, close immediately
 
-                    TreeBuilder.closeNode(node, i, text);
+                    TreeBuilder.closeNode(node, i);
+                }
+            }
+
+            if (requiresNewLeaf) {
+                const leaf = TreeBuilder.getOpenNode('', i, node);
+
+                if (node.start === node.end) {
+                    // Empty leaf in empty node, close immediately
+
+                    node.childNodes.push(leaf);
+
+                    TreeBuilder.closeNode(leaf, i);
 
                     node = node.parent;
 
                     openNodes.pop();
+                } else if (i < text.length) {
+                    // Should open leaf node, but not at end of string
 
-                    requiresNewLeaf = false;
+                    node.childNodes.push(leaf);
+
+                    openNodes.push(leaf);
+
+                    isAtLeaf = true;
                 }
-            }
 
-            if (requiresNewLeaf && i !== text.length) {
-                const leaf = TreeBuilder.getOpenNode('', i, node);
-
-                openNodes.push(leaf);
-
-                node.childNodes.push(leaf);
-
-                isAtLeaf = true;
+                requiresNewLeaf = false;
             }
         }
     }
@@ -113,11 +123,11 @@ class TreeBuilder {
     /**
      * @param   {Node}      node
      * @param   {number}    end
-     * @param   {string}    text
+     * @param   {string}    [text='']
      * @return  {void}
      */
 
-    static closeNode(node, end, text) {
+    static closeNode(node, end, text='') {
         node.end = end;
 
         if (node.isText) {
