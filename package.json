@@ -1,5 +1,5 @@
 {
-  "name": "rte",
+  "name": "tome",
   "version": "0.0.0",
   "private": true,
   "main": "./dist/services/node-factory.js",

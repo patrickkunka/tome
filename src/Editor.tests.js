@@ -204,7 +204,19 @@ describe('Editor', () => {
     });
 
     it('should preserve block markups which are equal to the range', () => {
-        // TODO
+        const state = {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                ['p', 0, 18]
+            ]
+        };
+
+        const newState = Editor.backspace(state, {from: 0, to: 18}, '');
+
+        assert.equal(newState.text, '');
+        assert.equal(newState.markups.length, 1);
+        assert.equal(newState.markups[0][1], 0);
+        assert.equal(newState.markups[0][2], 0);
     });
 
     it('should maintain inline markups which are partially enveloped by the range from the start', () => {

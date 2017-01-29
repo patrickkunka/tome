@@ -4,7 +4,7 @@ import data           from '../tests/data.json';
 function factory(el) {
     const richTextEditor = new RichTextEditor();
 
-    richTextEditor.attach(el, data);
+    richTextEditor.attach(el);
 
     return richTextEditor;
 }

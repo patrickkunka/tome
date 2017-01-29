@@ -99,15 +99,17 @@ class EventHandler {
                 if (e.metaKey) {
                     command = e.shiftKey ? 'homeSelect' : 'home';
                 } else {
-                    command = e.shiftKey ? 'leftSelect' : 'left';
+                    command = e.shiftKey ? 'leftSelect' : e.altKey ? 'leftSkip' : 'left'; // eslint-disable-line no-nested-ternary
                 }
+
+                console.log(command, e);
 
                 break;
             case 'arrowright':
                 if (e.metaKey) {
                     command = e.shiftKey ? 'endSelect' : 'end';
                 } else {
-                    command = e.shiftKey ? 'rightSelect' : 'right';
+                    command = e.shiftKey ? 'rightSelect' : e.altKey ? 'rightSkip' : 'right'; // eslint-disable-line no-nested-ternary
                 }
 
                 break;

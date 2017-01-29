@@ -224,7 +224,9 @@ class Editor {
             if (start >= fromIndex && end <= toIndex) {
                 // Selection completely envelopes markup
 
-                if (start === fromIndex && totalAdded > 0) {
+                if (start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+                    // Markup should be preserved is a) is block element,
+                    // b) is inline and inserting
                     newMarkup[2] = start + totalAdded;
                 } else if (!markup.isBlock) {
                     removeMarkup = true;

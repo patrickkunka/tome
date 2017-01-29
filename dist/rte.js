@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function factory(el) {
 	    var richTextEditor = new _RichTextEditor2.default();
 	
-	    richTextEditor.attach(el, _data2.default);
+	    richTextEditor.attach(el);
 	
 	    return richTextEditor;
 	}
@@ -1054,15 +1054,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (e.metaKey) {
 	                        command = e.shiftKey ? 'homeSelect' : 'home';
 	                    } else {
-	                        command = e.shiftKey ? 'leftSelect' : 'left';
+	                        command = e.shiftKey ? 'leftSelect' : e.altKey ? 'leftSkip' : 'left'; // eslint-disable-line no-nested-ternary
 	                    }
+	
+	                    console.log(command, e);
 	
 	                    break;
 	                case 'arrowright':
 	                    if (e.metaKey) {
 	                        command = e.shiftKey ? 'endSelect' : 'end';
 	                    } else {
-	                        command = e.shiftKey ? 'rightSelect' : 'right';
+	                        command = e.shiftKey ? 'rightSelect' : e.altKey ? 'rightSkip' : 'right'; // eslint-disable-line no-nested-ternary
 	                    }
 	
 	                    break;
@@ -1356,7 +1358,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (start >= fromIndex && end <= toIndex) {
 	                    // Selection completely envelopes markup
 	
-	                    if (start === fromIndex && totalAdded > 0) {
+	                    if (start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+	                        // Markup should be preserved is a) is block element,
+	                        // b) is inline and inserting
 	                        newMarkup[2] = start + totalAdded;
 	                    } else if (!markup.isBlock) {
 	                        removeMarkup = true;
