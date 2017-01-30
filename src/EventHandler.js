@@ -58,9 +58,7 @@ class EventHandler {
 
                     break;
                 case 'z':
-                    command = e.shiftKey ? 'redo' : 'undo';
-
-                    break;
+                    return richTextEditor[e.shiftKey ? 'redo' : 'undo']();
             }
         }
 
@@ -78,39 +76,19 @@ class EventHandler {
 
                 break;
             case 'arrowup':
-                if (e.metaKey) {
-                    command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
-                } else {
-                    // TODO: line up if neccessary
-                    command = '';
-                }
+                command = EventHandler.parseArrowUp(e);
 
                 break;
             case 'arrowdown':
-                if (e.metaKey) {
-                    command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
-                } else {
-                    // TODO: line down if neccessary
-                    command = '';
-                }
+                command = EventHandler.parseArrowDown(e);
 
                 break;
             case 'arrowleft':
-                if (e.metaKey) {
-                    command = e.shiftKey ? 'homeSelect' : 'home';
-                } else {
-                    command = e.shiftKey ? 'leftSelect' : e.altKey ? 'leftSkip' : 'left'; // eslint-disable-line no-nested-ternary
-                }
-
-                console.log(command, e);
+                command = EventHandler.parseArrowLeft(e);
 
                 break;
             case 'arrowright':
-                if (e.metaKey) {
-                    command = e.shiftKey ? 'endSelect' : 'end';
-                } else {
-                    command = e.shiftKey ? 'rightSelect' : e.altKey ? 'rightSkip' : 'right'; // eslint-disable-line no-nested-ternary
-                }
+                command = EventHandler.parseArrowRight(e);
 
                 break;
         }
@@ -120,6 +98,58 @@ class EventHandler {
         e.preventDefault();
 
         richTextEditor.performCommand(command);
+    }
+
+    static parseArrowUp(e) {
+        if (e.metaKey && e.shiftKey) {
+            return 'pageUpSelect';
+        } else if (e.metaKey) {
+            return 'pageUp';
+        }
+
+        return '';
+
+        // or 'up' if neccessary
+    }
+
+    static parseArrowDown(e) {
+        if (e.metaKey && e.shiftKey) {
+            return 'pageDownSelect';
+        } else if (e.metaKey) {
+            return 'pageDown';
+        }
+
+        return '';
+
+        // or 'down' if neccessary
+    }
+
+    static parseArrowLeft(e) {
+        if (e.metaKey && e.shiftKey) {
+            return 'homeSelect';
+        } else if (e.metaKey) {
+            return 'home';
+        } else if (e.altKey) {
+            return 'leftSkip';
+        } else if (e.shiftKey) {
+            return 'leftSelect';
+        }
+
+        return 'left';
+    }
+
+    static parseArrowRight(e) {
+        if (e.metaKey && e.shiftKey) {
+            return 'endSelect';
+        } else if (e.metaKey) {
+            return 'end';
+        } else if (e.altKey) {
+            return 'rightSkip';
+        } else if (e.shiftKey) {
+            return 'rightSelect';
+        }
+
+        return 'right';
     }
 }
 

@@ -208,6 +208,14 @@ class Editor {
         return newState;
     }
 
+    static return(state, range) {
+        // if collapsed range:
+            // if end of block markup, insert new empty <p> markup and line break to text
+            // if within block markup, find parent block markup and split in two point, as well as any inline markups at caret
+        // if non collapsed range
+            // delete selection and insert line break and new empty <p> (same as case 1?)
+    }
+
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
         const newMarkups = [];
 

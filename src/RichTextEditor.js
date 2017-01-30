@@ -13,20 +13,26 @@ import Renderer     from './Renderer';
 class RichTextEditor {
     constructor() {
         this.dom            = new Dom();
-        this.state          = new State();
         this.eventHandler   = new EventHandler();
         this.root           = null;
         this.history        = [];
+        this.historyIndex   = -1;
+
+        Object.defineProperties(this, {
+            state: {
+                get() {
+                    return this.history[this.historyIndex];
+                }
+            }
+        });
     }
 
     attach(el, initialState=new State()) {
         this.dom.root = el;
 
-        this.buildInitialState(initialState);
+        this.history.push(this.buildInitialState(initialState));
 
-        this.root = RichTextEditor.buildModelFromState(this.state);
-
-        console.log(this.root);
+        this.historyIndex++;
 
         this.render();
 
@@ -35,21 +41,45 @@ class RichTextEditor {
 
     /**
      * @param   {object} initialState
-     * @return  {void}
+     * @return  {State}
      */
 
     buildInitialState(initialState) {
-        Util.extend(this.state, initialState);
+        const state = Util.extend(new State(), initialState);
 
-        if (this.state.markups.length < 1) {
-            this.state.markups.push(['p', 0, 0]);
+        if (state.markups.length < 1) {
+            state.markups.push(['p', 0, 0]);
         }
 
-        this.state.markups = this.state.markups.map(markup => new Markup(markup));
+        state.markups = state.markups.map(markup => new Markup(markup));
+
+        return state;
     }
 
     render() {
+        this.root = RichTextEditor.buildModelFromState(this.state);
+
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
+    }
+
+    undo() {
+        if (this.historyIndex === 0) return;
+
+        this.historyIndex--;
+
+        this.render();
+
+        this.positionCaret(this.state.selection);
+    }
+
+    redo() {
+        if (this.history.length - 1 === this.historyIndex) return;
+
+        this.historyIndex++;
+
+        this.render();
+
+        this.positionCaret(this.state.selection);
     }
 
     performCommand(command, content) {
@@ -66,11 +96,16 @@ class RichTextEditor {
 
         if (newState === this.state) return;
 
-        this.history.push(this.state);
+        // TODO: discern 'push' vs 'replace' commands i.e. inserting a
+        // char vs moving a cursor
 
-        this.state = newState;
+        this.history.push(newState);
 
-        this.root = RichTextEditor.buildModelFromState(this.state);
+        this.historyIndex++;
+
+        // Chop off any divergent future state
+
+        this.history.length = this.historyIndex + 1;
 
         this.render();
 
@@ -80,8 +115,6 @@ class RichTextEditor {
     sanitizeSelection() {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
-
-        console.log(range);
 
         this.positionCaret([range.from, range.to]);
     }

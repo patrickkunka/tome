@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function factory(el) {
 	    var richTextEditor = new _RichTextEditor2.default();
 	
-	    richTextEditor.attach(el);
+	    richTextEditor.attach(el, _data2.default);
 	
 	    return richTextEditor;
 	}
@@ -143,10 +143,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, RichTextEditor);
 	
 	        this.dom = new _Dom2.default();
-	        this.state = new _State2.default();
 	        this.eventHandler = new _EventHandler2.default();
 	        this.root = null;
 	        this.history = [];
+	        this.historyIndex = -1;
+	
+	        Object.defineProperties(this, {
+	            state: {
+	                get: function get() {
+	                    return this.history[this.historyIndex];
+	                }
+	            }
+	        });
 	    }
 	
 	    _createClass(RichTextEditor, [{
@@ -156,11 +164,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.dom.root = el;
 	
-	            this.buildInitialState(initialState);
+	            this.history.push(this.buildInitialState(initialState));
 	
-	            this.root = RichTextEditor.buildModelFromState(this.state);
-	
-	            console.log(this.root);
+	            this.historyIndex++;
 	
 	            this.render();
 	
@@ -169,26 +175,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        /**
 	         * @param   {object} initialState
-	         * @return  {void}
+	         * @return  {State}
 	         */
 	
 	    }, {
 	        key: 'buildInitialState',
 	        value: function buildInitialState(initialState) {
-	            _Util2.default.extend(this.state, initialState);
+	            var state = _Util2.default.extend(new _State2.default(), initialState);
 	
-	            if (this.state.markups.length < 1) {
-	                this.state.markups.push(['p', 0, 0]);
+	            if (state.markups.length < 1) {
+	                state.markups.push(['p', 0, 0]);
 	            }
 	
-	            this.state.markups = this.state.markups.map(function (markup) {
+	            state.markups = state.markups.map(function (markup) {
 	                return new _Markup2.default(markup);
 	            });
+	
+	            return state;
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            this.root = RichTextEditor.buildModelFromState(this.state);
+	
 	            this.dom.root.innerHTML = _Renderer2.default.renderNodes(this.root.childNodes);
+	        }
+	    }, {
+	        key: 'undo',
+	        value: function undo() {
+	            if (this.historyIndex === 0) return;
+	
+	            this.historyIndex--;
+	
+	            this.render();
+	
+	            this.positionCaret(this.state.selection);
+	        }
+	    }, {
+	        key: 'redo',
+	        value: function redo() {
+	            if (this.history.length - 1 === this.historyIndex) return;
+	
+	            this.historyIndex++;
+	
+	            this.render();
+	
+	            this.positionCaret(this.state.selection);
 	        }
 	    }, {
 	        key: 'performCommand',
@@ -206,11 +238,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            if (newState === this.state) return;
 	
-	            this.history.push(this.state);
+	            // TODO: discern 'push' vs 'replace' commands i.e. inserting a
+	            // char vs moving a cursor
 	
-	            this.state = newState;
+	            this.history.push(newState);
 	
-	            this.root = RichTextEditor.buildModelFromState(this.state);
+	            this.historyIndex++;
+	
+	            // Chop off any divergent future state
+	
+	            this.history.length = this.historyIndex + 1;
 	
 	            this.render();
 	
@@ -221,8 +258,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function sanitizeSelection() {
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
-	
-	            console.log(range);
 	
 	            this.positionCaret([range.from, range.to]);
 	        }
@@ -1013,9 +1048,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                        break;
 	                    case 'z':
-	                        command = e.shiftKey ? 'redo' : 'undo';
-	
-	                        break;
+	                        return richTextEditor[e.shiftKey ? 'redo' : 'undo']();
 	                }
 	            }
 	
@@ -1033,39 +1066,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    break;
 	                case 'arrowup':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'pageUpSelect' : 'pageUp';
-	                    } else {
-	                        // TODO: line up if neccessary
-	                        command = '';
-	                    }
+	                    command = EventHandler.parseArrowUp(e);
 	
 	                    break;
 	                case 'arrowdown':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'pageDownSelect' : 'pageDown';
-	                    } else {
-	                        // TODO: line down if neccessary
-	                        command = '';
-	                    }
+	                    command = EventHandler.parseArrowDown(e);
 	
 	                    break;
 	                case 'arrowleft':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'homeSelect' : 'home';
-	                    } else {
-	                        command = e.shiftKey ? 'leftSelect' : e.altKey ? 'leftSkip' : 'left'; // eslint-disable-line no-nested-ternary
-	                    }
-	
-	                    console.log(command, e);
+	                    command = EventHandler.parseArrowLeft(e);
 	
 	                    break;
 	                case 'arrowright':
-	                    if (e.metaKey) {
-	                        command = e.shiftKey ? 'endSelect' : 'end';
-	                    } else {
-	                        command = e.shiftKey ? 'rightSelect' : e.altKey ? 'rightSkip' : 'right'; // eslint-disable-line no-nested-ternary
-	                    }
+	                    command = EventHandler.parseArrowRight(e);
 	
 	                    break;
 	            }
@@ -1075,6 +1088,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	            e.preventDefault();
 	
 	            richTextEditor.performCommand(command);
+	        }
+	    }], [{
+	        key: 'parseArrowUp',
+	        value: function parseArrowUp(e) {
+	            if (e.metaKey && e.shiftKey) {
+	                return 'pageUpSelect';
+	            } else if (e.metaKey) {
+	                return 'pageUp';
+	            }
+	
+	            return '';
+	
+	            // or 'up' if neccessary
+	        }
+	    }, {
+	        key: 'parseArrowDown',
+	        value: function parseArrowDown(e) {
+	            if (e.metaKey && e.shiftKey) {
+	                return 'pageDownSelect';
+	            } else if (e.metaKey) {
+	                return 'pageDown';
+	            }
+	
+	            return '';
+	
+	            // or 'down' if neccessary
+	        }
+	    }, {
+	        key: 'parseArrowLeft',
+	        value: function parseArrowLeft(e) {
+	            if (e.metaKey && e.shiftKey) {
+	                return 'homeSelect';
+	            } else if (e.metaKey) {
+	                return 'home';
+	            } else if (e.altKey) {
+	                return 'leftSkip';
+	            } else if (e.shiftKey) {
+	                return 'leftSelect';
+	            }
+	
+	            return 'left';
+	        }
+	    }, {
+	        key: 'parseArrowRight',
+	        value: function parseArrowRight(e) {
+	            if (e.metaKey && e.shiftKey) {
+	                return 'endSelect';
+	            } else if (e.metaKey) {
+	                return 'end';
+	            } else if (e.altKey) {
+	                return 'rightSkip';
+	            } else if (e.shiftKey) {
+	                return 'rightSelect';
+	            }
+	
+	            return 'right';
 	        }
 	    }]);
 	
@@ -1334,6 +1403,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            newState.selection = [range.from, range.from];
 	
 	            return newState;
+	        }
+	    }, {
+	        key: 'return',
+	        value: function _return(state, range) {
+	            // if collapsed range:
+	            // if end of block markup, insert new empty <p> markup and line break to text
+	            // if within block markup, find parent block markup and split in two point, as well as any inline markups at caret
+	            // if non collapsed range
+	            // delete selection and insert line break and new empty <p> (same as case 1?)
 	        }
 	    }, {
 	        key: 'adjustMarkups',
