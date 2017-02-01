@@ -313,4 +313,21 @@ describe('Editor', () => {
         assert.equal(newState.markups[1][2], 11);
         assert.isNotOk(newState.markups[2]);
     });
+
+    it('should split a block markup into two block markups on return', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ]
+        };
+
+        const newState = Editor.return(state, {from: 19, to: 19});
+
+        assert.equal(newState.text, 'Lorem ipsum dolor. \nSit amet.');
+        assert.equal(newState.markups[0][2], 19);
+        assert.isOk(newState.markups[1]);
+        assert.equal(newState.markups[1][1], 20);
+        assert.equal(newState.markups[1][2], 29);
+    });
 });

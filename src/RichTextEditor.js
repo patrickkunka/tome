@@ -94,6 +94,10 @@ class RichTextEditor {
 
         const newState = fn(this.state, range, content);
 
+        if (!(newState instanceof State)) {
+            throw new TypeError(`[RichTextEditor] Command "${command}" did not return a valid state object`);
+        }
+
         if (newState === this.state) return;
 
         // TODO: discern 'push' vs 'replace' commands i.e. inserting a

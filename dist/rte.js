@@ -236,6 +236,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var newState = fn(this.state, range, content);
 	
+	            if (!(newState instanceof _State2.default)) {
+	                throw new TypeError('[RichTextEditor] Command "' + command + '" did not return a valid state object');
+	            }
+	
 	            if (newState === this.state) return;
 	
 	            // TODO: discern 'push' vs 'replace' commands i.e. inserting a
@@ -1323,7 +1327,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                newState.text = collapsed;
 	            }
 	
-	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
+	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment);
+	
+	            if (characters === '\n') {
+	                newState.markups = Editor.splitMarkups(newState.markups, range.from);
+	            }
 	
 	            newState.selection = [range.from + totalAdded, range.from + totalAdded];
 	
@@ -1349,69 +1357,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'backspace',
 	        value: function backspace(state, range) {
-	            var newState = new _State2.default();
 	            var isRange = range.from !== range.to;
 	            var fromIndex = isRange ? range.from : range.to - 1;
 	
-	            var adjustment = fromIndex - range.to;
-	            var totalCollapsed = -1;
-	            var collapsed = '';
-	
 	            if (range.to === 0) return state;
 	
-	            newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
-	
-	            collapsed = Editor.collapseWhitespace(newState.text);
-	
-	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-	                adjustment -= totalCollapsed;
-	
-	                newState.text = collapsed;
-	            }
-	
-	            newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
-	
-	            newState.selection = [fromIndex, fromIndex];
-	
-	            return newState;
+	            return Editor.insert(state, { from: fromIndex, to: range.to }, '');
 	        }
 	    }, {
 	        key: 'delete',
 	        value: function _delete(state, range) {
-	            var newState = new _State2.default();
 	            var isRange = range.from !== range.to;
 	            var toIndex = isRange ? range.to : range.from + 1;
 	
-	            var adjustment = range.from - toIndex;
-	            var totalCollapsed = -1;
-	            var collapsed = '';
-	
 	            if (range.from === state.text.length) return state;
 	
-	            newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
-	
-	            collapsed = Editor.collapseWhitespace(newState.text);
-	
-	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-	                adjustment -= totalCollapsed;
-	
-	                newState.text = collapsed;
-	            }
-	
-	            newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
-	
-	            newState.selection = [range.from, range.from];
-	
-	            return newState;
+	            return Editor.insert(state, { from: range.from, to: toIndex }, '');
 	        }
 	    }, {
 	        key: 'return',
 	        value: function _return(state, range) {
-	            // if collapsed range:
-	            // if end of block markup, insert new empty <p> markup and line break to text
-	            // if within block markup, find parent block markup and split in two point, as well as any inline markups at caret
-	            // if non collapsed range
-	            // delete selection and insert line break and new empty <p> (same as case 1?)
+	            // TODO: Disallow if already empty line
+	
+	            return Editor.insert(state, range, '\n');
 	        }
 	    }, {
 	        key: 'adjustMarkups',
@@ -1506,6 +1474,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            return null;
+	        }
+	    }, {
+	        key: 'splitMarkups',
+	        value: function splitMarkups(markups, index) {
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup3 = markup,
+	                    _markup4 = _slicedToArray(_markup3, 3),
+	                    markupTag = _markup4[0],
+	                    markupFrom = _markup4[1],
+	                    markupTo = _markup4[2];
+	
+	                var newMarkup = null;
+	
+	                if (markupFrom <= index && markupTo >= index) {
+	                    var newTag = markup.isBlock && markupTo === index + 1 ? 'p' : markupTag;
+	
+	                    markup[2] = index;
+	
+	                    newMarkup = new _Markup2.default([newTag, index + 1, markupTo]);
+	
+	                    markups.splice(i + 1, 0, newMarkup);
+	
+	                    i++;
+	                }
+	            }
+	
+	            return markups;
 	        }
 	    }]);
 	

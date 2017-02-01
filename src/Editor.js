@@ -129,12 +129,17 @@ class Editor {
             newState.text = collapsed;
         }
 
-        newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment, newState.text);
+        newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment);
+
+        if (characters === '\n') {
+            newState.markups = Editor.splitMarkups(newState.markups, range.from);
+        }
 
         newState.selection = [range.from + totalAdded, range.from + totalAdded];
 
         return newState;
     }
+
 
     static collapseWhitespace(text) {
         // Replace 3 or more spaces with a single space.
@@ -153,67 +158,27 @@ class Editor {
     }
 
     static backspace(state, range) {
-        const newState = new State();
         const isRange = range.from !== range.to;
         const fromIndex = isRange ? range.from : range.to - 1;
 
-        let adjustment = fromIndex - range.to;
-        let totalCollapsed = -1;
-        let collapsed = '';
-
         if (range.to === 0) return state;
 
-        newState.text = state.text.slice(0, fromIndex) + state.text.slice(range.to);
-
-        collapsed = Editor.collapseWhitespace(newState.text);
-
-        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-            adjustment -= totalCollapsed;
-
-            newState.text = collapsed;
-        }
-
-        newState.markups = Editor.adjustMarkups(state.markups, fromIndex, range.to, 0, adjustment, newState.text);
-
-        newState.selection = [fromIndex, fromIndex];
-
-        return newState;
+        return Editor.insert(state, {from: fromIndex, to: range.to}, '');
     }
 
     static delete(state, range) {
-        const newState = new State();
         const isRange = range.from !== range.to;
         const toIndex = isRange ? range.to : range.from + 1;
 
-        let adjustment = range.from - toIndex;
-        let totalCollapsed = -1;
-        let collapsed = '';
-
         if (range.from === state.text.length) return state;
 
-        newState.text = state.text.slice(0, range.from) + state.text.slice(toIndex);
-
-        collapsed = Editor.collapseWhitespace(newState.text);
-
-        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
-            adjustment -= totalCollapsed;
-
-            newState.text = collapsed;
-        }
-
-        newState.markups = Editor.adjustMarkups(state.markups, range.from, toIndex, 0, adjustment, newState.text);
-
-        newState.selection = [range.from, range.from];
-
-        return newState;
+        return Editor.insert(state, {from: range.from, to: toIndex}, '');
     }
 
     static return(state, range) {
-        // if collapsed range:
-            // if end of block markup, insert new empty <p> markup and line break to text
-            // if within block markup, find parent block markup and split in two point, as well as any inline markups at caret
-        // if non collapsed range
-            // delete selection and insert line break and new empty <p> (same as case 1?)
+        // TODO: Disallow if already empty line
+
+        return Editor.insert(state, range, '\n');
     }
 
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
@@ -301,6 +266,28 @@ class Editor {
         }
 
         return null;
+    }
+
+    static splitMarkups(markups, index) {
+        for (let i = 0, markup; (markup = markups[i]); i++) {
+            const [markupTag, markupFrom, markupTo] = markup;
+
+            let newMarkup = null;
+
+            if (markupFrom <= index && markupTo >= index) {
+                const newTag = markup.isBlock && markupTo === index + 1 ? 'p' : markupTag;
+
+                markup[2] = index;
+
+                newMarkup = new Markup([newTag, index + 1, markupTo]);
+
+                markups.splice(i + 1, 0, newMarkup);
+
+                i++;
+            }
+        }
+
+        return markups;
     }
 }
 
