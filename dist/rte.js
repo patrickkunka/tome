@@ -256,6 +256,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.render();
 	
 	            this.positionCaret(this.state.selection);
+	
+	            console.log(JSON.stringify(this.state.markups));
 	        }
 	    }, {
 	        key: 'sanitizeSelection',
@@ -1333,6 +1335,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                newState.markups = Editor.splitMarkups(newState.markups, range.from);
 	            }
 	
+	            if (characters === '') {
+	                newState.markups = Editor.joinMarkups(newState.markups, range.from);
+	            }
+	
 	            newState.selection = [range.from + totalAdded, range.from + totalAdded];
 	
 	            return newState;
@@ -1390,8 +1396,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var _markup = markup,
 	                    _markup2 = _slicedToArray(_markup, 3),
 	                    tag = _markup2[0],
-	                    start = _markup2[1],
-	                    end = _markup2[2];
+	                    markupStart = _markup2[1],
+	                    markupEnd = _markup2[2];
 	
 	                var newMarkup = new _Markup2.default(markup);
 	
@@ -1401,43 +1407,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    markup = new _Markup2.default(markup);
 	                }
 	
-	                if (start >= fromIndex && end <= toIndex) {
+	                if (markupStart >= fromIndex && markupEnd <= toIndex) {
 	                    // Selection completely envelopes markup
 	
-	                    if (start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+	                    if (markupStart === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
 	                        // Markup should be preserved is a) is block element,
 	                        // b) is inline and inserting
-	                        newMarkup[2] = start + totalAdded;
+	                        newMarkup[2] = markupStart + totalAdded;
 	                    } else if (!markup.isBlock) {
 	                        removeMarkup = true;
 	                    }
-	                } else if (start <= fromIndex && end >= toIndex) {
+	                } else if (markupStart <= fromIndex && markupEnd >= toIndex) {
 	                    // Selection within markup or equal to markup
 	
 	                    newMarkup[2] += adjustment;
 	
-	                    if (markup.isInline && start === fromIndex && fromIndex === toIndex) {
+	                    if (markup.isInline && markupStart === fromIndex && fromIndex === toIndex) {
 	                        // Collapsed caret at start of inline markup
 	
 	                        newMarkup[1] += adjustment;
 	                    }
-	                } else if (start >= toIndex) {
+	                } else if (markupStart >= toIndex) {
 	                    // Markup starts after Selection
 	
 	                    newMarkup[1] += adjustment;
 	                    newMarkup[2] += adjustment;
-	                } else if (fromIndex < start && toIndex > start && toIndex < end) {
+	                } else if (fromIndex < markupStart && toIndex > markupStart && toIndex < markupEnd) {
 	                    // Selection partially envelopes markup from start
 	
 	                    if (markup.isInline) {
-	                        newMarkup[1] += adjustment + (toIndex - start);
+	                        newMarkup[1] += adjustment + (toIndex - markupStart);
 	                        newMarkup[2] += adjustment;
 	                    } else {
 	                        // Previous block markup will consume this one, remove
 	
 	                        removeMarkup = true;
 	                    }
-	                } else if (fromIndex > start && fromIndex < end && toIndex > end) {
+	                } else if (fromIndex > markupStart && fromIndex < markupEnd && toIndex > markupEnd) {
 	                    // Selection partially envelopes markup from end
 	
 	                    if (markup.isInline) {
@@ -1482,21 +1488,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var _markup3 = markup,
 	                    _markup4 = _slicedToArray(_markup3, 3),
 	                    markupTag = _markup4[0],
-	                    markupFrom = _markup4[1],
-	                    markupTo = _markup4[2];
+	                    markupStart = _markup4[1],
+	                    markupEnd = _markup4[2];
 	
 	                var newMarkup = null;
 	
-	                if (markupFrom <= index && markupTo >= index) {
-	                    var newTag = markup.isBlock && markupTo === index + 1 ? 'p' : markupTag;
+	                if (markupStart <= index && markupEnd >= index) {
+	                    var newTag = markup.isBlock && markupEnd === index + 1 ? 'p' : markupTag;
 	
 	                    markup[2] = index;
 	
-	                    newMarkup = new _Markup2.default([newTag, index + 1, markupTo]);
+	                    newMarkup = new _Markup2.default([newTag, index + 1, markupEnd]);
 	
 	                    markups.splice(i + 1, 0, newMarkup);
 	
 	                    i++;
+	                }
+	            }
+	
+	            return markups;
+	        }
+	    }, {
+	        key: 'joinMarkups',
+	        value: function joinMarkups(markups, index) {
+	            var closingInlines = {};
+	
+	            var closingBlock = null;
+	
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup5 = markup,
+	                    _markup6 = _slicedToArray(_markup5, 3),
+	                    markupTag = _markup6[0],
+	                    markupStart = _markup6[1],
+	                    markupEnd = _markup6[2];
+	
+	                if (markupEnd === index) {
+	                    if (markup.isBlock) {
+	                        closingBlock = markup;
+	                    } else {
+	                        closingInlines[markupTag] = markup;
+	                    }
+	                } else if (markupStart === index) {
+	                    var extend = null;
+	
+	                    if (markup.isBlock && closingBlock) {
+	                        extend = closingBlock;
+	                    } else if (markup.isInline && closingInlines[markupTag]) {
+	                        extend = closingInlines[markupTag];
+	                    }
+	
+	                    if (extend) {
+	                        extend[2] = markup[2];
+	
+	                        markups.splice(i, 1);
+	
+	                        i--;
+	                    }
 	                }
 	            }
 	

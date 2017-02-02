@@ -330,4 +330,20 @@ describe('Editor', () => {
         assert.equal(newState.markups[1][1], 20);
         assert.equal(newState.markups[1][2], 29);
     });
+
+    it('should joing two block markups into one block markups on deletion of line break', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.\nSit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['p', 19, 28]
+            ]
+        };
+
+        const newState = Editor.backspace(state, {from: 19, to: 19});
+
+        assert.equal(newState.text, 'Lorem ipsum dolor.Sit amet.');
+        assert.equal(newState.markups[0][2], 27);
+        assert.isNotOk(newState.markups[1]);
+    });
 });

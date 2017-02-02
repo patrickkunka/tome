@@ -114,6 +114,8 @@ class RichTextEditor {
         this.render();
 
         this.positionCaret(this.state.selection);
+
+        console.log(JSON.stringify(this.state.markups));
     }
 
     sanitizeSelection() {

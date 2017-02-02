@@ -135,6 +135,10 @@ class Editor {
             newState.markups = Editor.splitMarkups(newState.markups, range.from);
         }
 
+        if (characters === '') {
+            newState.markups = Editor.joinMarkups(newState.markups, range.from);
+        }
+
         newState.selection = [range.from + totalAdded, range.from + totalAdded];
 
         return newState;
@@ -185,7 +189,7 @@ class Editor {
         const newMarkups = [];
 
         for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [tag, start, end] = markup;
+            const [tag, markupStart, markupEnd] = markup;
             const newMarkup = new Markup(markup);
 
             let removeMarkup = false;
@@ -194,43 +198,43 @@ class Editor {
                 markup = new Markup(markup);
             }
 
-            if (start >= fromIndex && end <= toIndex) {
+            if (markupStart >= fromIndex && markupEnd <= toIndex) {
                 // Selection completely envelopes markup
 
-                if (start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+                if (markupStart === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
                     // Markup should be preserved is a) is block element,
                     // b) is inline and inserting
-                    newMarkup[2] = start + totalAdded;
+                    newMarkup[2] = markupStart + totalAdded;
                 } else if (!markup.isBlock) {
                     removeMarkup = true;
                 }
-            } else if (start <= fromIndex && end >= toIndex) {
+            } else if (markupStart <= fromIndex && markupEnd >= toIndex) {
                 // Selection within markup or equal to markup
 
                 newMarkup[2] += adjustment;
 
-                if (markup.isInline && (start === fromIndex && fromIndex === toIndex)) {
+                if (markup.isInline && (markupStart === fromIndex && fromIndex === toIndex)) {
                     // Collapsed caret at start of inline markup
 
                     newMarkup[1] += adjustment;
                 }
-            } else if (start >= toIndex) {
+            } else if (markupStart >= toIndex) {
                 // Markup starts after Selection
 
                 newMarkup[1] += adjustment;
                 newMarkup[2] += adjustment;
-            } else if (fromIndex < start && toIndex > start && toIndex < end) {
+            } else if (fromIndex < markupStart && toIndex > markupStart && toIndex < markupEnd) {
                 // Selection partially envelopes markup from start
 
                 if (markup.isInline) {
-                    newMarkup[1] += (adjustment + (toIndex - start));
+                    newMarkup[1] += (adjustment + (toIndex - markupStart));
                     newMarkup[2] += adjustment;
                 } else {
                     // Previous block markup will consume this one, remove
 
                     removeMarkup = true;
                 }
-            } else if (fromIndex > start && fromIndex < end && toIndex > end) {
+            } else if (fromIndex > markupStart && fromIndex < markupEnd && toIndex > markupEnd) {
                 // Selection partially envelopes markup from end
 
                 if (markup.isInline) {
@@ -270,20 +274,56 @@ class Editor {
 
     static splitMarkups(markups, index) {
         for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [markupTag, markupFrom, markupTo] = markup;
+            const [markupTag, markupStart, markupEnd] = markup;
 
             let newMarkup = null;
 
-            if (markupFrom <= index && markupTo >= index) {
-                const newTag = markup.isBlock && markupTo === index + 1 ? 'p' : markupTag;
+            if (markupStart <= index && markupEnd >= index) {
+                const newTag = markup.isBlock && markupEnd === index + 1 ? 'p' : markupTag;
 
                 markup[2] = index;
 
-                newMarkup = new Markup([newTag, index + 1, markupTo]);
+                newMarkup = new Markup([newTag, index + 1, markupEnd]);
 
                 markups.splice(i + 1, 0, newMarkup);
 
                 i++;
+            }
+        }
+
+        return markups;
+    }
+
+    static joinMarkups(markups, index) {
+        const closingInlines = {};
+
+        let closingBlock = null;
+
+        for (let i = 0, markup; (markup = markups[i]); i++) {
+            const [markupTag, markupStart, markupEnd] = markup;
+
+            if (markupEnd === index) {
+                if (markup.isBlock) {
+                    closingBlock = markup;
+                } else {
+                    closingInlines[markupTag] = markup;
+                }
+            } else if (markupStart === index) {
+                let extend = null;
+
+                if (markup.isBlock && closingBlock) {
+                    extend = closingBlock;
+                } else if (markup.isInline && closingInlines[markupTag]) {
+                    extend = closingInlines[markupTag];
+                }
+
+                if (extend) {
+                    extend[2] = markup[2];
+
+                    markups.splice(i, 1);
+
+                    i--;
+                }
             }
         }
 
