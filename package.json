@@ -2,8 +2,7 @@
   "name": "tome",
   "version": "0.0.0",
   "private": true,
-  "main": "./dist/services/node-factory.js",
-  "browser": "./dist/services/browser-factory.js",
+  "main": "./dist/rte.js",
   "scripts": {
     "test": "mocha ./tests/unit.js",
     "webpack": "webpack --watch"
