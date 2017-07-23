@@ -5,10 +5,12 @@ import Node         from './models/Node';
 import Caret        from './models/Caret';
 import Range        from './models/Range';
 import State        from './models/State';
+import Action       from './models/Action';
 import EventHandler from './EventHandler';
 import Editor       from './Editor';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
+import reducer      from './actions/reducer';
 
 class RichTextEditor {
     constructor() {
@@ -82,28 +84,32 @@ class RichTextEditor {
         this.positionCaret(this.state.selection);
     }
 
-    performCommand(command, content) {
+    applyAction(type, content='') {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
 
-        const fn = Editor[command];
+        console.log('action:', type);
 
-        if (typeof fn !== 'function') {
-            throw new Error(`[RichTextEditor] No editor method for command "${command}"`);
+        const nextState = [type].reduce((prevState, type) => {
+            const action = new Action();
+
+            action.type     = type;
+            action.range    = range;
+            action.content  = content;
+
+            return reducer(prevState, action);
+        }, this.state);
+
+        if (!(nextState instanceof State)) {
+            throw new TypeError(`[RichTextEditor] Action type "${type}" did not return a valid state object`);
         }
 
-        const newState = fn(this.state, range, content);
-
-        if (!(newState instanceof State)) {
-            throw new TypeError(`[RichTextEditor] Command "${command}" did not return a valid state object`);
-        }
-
-        if (newState === this.state) return;
+        if (nextState === this.state) return;
 
         // TODO: discern 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
 
-        this.history.push(newState);
+        this.history.push(nextState);
 
         this.historyIndex++;
 
@@ -115,14 +121,16 @@ class RichTextEditor {
 
         this.positionCaret(this.state.selection);
 
-        console.log(JSON.stringify(this.state.markups));
+        // console.log(JSON.stringify(this.state.markups));
     }
 
     sanitizeSelection() {
+        // TODO: on click, set a new state using the selection
+
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
 
-        this.positionCaret([range.from, range.to]);
+        this.positionCaret({from: range.from, to: range.to});
     }
 
     getPathFromNode(node) {
@@ -191,7 +199,7 @@ class RichTextEditor {
         return new Range(rangeFrom, rangeTo);
     }
 
-    positionCaret([start, end]) {
+    positionCaret({from, to}) {
         const range = document.createRange();
         const selection = window.getSelection();
 
@@ -205,7 +213,7 @@ class RichTextEditor {
         for (let i = 0; (virtualNode = childNodes[i]); i++) {
             // Node ends before caret
 
-            if (virtualNode.end < start) continue;
+            if (virtualNode.end < from) continue;
 
             // The desired node is this node, or within this node
 
@@ -221,7 +229,7 @@ class RichTextEditor {
 
             // At leaf
 
-            offsetStart = start - virtualNode.start;
+            offsetStart = from - virtualNode.start;
 
             break;
         }
@@ -230,7 +238,7 @@ class RichTextEditor {
 
         range.setStart(nodeLeft, offsetStart);
 
-        if (start === end) {
+        if (from === to) {
             // Single caret
 
             range.collapse(true);
@@ -240,7 +248,7 @@ class RichTextEditor {
             childNodes = this.root.childNodes;
 
             for (let i = 0; (virtualNode = childNodes[i]); i++) {
-                if (virtualNode.end < end) continue;
+                if (virtualNode.end < to) continue;
 
                 if (virtualNode.childNodes.length) {
                     childNodes = virtualNode.childNodes;
@@ -250,7 +258,7 @@ class RichTextEditor {
                     continue;
                 }
 
-                offsetEnd = end - virtualNode.start;
+                offsetEnd = to - virtualNode.start;
 
                 break;
             }

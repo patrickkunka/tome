@@ -1,4 +1,6 @@
-import Util from './Util';
+import Util         from './Util';
+import * as Actions from './constants/Actions';
+import * as Keys    from './constants/Keys';
 
 class EventHandler {
     bindEvents(root, richTextEditor) {
@@ -33,123 +35,120 @@ class EventHandler {
     handleKeypress(e, richTextEditor) {
         e.preventDefault();
 
-        richTextEditor.performCommand('insert', e.key);
+        richTextEditor.applyAction(Actions.INSERT, e.key);
+        // richTextEditor.performCommand('insert', e.key);
     }
 
     handleKeydown(e, richTextEditor) {
         const key = e.key.toLowerCase();
 
-        let command = '';
+        let actionType = '';
 
         if (e.metaKey) {
             switch (key) {
-                case 'a':
+                case Keys.A:
                     return richTextEditor.sanitizeSelection();
-                case 'c':
-                    command = 'copy';
+                // case Keys.C:
+                //    command = 'copy';
 
-                    break;
-                case 'v':
-                    command = 'paste';
+                //     break;
+                // case Keys.V:
+                //     command = 'paste';
 
-                    break;
-                case 's':
-                    command = 'save';
+                //     break;
+                // case Keys.S:
+                //     command = 'save';
 
-                    break;
-                case 'z':
-                    return richTextEditor[e.shiftKey ? 'redo' : 'undo']();
+                //     break;
+                case Keys.Z:
+                    return e.shiftKey ? richTextEditor.redo() : richTextEditor.undo();
             }
         }
 
         switch (key) {
-            case 'enter':
-                command = e.shiftKey ? 'shiftReturn' : 'return';
+            case Keys.ENTER:
+                actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
 
                 break;
-            case 'backspace':
-                command = 'backspace';
+            case Keys.BACKSPACE:
+                actionType = Actions.BACKSPACE;
 
                 break;
-            case 'delete':
-                command = 'delete';
+            case Keys.DELETE:
+                actionType = Actions.DELETE;
 
                 break;
-            case 'arrowup':
-                command = EventHandler.parseArrowUp(e);
+            case Keys.ARROW_UP:
+                actionType = EventHandler.parseArrowUp(e);
 
                 break;
-            case 'arrowdown':
-                command = EventHandler.parseArrowDown(e);
+            case Keys.ARROW_DOWN:
+                actionType = EventHandler.parseArrowDown(e);
 
                 break;
-            case 'arrowleft':
-                command = EventHandler.parseArrowLeft(e);
+            case Keys.ARROW_LEFT:
+                actionType = EventHandler.parseArrowLeft(e);
 
                 break;
-            case 'arrowright':
-                command = EventHandler.parseArrowRight(e);
+            case Keys.ARROW_RIGHT:
+                actionType = EventHandler.parseArrowRight(e);
 
                 break;
         }
 
-        if (!command) return;
+        if (!actionType || actionType === Actions.NONE) return;
 
         e.preventDefault();
 
-        richTextEditor.performCommand(command);
+        richTextEditor.applyAction(actionType);
     }
 
     static parseArrowUp(e) {
         if (e.metaKey && e.shiftKey) {
-            return 'pageUpSelect';
+            return Actions.PAGE_UP_SELECT;
         } else if (e.metaKey) {
-            return 'pageUp';
+            return Actions.PAGE_UP;
         }
 
-        return '';
-
-        // or 'up' if neccessary
+        return Actions.NONE;
     }
 
     static parseArrowDown(e) {
         if (e.metaKey && e.shiftKey) {
-            return 'pageDownSelect';
+            return Actions.PAGE_DOWN_SELECT;
         } else if (e.metaKey) {
-            return 'pageDown';
+            return Actions.PAGE_DOWN;
         }
 
-        return '';
-
-        // or 'down' if neccessary
+        return Actions.NONE;
     }
 
     static parseArrowLeft(e) {
         if (e.metaKey && e.shiftKey) {
-            return 'homeSelect';
+            return Actions.HOME_SELECT;
         } else if (e.metaKey) {
-            return 'home';
+            return Actions.HOME;
         } else if (e.altKey) {
-            return 'leftSkip';
+            return Actions.LEFT_SKIP;
         } else if (e.shiftKey) {
-            return 'leftSelect';
+            return Actions.LEFT_SELECT;
         }
 
-        return 'left';
+        return Actions.LEFT;
     }
 
     static parseArrowRight(e) {
         if (e.metaKey && e.shiftKey) {
-            return 'endSelect';
+            return Actions.END_SELECT;
         } else if (e.metaKey) {
-            return 'end';
+            return Actions.END;
         } else if (e.altKey) {
-            return 'rightSkip';
+            return Actions.RIGHT_SKIP;
         } else if (e.shiftKey) {
-            return 'rightSelect';
+            return Actions.RIGHT_SELECT;
         }
 
-        return 'right';
+        return Actions.RIGHT;
     }
 }
 

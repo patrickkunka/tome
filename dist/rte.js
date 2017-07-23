@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(13);
+	var _data = __webpack_require__(17);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -85,8 +85,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -118,21 +116,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _State2 = _interopRequireDefault(_State);
 	
-	var _EventHandler = __webpack_require__(9);
+	var _Action = __webpack_require__(9);
+	
+	var _Action2 = _interopRequireDefault(_Action);
+	
+	var _EventHandler = __webpack_require__(10);
 	
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 	
-	var _Editor = __webpack_require__(10);
+	var _Editor = __webpack_require__(13);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
-	var _TreeBuilder = __webpack_require__(11);
+	var _TreeBuilder = __webpack_require__(14);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(12);
+	var _Renderer = __webpack_require__(15);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
+	
+	var _reducer = __webpack_require__(16);
+	
+	var _reducer2 = _interopRequireDefault(_reducer);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -223,29 +229,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.positionCaret(this.state.selection);
 	        }
 	    }, {
-	        key: 'performCommand',
-	        value: function performCommand(command, content) {
+	        key: 'applyAction',
+	        value: function applyAction(type) {
+	            var content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+	
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
 	
-	            var fn = _Editor2.default[command];
+	            console.log('action:', type);
 	
-	            if (typeof fn !== 'function') {
-	                throw new Error('[RichTextEditor] No editor method for command "' + command + '"');
+	            var nextState = [type].reduce(function (prevState, type) {
+	                var action = new _Action2.default();
+	
+	                action.type = type;
+	                action.range = range;
+	                action.content = content;
+	
+	                return (0, _reducer2.default)(prevState, action);
+	            }, this.state);
+	
+	            if (!(nextState instanceof _State2.default)) {
+	                throw new TypeError('[RichTextEditor] Action type "' + type + '" did not return a valid state object');
 	            }
 	
-	            var newState = fn(this.state, range, content);
-	
-	            if (!(newState instanceof _State2.default)) {
-	                throw new TypeError('[RichTextEditor] Command "' + command + '" did not return a valid state object');
-	            }
-	
-	            if (newState === this.state) return;
+	            if (nextState === this.state) return;
 	
 	            // TODO: discern 'push' vs 'replace' commands i.e. inserting a
 	            // char vs moving a cursor
 	
-	            this.history.push(newState);
+	            this.history.push(nextState);
 	
 	            this.historyIndex++;
 	
@@ -257,15 +269,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.positionCaret(this.state.selection);
 	
-	            console.log(JSON.stringify(this.state.markups));
+	            // console.log(JSON.stringify(this.state.markups));
 	        }
 	    }, {
 	        key: 'sanitizeSelection',
 	        value: function sanitizeSelection() {
+	            // TODO: on click, set a new state using the selection
+	
 	            var selection = window.getSelection();
 	            var range = this.getRangeFromSelection(selection);
 	
-	            this.positionCaret([range.from, range.to]);
+	            this.positionCaret({ from: range.from, to: range.to });
 	        }
 	    }, {
 	        key: 'getPathFromNode',
@@ -340,9 +354,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'positionCaret',
 	        value: function positionCaret(_ref) {
-	            var _ref2 = _slicedToArray(_ref, 2),
-	                start = _ref2[0],
-	                end = _ref2[1];
+	            var from = _ref.from,
+	                to = _ref.to;
 	
 	            var range = document.createRange();
 	            var selection = window.getSelection();
@@ -357,7 +370,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            for (var i = 0; virtualNode = childNodes[i]; i++) {
 	                // Node ends before caret
 	
-	                if (virtualNode.end < start) continue;
+	                if (virtualNode.end < from) continue;
 	
 	                // The desired node is this node, or within this node
 	
@@ -373,7 +386,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                // At leaf
 	
-	                offsetStart = start - virtualNode.start;
+	                offsetStart = from - virtualNode.start;
 	
 	                break;
 	            }
@@ -382,7 +395,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            range.setStart(nodeLeft, offsetStart);
 	
-	            if (start === end) {
+	            if (from === to) {
 	                // Single caret
 	
 	                range.collapse(true);
@@ -392,7 +405,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                childNodes = this.root.childNodes;
 	
 	                for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
-	                    if (virtualNode.end < end) continue;
+	                    if (virtualNode.end < to) continue;
 	
 	                    if (virtualNode.childNodes.length) {
 	                        childNodes = virtualNode.childNodes;
@@ -402,7 +415,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        continue;
 	                    }
 	
-	                    offsetEnd = end - virtualNode.start;
+	                    offsetEnd = to - virtualNode.start;
 	
 	                    break;
 	                }
@@ -930,7 +943,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -940,6 +953,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	var _Selection = __webpack_require__(18);
+	
+	var _Selection2 = _interopRequireDefault(_Selection);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var State = function () {
@@ -948,7 +967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        this.text = '';
 	        this.markups = [];
-	        this.selection = [];
+	        this.selection = new _Selection2.default();
 	
 	        Object.seal(this);
 	    }
@@ -967,6 +986,43 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Action = function () {
+	    function Action() {
+	        _classCallCheck(this, Action);
+	
+	        this.type = null;
+	        this.range = null;
+	        this.content = '';
+	
+	        Object.seal(this);
+	    }
+	
+	    _createClass(Action, [{
+	        key: 'isRange',
+	        get: function get() {
+	            return this.range && this.range.from !== this.range.to;
+	        }
+	    }]);
+	
+	    return Action;
+	}();
+	
+	exports.default = Action;
+
+/***/ },
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -980,6 +1036,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Util = __webpack_require__(3);
 	
 	var _Util2 = _interopRequireDefault(_Util);
+	
+	var _Actions = __webpack_require__(11);
+	
+	var Actions = _interopRequireWildcard(_Actions);
+	
+	var _Keys = __webpack_require__(12);
+	
+	var Keys = _interopRequireWildcard(_Keys);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1028,128 +1094,125 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function handleKeypress(e, richTextEditor) {
 	            e.preventDefault();
 	
-	            richTextEditor.performCommand('insert', e.key);
+	            richTextEditor.applyAction(Actions.INSERT, e.key);
+	            // richTextEditor.performCommand('insert', e.key);
 	        }
 	    }, {
 	        key: 'handleKeydown',
 	        value: function handleKeydown(e, richTextEditor) {
 	            var key = e.key.toLowerCase();
 	
-	            var command = '';
+	            var actionType = '';
 	
 	            if (e.metaKey) {
 	                switch (key) {
-	                    case 'a':
+	                    case Keys.A:
 	                        return richTextEditor.sanitizeSelection();
-	                    case 'c':
-	                        command = 'copy';
+	                    // case Keys.C:
+	                    //    command = 'copy';
 	
-	                        break;
-	                    case 'v':
-	                        command = 'paste';
+	                    //     break;
+	                    // case Keys.V:
+	                    //     command = 'paste';
 	
-	                        break;
-	                    case 's':
-	                        command = 'save';
+	                    //     break;
+	                    // case Keys.S:
+	                    //     command = 'save';
 	
-	                        break;
-	                    case 'z':
-	                        return richTextEditor[e.shiftKey ? 'redo' : 'undo']();
+	                    //     break;
+	                    case Keys.Z:
+	                        return e.shiftKey ? richTextEditor.redo() : richTextEditor.undo();
 	                }
 	            }
 	
 	            switch (key) {
-	                case 'enter':
-	                    command = e.shiftKey ? 'shiftReturn' : 'return';
+	                case Keys.ENTER:
+	                    actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
 	
 	                    break;
-	                case 'backspace':
-	                    command = 'backspace';
+	                case Keys.BACKSPACE:
+	                    actionType = Actions.BACKSPACE;
 	
 	                    break;
-	                case 'delete':
-	                    command = 'delete';
+	                case Keys.DELETE:
+	                    actionType = Actions.DELETE;
 	
 	                    break;
-	                case 'arrowup':
-	                    command = EventHandler.parseArrowUp(e);
+	                case Keys.ARROW_UP:
+	                    actionType = EventHandler.parseArrowUp(e);
 	
 	                    break;
-	                case 'arrowdown':
-	                    command = EventHandler.parseArrowDown(e);
+	                case Keys.ARROW_DOWN:
+	                    actionType = EventHandler.parseArrowDown(e);
 	
 	                    break;
-	                case 'arrowleft':
-	                    command = EventHandler.parseArrowLeft(e);
+	                case Keys.ARROW_LEFT:
+	                    actionType = EventHandler.parseArrowLeft(e);
 	
 	                    break;
-	                case 'arrowright':
-	                    command = EventHandler.parseArrowRight(e);
+	                case Keys.ARROW_RIGHT:
+	                    actionType = EventHandler.parseArrowRight(e);
 	
 	                    break;
 	            }
 	
-	            if (!command) return;
+	            if (!actionType || actionType === Actions.NONE) return;
 	
 	            e.preventDefault();
 	
-	            richTextEditor.performCommand(command);
+	            richTextEditor.applyAction(actionType);
 	        }
 	    }], [{
 	        key: 'parseArrowUp',
 	        value: function parseArrowUp(e) {
 	            if (e.metaKey && e.shiftKey) {
-	                return 'pageUpSelect';
+	                return Actions.PAGE_UP_SELECT;
 	            } else if (e.metaKey) {
-	                return 'pageUp';
+	                return Actions.PAGE_UP;
 	            }
 	
-	            return '';
-	
-	            // or 'up' if neccessary
+	            return Actions.NONE;
 	        }
 	    }, {
 	        key: 'parseArrowDown',
 	        value: function parseArrowDown(e) {
 	            if (e.metaKey && e.shiftKey) {
-	                return 'pageDownSelect';
+	                return Actions.PAGE_DOWN_SELECT;
 	            } else if (e.metaKey) {
-	                return 'pageDown';
+	                return Actions.PAGE_DOWN;
 	            }
 	
-	            return '';
-	
-	            // or 'down' if neccessary
+	            return Actions.NONE;
 	        }
 	    }, {
 	        key: 'parseArrowLeft',
 	        value: function parseArrowLeft(e) {
 	            if (e.metaKey && e.shiftKey) {
-	                return 'homeSelect';
+	                return Actions.HOME_SELECT;
 	            } else if (e.metaKey) {
-	                return 'home';
+	                return Actions.HOME;
 	            } else if (e.altKey) {
-	                return 'leftSkip';
+	                return Actions.LEFT_SKIP;
 	            } else if (e.shiftKey) {
-	                return 'leftSelect';
+	                return Actions.LEFT_SELECT;
 	            }
 	
-	            return 'left';
+	            return Actions.LEFT;
 	        }
 	    }, {
 	        key: 'parseArrowRight',
 	        value: function parseArrowRight(e) {
 	            if (e.metaKey && e.shiftKey) {
-	                return 'endSelect';
+	                return Actions.END_SELECT;
 	            } else if (e.metaKey) {
-	                return 'end';
+	                return Actions.END;
 	            } else if (e.altKey) {
-	                return 'rightSkip';
+	                return Actions.RIGHT_SKIP;
 	            } else if (e.shiftKey) {
-	                return 'rightSelect';
+	                return Actions.RIGHT_SELECT;
 	            }
 	
-	            return 'right';
+	            return Actions.RIGHT;
 	        }
 	    }]);
 	
@@ -1159,7 +1222,60 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = EventHandler;
 
 /***/ },
-/* 10 */
+/* 11 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var LEFT = exports.LEFT = Symbol('ACTION_TYPE_LEFT');
+	var LEFT_SELECT = exports.LEFT_SELECT = Symbol('ACTION_TYPE_LEFT_SELECT');
+	var LEFT_SKIP = exports.LEFT_SKIP = Symbol('ACTION_TYPE_LEFT_SKIP');
+	var RIGHT = exports.RIGHT = Symbol('ACTION_TYPE_RIGHT');
+	var RIGHT_SELECT = exports.RIGHT_SELECT = Symbol('ACTION_TYPE_RIGHT_SELECT');
+	var RIGHT_SKIP = exports.RIGHT_SKIP = Symbol('ACTION_TYPE_RIGHT_SKIP');
+	var HOME = exports.HOME = Symbol('ACTION_TYPE_HOME');
+	var HOME_SELECT = exports.HOME_SELECT = Symbol('ACTION_TYPE_HOME_SELECT');
+	var END = exports.END = Symbol('ACTION_TYPE_END');
+	var END_SELECT = exports.END_SELECT = Symbol('ACTION_TYPE_END_SELECT');
+	var PAGE_UP = exports.PAGE_UP = Symbol('PAGE_UP');
+	var PAGE_UP_SELECT = exports.PAGE_UP_SELECT = Symbol('PAGE_UP_SELECT');
+	var PAGE_DOWN = exports.PAGE_DOWN = Symbol('PAGE_DOWN');
+	var PAGE_DOWN_SELECT = exports.PAGE_DOWN_SELECT = Symbol('PAGE_DOWN_SELECT');
+	var INSERT = exports.INSERT = Symbol('ACTION_TYPE_INSERT');
+	var BACKSPACE = exports.BACKSPACE = Symbol('ACTION_TYPE_BACKSPACE');
+	var DELETE = exports.DELETE = Symbol('ACTION_TYPE_DELETE');
+	var RETURN = exports.RETURN = Symbol('ACTION_TYPE_RETURN');
+	var SHIFT_RETURN = exports.SHIFT_RETURN = Symbol('ACTION_TYPE_SHIFT_RETURN');
+	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var ENTER = exports.ENTER = 'enter';
+	var BACKSPACE = exports.BACKSPACE = 'backspace';
+	var DELETE = exports.DELETE = 'delete';
+	var ARROW_UP = exports.ARROW_UP = 'arrowup';
+	var ARROW_DOWN = exports.ARROW_DOWN = 'arrowdown';
+	var ARROW_LEFT = exports.ARROW_LEFT = 'arrowleft';
+	var ARROW_RIGHT = exports.ARROW_RIGHT = 'arrowright';
+	
+	var A = exports.A = 'a';
+	var C = exports.C = 'c';
+	var V = exports.V = 'v';
+	var S = exports.S = 's';
+	var Z = exports.Z = 'z';
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1557,7 +1673,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Editor;
 
 /***/ },
-/* 11 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1731,7 +1847,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ },
-/* 12 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1793,7 +1909,137 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 13 */
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _State = __webpack_require__(8);
+	
+	var _State2 = _interopRequireDefault(_State);
+	
+	var _Util = __webpack_require__(3);
+	
+	var _Util2 = _interopRequireDefault(_Util);
+	
+	var _Actions = __webpack_require__(11);
+	
+	var Actions = _interopRequireWildcard(_Actions);
+	
+	var _Selection = __webpack_require__(18);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function (prevState, action) {
+	    var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	
+	    switch (action.type) {
+	        case Actions.LEFT:
+	            if (!action.isRange && action.range.from === 0) return prevState;
+	
+	            if (action.isRange) {
+	                nextState.selection.from = nextState.selection.to = action.range.from;
+	            } else {
+	                nextState.selection.from = nextState.selection.to = action.range.from - 1;
+	            }
+	
+	            break;
+	        case Actions.LEFT_SELECT:
+	            if (action.range.from === 0) return prevState;
+	
+	            if (action.isRange && prevState.selection.isLtr) {
+	                nextState.selection.to--;
+	            } else if (action.isRange && prevState.selection.isRtl) {
+	                nextState.selection.from--;
+	            } else if (!action.isRange) {
+	                nextState.selection.from--;
+	                nextState.selection.direction = _Selection.DIRECTION_RTL;
+	            }
+	
+	            break;
+	        case Actions.LEFT_SKIP:
+	
+	            break;
+	        case Actions.RIGHT:
+	            if (!action.isRange && action.range.to === prevState.text.length) return prevState;
+	
+	            if (action.isRange) {
+	                nextState.selection.from = nextState.selection.to = action.range.to;
+	            } else {
+	                nextState.selection.from = nextState.selection.to = action.range.to + 1;
+	            }
+	
+	            break;
+	        case Actions.RIGHT_SELECT:
+	            if (action.range.to === prevState.text.length) return prevState;
+	
+	            if (action.isRange && prevState.selection.isLtr) {
+	                nextState.selection.from++;
+	            } else if (action.isRange && prevState.selection.isRtl) {
+	                nextState.selection.to++;
+	            } else if (!action.isRange) {
+	                nextState.selection.to++;
+	                nextState.selection.direction = _Selection.DIRECTION_LTR;
+	            }
+	
+	            break;
+	        case Actions.RIGHT_SKIP:
+	
+	            break;
+	        case Actions.HOME:
+	
+	            break;
+	        case Actions.HOME_SELECT:
+	
+	            break;
+	        case Actions.END:
+	
+	            break;
+	        case Actions.END_SELECT:
+	
+	            break;
+	        case Actions.PAGE_UP:
+	
+	            break;
+	        case Actions.PAGE_UP_SELECT:
+	
+	            break;
+	        case Actions.PAGE_DOWN:
+	
+	            break;
+	        case Actions.PAGE_DOWN_SELECT:
+	
+	            break;
+	        case Actions.INSERT:
+	
+	            break;
+	        case Actions.BACKSPACE:
+	
+	            break;
+	        case Actions.DELETE:
+	
+	            break;
+	        case Actions.RETURN:
+	
+	            break;
+	        case Actions.SHIFT_RETURN:
+	
+	            break;
+	        default:
+	            return prevState;
+	    }
+	
+	    return nextState;
+	};
+
+/***/ },
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -1821,6 +2067,70 @@ return /******/ (function(modules) { // webpackBootstrap
 			]
 		]
 	};
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Selection = function () {
+	    function Selection() {
+	        var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+	        var to = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+	
+	        _classCallCheck(this, Selection);
+	
+	        this.from = from;
+	        this.to = to;
+	        this.direction = DIRECTION_LTR;
+	    }
+	
+	    _createClass(Selection, [{
+	        key: 'isLtr',
+	        get: function get() {
+	            return this.direction === DIRECTION_LTR;
+	        }
+	    }, {
+	        key: 'isRtl',
+	        get: function get() {
+	            return this.direction === DIRECTION_RTL;
+	        }
+	    }, {
+	        key: 'anchor',
+	        get: function get() {
+	            if (this.isLtr) {
+	                return this.from;
+	            }
+	
+	            return this.to;
+	        }
+	    }, {
+	        key: 'extent',
+	        get: function get() {
+	            if (this.isLtr) {
+	                return this.to;
+	            }
+	
+	            return this.from;
+	        }
+	    }]);
+	
+	    return Selection;
+	}();
+	
+	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
+	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
+	
+	exports.default = Selection;
 
 /***/ }
 /******/ ])

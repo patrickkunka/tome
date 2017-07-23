@@ -8,7 +8,8 @@
         "Promise": true,
         "describe": true,
         "Image": false,
-        "it": true
+        "it": true,
+        "Symbol": true
     },
     "parserOptions": {
         "ecmaVersion": 7,

@@ -1,0 +1,21 @@
+export const LEFT               = Symbol('ACTION_TYPE_LEFT');
+export const LEFT_SELECT        = Symbol('ACTION_TYPE_LEFT_SELECT');
+export const LEFT_SKIP          = Symbol('ACTION_TYPE_LEFT_SKIP');
+export const RIGHT              = Symbol('ACTION_TYPE_RIGHT');
+export const RIGHT_SELECT       = Symbol('ACTION_TYPE_RIGHT_SELECT');
+export const RIGHT_SKIP         = Symbol('ACTION_TYPE_RIGHT_SKIP');
+export const HOME               = Symbol('ACTION_TYPE_HOME');
+export const HOME_SELECT        = Symbol('ACTION_TYPE_HOME_SELECT');
+export const END                = Symbol('ACTION_TYPE_END');
+export const END_SELECT         = Symbol('ACTION_TYPE_END_SELECT');
+export const PAGE_UP            = Symbol('PAGE_UP');
+export const PAGE_UP_SELECT     = Symbol('PAGE_UP_SELECT');
+export const PAGE_DOWN          = Symbol('PAGE_DOWN');
+export const PAGE_DOWN_SELECT   = Symbol('PAGE_DOWN_SELECT');
+export const INSERT             = Symbol('ACTION_TYPE_INSERT');
+export const BACKSPACE          = Symbol('ACTION_TYPE_BACKSPACE');
+export const DELETE             = Symbol('ACTION_TYPE_DELETE');
+export const RETURN             = Symbol('ACTION_TYPE_RETURN');
+export const SHIFT_RETURN       = Symbol('ACTION_TYPE_SHIFT_RETURN');
+export const NONE               = Symbol('ACTION_TYPE_NONE');
+
