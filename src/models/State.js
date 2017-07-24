@@ -1,10 +1,10 @@
-import Selection from './Selection';
+import Range from './Range';
 
 class State {
     constructor() {
         this.text       = '';
         this.markups    = [];
-        this.selection  = new Selection();
+        this.selection  = new Range();
 
         Object.seal(this);
     }

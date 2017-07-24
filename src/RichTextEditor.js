@@ -7,10 +7,15 @@ import Range        from './models/Range';
 import State        from './models/State';
 import Action       from './models/Action';
 import EventHandler from './EventHandler';
-import Editor       from './Editor';
+// import Editor       from './Editor';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 import reducer      from './actions/reducer';
+
+import {
+    DIRECTION_LTR,
+    DIRECTION_RTL
+} from './constants/Common';
 
 class RichTextEditor {
     constructor() {
@@ -88,8 +93,6 @@ class RichTextEditor {
         const selection = window.getSelection();
         const range = this.getRangeFromSelection(selection);
 
-        console.log('action:', type);
-
         const nextState = [type].reduce((prevState, type) => {
             const action = new Action();
 
@@ -109,6 +112,8 @@ class RichTextEditor {
         // TODO: discern 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
 
+        console.log(type, nextState);
+
         this.history.push(nextState);
 
         this.historyIndex++;
@@ -122,15 +127,6 @@ class RichTextEditor {
         this.positionCaret(this.state.selection);
 
         // console.log(JSON.stringify(this.state.markups));
-    }
-
-    sanitizeSelection() {
-        // TODO: on click, set a new state using the selection
-
-        const selection = window.getSelection();
-        const range = this.getRangeFromSelection(selection);
-
-        this.positionCaret({from: range.from, to: range.to});
     }
 
     getPathFromNode(node) {
@@ -164,6 +160,8 @@ class RichTextEditor {
      * @return  {Range}
      */
 
+    // TODO: consolodate range/selection models, no need for both
+
     getRangeFromSelection(selection) {
         const anchorPath = this.getPathFromNode(selection.anchorNode);
         const virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
@@ -196,7 +194,7 @@ class RichTextEditor {
         rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
         rangeTo = Math.min(to.node.start + to.offset, to.node.end);
 
-        return new Range(rangeFrom, rangeTo);
+        return new Range(rangeFrom, rangeTo, isRtl ? DIRECTION_RTL : DIRECTION_LTR);
     }
 
     positionCaret({from, to}) {

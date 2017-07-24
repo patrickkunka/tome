@@ -8,12 +8,14 @@ class EventHandler {
 
         root.addEventListener('keypress', this.delegator);
         root.addEventListener('keydown', this.delegator);
+        root.addEventListener('keyup', this.delegator);
         root.addEventListener('click', this.delegator);
     }
 
     unbindEvents(root) {
         root.removeEventListener('keypress', this.delegator);
         root.removeEventListener('keydown', this.delegator);
+        root.removeEventListener('keyup', this.delegator);
         root.removeEventListener('click', this.delegator);
     }
 
@@ -29,7 +31,7 @@ class EventHandler {
     }
 
     handleClick(e, richTextEditor) {
-        richTextEditor.sanitizeSelection();
+        richTextEditor.applyAction(Actions.SET_SELECTION);
     }
 
     handleKeypress(e, richTextEditor) {
@@ -47,7 +49,9 @@ class EventHandler {
         if (e.metaKey) {
             switch (key) {
                 case Keys.A:
-                    return richTextEditor.sanitizeSelection();
+                    actionType = Actions.SET_SELECTION;
+
+                    break;
                 // case Keys.C:
                 //    command = 'copy';
 
@@ -61,6 +65,8 @@ class EventHandler {
 
                 //     break;
                 case Keys.Z:
+                    e.preventDefault();
+
                     return e.shiftKey ? richTextEditor.redo() : richTextEditor.undo();
             }
         }
@@ -76,14 +82,6 @@ class EventHandler {
                 break;
             case Keys.DELETE:
                 actionType = Actions.DELETE;
-
-                break;
-            case Keys.ARROW_UP:
-                actionType = EventHandler.parseArrowUp(e);
-
-                break;
-            case Keys.ARROW_DOWN:
-                actionType = EventHandler.parseArrowDown(e);
 
                 break;
             case Keys.ARROW_LEFT:
@@ -103,12 +101,36 @@ class EventHandler {
         richTextEditor.applyAction(actionType);
     }
 
+    handleKeyup(e, richTextEditor) {
+        const key = e.key.toLowerCase();
+
+        let actionType = '';
+
+        switch (key) {
+            case Keys.ARROW_UP:
+                actionType = EventHandler.parseArrowUp(e);
+
+                break;
+            case Keys.ARROW_DOWN:
+                actionType = EventHandler.parseArrowDown(e);
+
+                break;
+        }
+
+        if (!actionType || actionType === Actions.NONE) return;
+
+        richTextEditor.applyAction(actionType);
+    }
+
     static parseArrowUp(e) {
         if (e.metaKey && e.shiftKey) {
             return Actions.PAGE_UP_SELECT;
         } else if (e.metaKey) {
             return Actions.PAGE_UP;
+        } else if (e.shiftKey) {
+            return Actions.UP_SELECT;
         }
+
 
         return Actions.NONE;
     }
@@ -118,6 +140,8 @@ class EventHandler {
             return Actions.PAGE_DOWN_SELECT;
         } else if (e.metaKey) {
             return Actions.PAGE_DOWN;
+        } else if (e.shiftKey) {
+            return Actions.DOWN_SELECT;
         }
 
         return Actions.NONE;

@@ -5,32 +5,36 @@ import * as Actions from '../constants/Actions';
 import {
     DIRECTION_LTR,
     DIRECTION_RTL
-} from '../models/Selection';
+} from '../constants/Common';
 
 export default (prevState, action) => {
     const nextState = Util.extend(new State(), prevState, true);
 
     switch (action.type) {
-        case Actions.LEFT:
-            if (!action.isRange && action.range.from === 0) return prevState;
+        case Actions.SET_SELECTION:
+            Object.assign(nextState.selection, action.range);
 
-            if (action.isRange) {
-                nextState.selection.from =
-                nextState.selection.to   = action.range.from;
-            } else {
+            break;
+        case Actions.LEFT:
+            if (action.range.isCollapsed && action.range.from === 0) return prevState;
+
+            if (action.range.isCollapsed) {
                 nextState.selection.from =
                 nextState.selection.to   = action.range.from - 1;
+            } else {
+                nextState.selection.from =
+                nextState.selection.to   = action.range.from;
             }
 
             break;
         case Actions.LEFT_SELECT:
             if (action.range.from === 0) return prevState;
 
-            if (action.isRange && prevState.selection.isLtr) {
+            if (!action.range.isCollapsed && prevState.selection.isLtr) {
                 nextState.selection.to--;
-            } else if (action.isRange && prevState.selection.isRtl) {
+            } else if (!action.range.isCollapsed && prevState.selection.isRtl) {
                 nextState.selection.from--;
-            } else if (!action.isRange) {
+            } else if (action.range.isCollapsed) {
                 nextState.selection.from--;
                 nextState.selection.direction = DIRECTION_RTL;
             }
@@ -40,31 +44,54 @@ export default (prevState, action) => {
 
             break;
         case Actions.RIGHT:
-            if (!action.isRange && action.range.to === prevState.text.length) return prevState;
+            if (action.range.isCollapsed && action.range.to === prevState.text.length) return prevState;
 
-            if (action.isRange) {
-                nextState.selection.from =
-                nextState.selection.to   = action.range.to;
-            } else {
+            if (action.range.isCollapsed) {
                 nextState.selection.from =
                 nextState.selection.to   = action.range.to + 1;
+            } else {
+                nextState.selection.from =
+                nextState.selection.to   = action.range.to;
             }
 
             break;
         case Actions.RIGHT_SELECT:
             if (action.range.to === prevState.text.length) return prevState;
 
-            if (action.isRange && prevState.selection.isLtr) {
-                nextState.selection.from++;
-            } else if (action.isRange && prevState.selection.isRtl) {
+            if (!action.range.isCollapsed && prevState.selection.isLtr) {
                 nextState.selection.to++;
-            } else if (!action.isRange) {
+            } else if (!action.range.isCollapsed && prevState.selection.isRtl) {
+                nextState.selection.from++;
+            } else if (action.range.isCollapsed) {
                 nextState.selection.to++;
                 nextState.selection.direction = DIRECTION_LTR;
             }
 
             break;
         case Actions.RIGHT_SKIP:
+
+            break;
+        case Actions.UP_SELECT:
+            // TODO: get working with keydown, be able to move
+            // up and back down etc
+
+            if (prevState.selection.isRtl) {
+                nextState.selection.from = action.range.from;
+            } else if (prevState.selection.isLtr) {
+                nextState.selection.to = prevState.selection.from;
+                nextState.selection.from = action.range.from;
+                nextState.selection.direction = DIRECTION_RTL;
+            }
+
+            break;
+        case Actions.DOWN_SELECT:
+            if (prevState.selection.isLtr) {
+                nextState.selection.to = action.range.to;
+            } else if (prevState.selection.isRtl) {
+                nextState.selection.from = prevState.selection.to;
+                nextState.selection.to = action.range.to;
+                nextState.selection.direction = DIRECTION_LTR;
+            }
 
             break;
         case Actions.HOME:
