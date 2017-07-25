@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(18);
+	var _data = __webpack_require__(17);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -114,7 +114,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Range2 = _interopRequireDefault(_Range);
 	
-	var _State = __webpack_require__(8);
+	var _State = __webpack_require__(9);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
@@ -126,19 +126,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 	
-	var _TreeBuilder = __webpack_require__(15);
+	var _TreeBuilder = __webpack_require__(14);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(16);
+	var _Renderer = __webpack_require__(15);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
-	var _reducer = __webpack_require__(17);
+	var _reducer = __webpack_require__(16);
 	
 	var _reducer2 = _interopRequireDefault(_reducer);
 	
-	var _Common = __webpack_require__(19);
+	var _Actions = __webpack_require__(12);
+	
+	var _Common = __webpack_require__(8);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -255,7 +257,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // TODO: discern 'push' vs 'replace' commands i.e. inserting a
 	            // char vs moving a cursor
 	
-	            console.log(type, nextState);
+	            console.log(type);
 	
 	            this.history.push(nextState);
 	
@@ -264,6 +266,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Chop off any divergent future state
 	
 	            this.history.length = this.historyIndex + 1;
+	
+	            if (type === _Actions.SET_SELECTION) return;
+	
+	            console.log('render', this.state);
 	
 	            this.render();
 	
@@ -347,7 +353,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'positionCaret',
 	        value: function positionCaret(_ref) {
 	            var from = _ref.from,
-	                to = _ref.to;
+	                to = _ref.to,
+	                isRtl = _ref.isRtl;
 	
 	            var range = document.createRange();
 	            var selection = window.getSelection();
@@ -391,34 +398,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Single caret
 	
 	                range.collapse(true);
-	            } else {
-	                // Multi-character selection, reset child nodes
+	                selection.removeAllRanges();
+	                selection.addRange(range);
 	
-	                childNodes = this.root.childNodes;
-	
-	                for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
-	                    if (virtualNode.end < to) continue;
-	
-	                    if (virtualNode.childNodes.length) {
-	                        childNodes = virtualNode.childNodes;
-	
-	                        _i = -1;
-	
-	                        continue;
-	                    }
-	
-	                    offsetEnd = to - virtualNode.start;
-	
-	                    break;
-	                }
-	
-	                nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
-	
-	                range.setEnd(nodeRight, offsetEnd);
+	                return;
 	            }
 	
+	            // Multi-character selection, reset child nodes
+	
+	            childNodes = this.root.childNodes;
+	
+	            for (var _i = 0; virtualNode = childNodes[_i]; _i++) {
+	                if (virtualNode.end < to) continue;
+	
+	                if (virtualNode.childNodes.length) {
+	                    childNodes = virtualNode.childNodes;
+	
+	                    _i = -1;
+	
+	                    continue;
+	                }
+	
+	                offsetEnd = to - virtualNode.start;
+	
+	                break;
+	            }
+	
+	            nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
+	
+	            range.setEnd(nodeRight, offsetEnd);
+	
 	            selection.removeAllRanges();
-	            selection.addRange(range);
+	
+	            if (isRtl) {
+	                selection.setBaseAndExtent(nodeRight, offsetEnd, nodeLeft, offsetStart);
+	            } else {
+	                selection.setBaseAndExtent(nodeLeft, offsetStart, nodeRight, offsetEnd);
+	            }
 	        }
 	    }], [{
 	        key: 'buildModelFromState',
@@ -919,7 +935,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Common = __webpack_require__(19);
+	var _Common = __webpack_require__(8);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -980,6 +996,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
+	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1022,7 +1050,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = State;
 
 /***/ },
-/* 9 */,
 /* 10 */
 /***/ function(module, exports) {
 
@@ -1101,16 +1128,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            root.addEventListener('keypress', this.delegator);
 	            root.addEventListener('keydown', this.delegator);
-	            root.addEventListener('keyup', this.delegator);
-	            root.addEventListener('click', this.delegator);
+	            root.addEventListener('mouseup', this.delegator);
+	            root.addEventListener('mousedown', this.delegator);
 	        }
 	    }, {
 	        key: 'unbindEvents',
 	        value: function unbindEvents(root) {
 	            root.removeEventListener('keypress', this.delegator);
 	            root.removeEventListener('keydown', this.delegator);
-	            root.removeEventListener('keyup', this.delegator);
 	            root.removeEventListener('click', this.delegator);
+	            root.addEventListener('mouseup', this.delegator);
+	            root.addEventListener('mousedown', this.delegator);
 	        }
 	    }, {
 	        key: 'delegator',
@@ -1125,17 +1153,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	            fn(e, richTextEditor);
 	        }
 	    }, {
-	        key: 'handleClick',
-	        value: function handleClick(e, richTextEditor) {
-	            richTextEditor.applyAction(Actions.SET_SELECTION);
-	        }
-	    }, {
 	        key: 'handleKeypress',
 	        value: function handleKeypress(e, richTextEditor) {
 	            e.preventDefault();
 	
 	            richTextEditor.applyAction(Actions.INSERT, e.key);
-	            // richTextEditor.performCommand('insert', e.key);
+	        }
+	    }, {
+	        key: 'handleMouseup',
+	        value: function handleMouseup(e, richTextEditor) {
+	            richTextEditor.applyAction(Actions.SET_SELECTION);
+	        }
+	    }, {
+	        key: 'handleMousedown',
+	        value: function handleMousedown(e, richTextEditor) {
+	            richTextEditor.applyAction(Actions.SET_SELECTION);
 	        }
 	    }, {
 	        key: 'handleKeydown',
@@ -1173,45 +1205,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case Keys.ENTER:
 	                    actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
 	
+	                    e.preventDefault();
+	
 	                    break;
 	                case Keys.BACKSPACE:
 	                    actionType = Actions.BACKSPACE;
+	
+	                    e.preventDefault();
 	
 	                    break;
 	                case Keys.DELETE:
 	                    actionType = Actions.DELETE;
 	
+	                    e.preventDefault();
+	
 	                    break;
 	                case Keys.ARROW_LEFT:
-	                    actionType = EventHandler.parseArrowLeft(e);
-	
-	                    break;
 	                case Keys.ARROW_RIGHT:
-	                    actionType = EventHandler.parseArrowRight(e);
-	
-	                    break;
-	            }
-	
-	            if (!actionType || actionType === Actions.NONE) return;
-	
-	            e.preventDefault();
-	
-	            richTextEditor.applyAction(actionType);
-	        }
-	    }, {
-	        key: 'handleKeyup',
-	        value: function handleKeyup(e, richTextEditor) {
-	            var key = e.key.toLowerCase();
-	
-	            var actionType = '';
-	
-	            switch (key) {
 	                case Keys.ARROW_UP:
-	                    actionType = EventHandler.parseArrowUp(e);
-	
-	                    break;
 	                case Keys.ARROW_DOWN:
-	                    actionType = EventHandler.parseArrowDown(e);
+	                    actionType = Actions.SET_SELECTION;
 	
 	                    break;
 	            }
@@ -1219,62 +1232,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (!actionType || actionType === Actions.NONE) return;
 	
 	            richTextEditor.applyAction(actionType);
-	        }
-	    }], [{
-	        key: 'parseArrowUp',
-	        value: function parseArrowUp(e) {
-	            if (e.metaKey && e.shiftKey) {
-	                return Actions.PAGE_UP_SELECT;
-	            } else if (e.metaKey) {
-	                return Actions.PAGE_UP;
-	            } else if (e.shiftKey) {
-	                return Actions.UP_SELECT;
-	            }
-	
-	            return Actions.NONE;
-	        }
-	    }, {
-	        key: 'parseArrowDown',
-	        value: function parseArrowDown(e) {
-	            if (e.metaKey && e.shiftKey) {
-	                return Actions.PAGE_DOWN_SELECT;
-	            } else if (e.metaKey) {
-	                return Actions.PAGE_DOWN;
-	            } else if (e.shiftKey) {
-	                return Actions.DOWN_SELECT;
-	            }
-	
-	            return Actions.NONE;
-	        }
-	    }, {
-	        key: 'parseArrowLeft',
-	        value: function parseArrowLeft(e) {
-	            if (e.metaKey && e.shiftKey) {
-	                return Actions.HOME_SELECT;
-	            } else if (e.metaKey) {
-	                return Actions.HOME;
-	            } else if (e.altKey) {
-	                return Actions.LEFT_SKIP;
-	            } else if (e.shiftKey) {
-	                return Actions.LEFT_SELECT;
-	            }
-	
-	            return Actions.LEFT;
-	        }
-	    }, {
-	        key: 'parseArrowRight',
-	        value: function parseArrowRight(e) {
-	            if (e.metaKey && e.shiftKey) {
-	                return Actions.END_SELECT;
-	            } else if (e.metaKey) {
-	                return Actions.END;
-	            } else if (e.altKey) {
-	                return Actions.RIGHT_SKIP;
-	            } else if (e.shiftKey) {
-	                return Actions.RIGHT_SELECT;
-	            }
-	
-	            return Actions.RIGHT;
 	        }
 	    }]);
 	
@@ -1293,22 +1250,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	var SET_SELECTION = exports.SET_SELECTION = Symbol('SET_SELECTION');
-	var LEFT = exports.LEFT = Symbol('ACTION_TYPE_LEFT');
-	var LEFT_SELECT = exports.LEFT_SELECT = Symbol('ACTION_TYPE_LEFT_SELECT');
-	var LEFT_SKIP = exports.LEFT_SKIP = Symbol('ACTION_TYPE_LEFT_SKIP');
-	var RIGHT = exports.RIGHT = Symbol('ACTION_TYPE_RIGHT');
-	var RIGHT_SELECT = exports.RIGHT_SELECT = Symbol('ACTION_TYPE_RIGHT_SELECT');
-	var RIGHT_SKIP = exports.RIGHT_SKIP = Symbol('ACTION_TYPE_RIGHT_SKIP');
-	var HOME = exports.HOME = Symbol('ACTION_TYPE_HOME');
-	var HOME_SELECT = exports.HOME_SELECT = Symbol('ACTION_TYPE_HOME_SELECT');
-	var END = exports.END = Symbol('ACTION_TYPE_END');
-	var END_SELECT = exports.END_SELECT = Symbol('ACTION_TYPE_END_SELECT');
-	var PAGE_UP = exports.PAGE_UP = Symbol('ACTION_TYPE_PAGE_UP');
-	var PAGE_UP_SELECT = exports.PAGE_UP_SELECT = Symbol('ACTION_TYPE_PAGE_UP_SELECT');
-	var PAGE_DOWN = exports.PAGE_DOWN = Symbol('ACTION_TYPE_PAGE_DOWN');
-	var PAGE_DOWN_SELECT = exports.PAGE_DOWN_SELECT = Symbol('ACTION_TYPE_PAGE_DOWN_SELECT');
-	var UP_SELECT = exports.UP_SELECT = Symbol('ACTION_TYPE_UP_SELECT');
-	var DOWN_SELECT = exports.DOWN_SELECT = Symbol('ACTION_TYPE_DOWN_SELECT');
 	var INSERT = exports.INSERT = Symbol('ACTION_TYPE_INSERT');
 	var BACKSPACE = exports.BACKSPACE = Symbol('ACTION_TYPE_BACKSPACE');
 	var DELETE = exports.DELETE = Symbol('ACTION_TYPE_DELETE');
@@ -1340,8 +1281,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Z = exports.Z = 'z';
 
 /***/ },
-/* 14 */,
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1515,7 +1455,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1577,7 +1517,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1586,7 +1526,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
-	var _State = __webpack_require__(8);
+	var _State = __webpack_require__(9);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
@@ -1598,7 +1538,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Common = __webpack_require__(19);
+	var _Editor = __webpack_require__(18);
+	
+	var _Editor2 = _interopRequireDefault(_Editor);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -1612,108 +1554,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	            Object.assign(nextState.selection, action.range);
 	
 	            break;
-	        case Actions.LEFT:
-	            if (action.range.isCollapsed && action.range.from === 0) return prevState;
-	
-	            if (action.range.isCollapsed) {
-	                nextState.selection.from = nextState.selection.to = action.range.from - 1;
-	            } else {
-	                nextState.selection.from = nextState.selection.to = action.range.from;
-	            }
-	
-	            break;
-	        case Actions.LEFT_SELECT:
-	            if (action.range.from === 0) return prevState;
-	
-	            if (!action.range.isCollapsed && prevState.selection.isLtr) {
-	                nextState.selection.to--;
-	            } else if (!action.range.isCollapsed && prevState.selection.isRtl) {
-	                nextState.selection.from--;
-	            } else if (action.range.isCollapsed) {
-	                nextState.selection.from--;
-	                nextState.selection.direction = _Common.DIRECTION_RTL;
-	            }
-	
-	            break;
-	        case Actions.LEFT_SKIP:
-	
-	            break;
-	        case Actions.RIGHT:
-	            if (action.range.isCollapsed && action.range.to === prevState.text.length) return prevState;
-	
-	            if (action.range.isCollapsed) {
-	                nextState.selection.from = nextState.selection.to = action.range.to + 1;
-	            } else {
-	                nextState.selection.from = nextState.selection.to = action.range.to;
-	            }
-	
-	            break;
-	        case Actions.RIGHT_SELECT:
-	            if (action.range.to === prevState.text.length) return prevState;
-	
-	            if (!action.range.isCollapsed && prevState.selection.isLtr) {
-	                nextState.selection.to++;
-	            } else if (!action.range.isCollapsed && prevState.selection.isRtl) {
-	                nextState.selection.from++;
-	            } else if (action.range.isCollapsed) {
-	                nextState.selection.to++;
-	                nextState.selection.direction = _Common.DIRECTION_LTR;
-	            }
-	
-	            break;
-	        case Actions.RIGHT_SKIP:
-	
-	            break;
-	        case Actions.UP_SELECT:
-	            // TODO: get working with keydown, be able to move
-	            // up and back down etc
-	
-	            if (prevState.selection.isRtl) {
-	                nextState.selection.from = action.range.from;
-	            } else if (prevState.selection.isLtr) {
-	                nextState.selection.to = prevState.selection.from;
-	                nextState.selection.from = action.range.from;
-	                nextState.selection.direction = _Common.DIRECTION_RTL;
-	            }
-	
-	            break;
-	        case Actions.DOWN_SELECT:
-	            if (prevState.selection.isLtr) {
-	                nextState.selection.to = action.range.to;
-	            } else if (prevState.selection.isRtl) {
-	                nextState.selection.from = prevState.selection.to;
-	                nextState.selection.to = action.range.to;
-	                nextState.selection.direction = _Common.DIRECTION_LTR;
-	            }
-	
-	            break;
-	        case Actions.HOME:
-	
-	            break;
-	        case Actions.HOME_SELECT:
-	
-	            break;
-	        case Actions.END:
-	
-	            break;
-	        case Actions.END_SELECT:
-	
-	            break;
-	        case Actions.PAGE_UP:
-	
-	            break;
-	        case Actions.PAGE_UP_SELECT:
-	
-	            break;
-	        case Actions.PAGE_DOWN:
-	
-	            break;
-	        case Actions.PAGE_DOWN_SELECT:
-	
-	            break;
 	        case Actions.INSERT:
+	            {
+	                var totalDeleted = action.range.to - action.range.from;
 	
-	            break;
+	                var totalAdded = action.content.length;
+	                var adjustment = totalAdded - totalDeleted;
+	                var collapsed = '';
+	                var totalCollapsed = 0;
+	
+	                nextState.text = prevState.text.slice(0, action.range.from) + action.content + prevState.text.slice(action.range.to);
+	
+	                collapsed = _Editor2.default.collapseWhitespace(nextState.text);
+	
+	                if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
+	                    totalAdded -= totalCollapsed;
+	                    adjustment -= totalCollapsed;
+	
+	                    nextState.text = collapsed;
+	                }
+	
+	                nextState.markups = _Editor2.default.adjustMarkups(prevState.markups, action.range.from, action.range.to, totalAdded, adjustment);
+	
+	                if (action.content === '\n') {
+	                    nextState.markups = _Editor2.default.splitMarkups(nextState.markups, action.range.from);
+	                } else if (action.content === '') {
+	                    nextState.markups = _Editor2.default.joinMarkups(nextState.markups, action.range.from);
+	                }
+	
+	                nextState.selection.from = nextState.selection.to = action.range.from + totalAdded;
+	
+	                break;
+	            }
 	        case Actions.BACKSPACE:
 	
 	            break;
@@ -1734,7 +1606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -1764,16 +1636,284 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 19 */
-/***/ function(module, exports) {
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
-	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
-	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _State = __webpack_require__(9);
+	
+	var _State2 = _interopRequireDefault(_State);
+	
+	var _Markup = __webpack_require__(4);
+	
+	var _Markup2 = _interopRequireDefault(_Markup);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Editor = function () {
+	    function Editor() {
+	        _classCallCheck(this, Editor);
+	    }
+	
+	    _createClass(Editor, null, [{
+	        key: 'insert',
+	        value: function insert(state, range, characters) {
+	            var newState = new _State2.default();
+	            var totalDeleted = range.to - range.from;
+	
+	            var totalAdded = characters.length;
+	            var adjustment = totalAdded - totalDeleted;
+	            var collapsed = '';
+	            var totalCollapsed = 0;
+	
+	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
+	
+	            collapsed = Editor.collapseWhitespace(newState.text);
+	
+	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	                totalAdded -= totalCollapsed;
+	                adjustment -= totalCollapsed;
+	
+	                newState.text = collapsed;
+	            }
+	
+	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment);
+	
+	            if (characters === '\n') {
+	                newState.markups = Editor.splitMarkups(newState.markups, range.from);
+	            }
+	
+	            if (characters === '') {
+	                newState.markups = Editor.joinMarkups(newState.markups, range.from);
+	            }
+	
+	            newState.selection = [range.from + totalAdded, range.from + totalAdded];
+	
+	            return newState;
+	        }
+	    }, {
+	        key: 'collapseWhitespace',
+	        value: function collapseWhitespace(text) {
+	            // Replace 3 or more spaces with a single space.
+	
+	            var collapsed = text.replace(/ {3,}/g, ' ');
+	
+	            // Replace 1 or more spaces before a new line with a single space
+	
+	            collapsed = text.replace(/ +\n/g, ' \n');
+	
+	            // Disallow spaces at the start of a new line
+	
+	            collapsed = text.replace(/\n */g, '\n');
+	
+	            return collapsed;
+	        }
+	    }, {
+	        key: 'backspace',
+	        value: function backspace(state, range) {
+	            var isRange = range.from !== range.to;
+	            var fromIndex = isRange ? range.from : range.to - 1;
+	
+	            if (range.to === 0) return state;
+	
+	            return Editor.insert(state, { from: fromIndex, to: range.to }, '');
+	        }
+	    }, {
+	        key: 'delete',
+	        value: function _delete(state, range) {
+	            var isRange = range.from !== range.to;
+	            var toIndex = isRange ? range.to : range.from + 1;
+	
+	            if (range.from === state.text.length) return state;
+	
+	            return Editor.insert(state, { from: range.from, to: toIndex }, '');
+	        }
+	    }, {
+	        key: 'return',
+	        value: function _return(state, range) {
+	            // TODO: Disallow if already empty line
+	
+	            return Editor.insert(state, range, '\n');
+	        }
+	    }, {
+	        key: 'adjustMarkups',
+	        value: function adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
+	            var newMarkups = [];
+	
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup = markup,
+	                    _markup2 = _slicedToArray(_markup, 3),
+	                    tag = _markup2[0],
+	                    markupStart = _markup2[1],
+	                    markupEnd = _markup2[2];
+	
+	                var newMarkup = new _Markup2.default(markup);
+	
+	                var removeMarkup = false;
+	
+	                if (!(markup instanceof _Markup2.default)) {
+	                    markup = new _Markup2.default(markup);
+	                }
+	
+	                if (markupStart >= fromIndex && markupEnd <= toIndex) {
+	                    // Selection completely envelopes markup
+	
+	                    if (markupStart === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+	                        // Markup should be preserved is a) is block element,
+	                        // b) is inline and inserting
+	                        newMarkup[2] = markupStart + totalAdded;
+	                    } else if (!markup.isBlock) {
+	                        removeMarkup = true;
+	                    }
+	                } else if (markupStart <= fromIndex && markupEnd >= toIndex) {
+	                    // Selection within markup or equal to markup
+	
+	                    newMarkup[2] += adjustment;
+	
+	                    if (markup.isInline && markupStart === fromIndex && fromIndex === toIndex) {
+	                        // Collapsed caret at start of inline markup
+	
+	                        newMarkup[1] += adjustment;
+	                    }
+	                } else if (markupStart >= toIndex) {
+	                    // Markup starts after Selection
+	
+	                    newMarkup[1] += adjustment;
+	                    newMarkup[2] += adjustment;
+	                } else if (fromIndex < markupStart && toIndex > markupStart && toIndex < markupEnd) {
+	                    // Selection partially envelopes markup from start
+	
+	                    if (markup.isInline) {
+	                        newMarkup[1] += adjustment + (toIndex - markupStart);
+	                        newMarkup[2] += adjustment;
+	                    } else {
+	                        // Previous block markup will consume this one, remove
+	
+	                        removeMarkup = true;
+	                    }
+	                } else if (fromIndex > markupStart && fromIndex < markupEnd && toIndex > markupEnd) {
+	                    // Selection partially envelopes markup from end
+	
+	                    if (markup.isInline) {
+	                        // Extend inline markup to end of insertion
+	
+	                        newMarkup[2] = fromIndex + totalAdded;
+	                    } else {
+	                        var nextBlockMarkup = Editor.getNextBlockMarkup(markups, i);
+	
+	                        // Extend block markup to end of next block +/- adjustment
+	
+	                        newMarkup[2] = nextBlockMarkup[2] + adjustment;
+	                    }
+	                }
+	
+	                if (!removeMarkup) {
+	                    newMarkups.push(newMarkup);
+	                }
+	            }
+	
+	            return newMarkups;
+	        }
+	    }, {
+	        key: 'getNextBlockMarkup',
+	        value: function getNextBlockMarkup(markups, index) {
+	            for (var i = index + 1, markup; markup = markups[i]; i++) {
+	                if (!(markup instanceof _Markup2.default)) {
+	                    markup = new _Markup2.default(markup);
+	                }
+	
+	                if (markup.isBlock) {
+	                    return markup;
+	                }
+	            }
+	
+	            return null;
+	        }
+	    }, {
+	        key: 'splitMarkups',
+	        value: function splitMarkups(markups, index) {
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup3 = markup,
+	                    _markup4 = _slicedToArray(_markup3, 3),
+	                    markupTag = _markup4[0],
+	                    markupStart = _markup4[1],
+	                    markupEnd = _markup4[2];
+	
+	                var newMarkup = null;
+	
+	                if (markupStart <= index && markupEnd >= index) {
+	                    var newTag = markup.isBlock && markupEnd === index + 1 ? 'p' : markupTag;
+	
+	                    markup[2] = index;
+	
+	                    newMarkup = new _Markup2.default([newTag, index + 1, markupEnd]);
+	
+	                    markups.splice(i + 1, 0, newMarkup);
+	
+	                    i++;
+	                }
+	            }
+	
+	            return markups;
+	        }
+	    }, {
+	        key: 'joinMarkups',
+	        value: function joinMarkups(markups, index) {
+	            var closingInlines = {};
+	
+	            var closingBlock = null;
+	
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup5 = markup,
+	                    _markup6 = _slicedToArray(_markup5, 3),
+	                    markupTag = _markup6[0],
+	                    markupStart = _markup6[1],
+	                    markupEnd = _markup6[2];
+	
+	                if (markupEnd === index) {
+	                    if (markup.isBlock) {
+	                        closingBlock = markup;
+	                    } else {
+	                        closingInlines[markupTag] = markup;
+	                    }
+	                } else if (markupStart === index) {
+	                    var extend = null;
+	
+	                    if (markup.isBlock && closingBlock) {
+	                        extend = closingBlock;
+	                    } else if (markup.isInline && closingInlines[markupTag]) {
+	                        extend = closingInlines[markupTag];
+	                    }
+	
+	                    if (extend) {
+	                        extend[2] = markup[2];
+	
+	                        markups.splice(i, 1);
+	
+	                        i--;
+	                    }
+	                }
+	            }
+	
+	            return markups;
+	        }
+	    }]);
+	
+	    return Editor;
+	}();
+	
+	exports.default = Editor;
 
 /***/ }
 /******/ ])

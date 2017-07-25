@@ -8,15 +8,16 @@ class EventHandler {
 
         root.addEventListener('keypress', this.delegator);
         root.addEventListener('keydown', this.delegator);
-        root.addEventListener('keyup', this.delegator);
-        root.addEventListener('click', this.delegator);
+        root.addEventListener('mouseup', this.delegator);
+        root.addEventListener('mousedown', this.delegator);
     }
 
     unbindEvents(root) {
         root.removeEventListener('keypress', this.delegator);
         root.removeEventListener('keydown', this.delegator);
-        root.removeEventListener('keyup', this.delegator);
         root.removeEventListener('click', this.delegator);
+        root.addEventListener('mouseup', this.delegator);
+        root.addEventListener('mousedown', this.delegator);
     }
 
     delegator(richTextEditor, e) {
@@ -30,15 +31,18 @@ class EventHandler {
         fn(e, richTextEditor);
     }
 
-    handleClick(e, richTextEditor) {
-        richTextEditor.applyAction(Actions.SET_SELECTION);
-    }
-
     handleKeypress(e, richTextEditor) {
         e.preventDefault();
 
         richTextEditor.applyAction(Actions.INSERT, e.key);
-        // richTextEditor.performCommand('insert', e.key);
+    }
+
+    handleMouseup(e, richTextEditor) {
+        richTextEditor.applyAction(Actions.SET_SELECTION);
+    }
+
+    handleMousedown(e, richTextEditor) {
+        richTextEditor.applyAction(Actions.SET_SELECTION);
     }
 
     handleKeydown(e, richTextEditor) {
@@ -75,44 +79,26 @@ class EventHandler {
             case Keys.ENTER:
                 actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
 
+                e.preventDefault();
+
                 break;
             case Keys.BACKSPACE:
                 actionType = Actions.BACKSPACE;
+
+                e.preventDefault();
 
                 break;
             case Keys.DELETE:
                 actionType = Actions.DELETE;
 
+                e.preventDefault();
+
                 break;
             case Keys.ARROW_LEFT:
-                actionType = EventHandler.parseArrowLeft(e);
-
-                break;
             case Keys.ARROW_RIGHT:
-                actionType = EventHandler.parseArrowRight(e);
-
-                break;
-        }
-
-        if (!actionType || actionType === Actions.NONE) return;
-
-        e.preventDefault();
-
-        richTextEditor.applyAction(actionType);
-    }
-
-    handleKeyup(e, richTextEditor) {
-        const key = e.key.toLowerCase();
-
-        let actionType = '';
-
-        switch (key) {
             case Keys.ARROW_UP:
-                actionType = EventHandler.parseArrowUp(e);
-
-                break;
             case Keys.ARROW_DOWN:
-                actionType = EventHandler.parseArrowDown(e);
+                actionType = Actions.SET_SELECTION;
 
                 break;
         }
@@ -120,59 +106,6 @@ class EventHandler {
         if (!actionType || actionType === Actions.NONE) return;
 
         richTextEditor.applyAction(actionType);
-    }
-
-    static parseArrowUp(e) {
-        if (e.metaKey && e.shiftKey) {
-            return Actions.PAGE_UP_SELECT;
-        } else if (e.metaKey) {
-            return Actions.PAGE_UP;
-        } else if (e.shiftKey) {
-            return Actions.UP_SELECT;
-        }
-
-
-        return Actions.NONE;
-    }
-
-    static parseArrowDown(e) {
-        if (e.metaKey && e.shiftKey) {
-            return Actions.PAGE_DOWN_SELECT;
-        } else if (e.metaKey) {
-            return Actions.PAGE_DOWN;
-        } else if (e.shiftKey) {
-            return Actions.DOWN_SELECT;
-        }
-
-        return Actions.NONE;
-    }
-
-    static parseArrowLeft(e) {
-        if (e.metaKey && e.shiftKey) {
-            return Actions.HOME_SELECT;
-        } else if (e.metaKey) {
-            return Actions.HOME;
-        } else if (e.altKey) {
-            return Actions.LEFT_SKIP;
-        } else if (e.shiftKey) {
-            return Actions.LEFT_SELECT;
-        }
-
-        return Actions.LEFT;
-    }
-
-    static parseArrowRight(e) {
-        if (e.metaKey && e.shiftKey) {
-            return Actions.END_SELECT;
-        } else if (e.metaKey) {
-            return Actions.END;
-        } else if (e.altKey) {
-            return Actions.RIGHT_SKIP;
-        } else if (e.shiftKey) {
-            return Actions.RIGHT_SELECT;
-        }
-
-        return Actions.RIGHT;
     }
 }
 

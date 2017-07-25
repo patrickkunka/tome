@@ -13,6 +13,10 @@ import Renderer     from './Renderer';
 import reducer      from './actions/reducer';
 
 import {
+    SET_SELECTION
+} from './constants/Actions';
+
+import {
     DIRECTION_LTR,
     DIRECTION_RTL
 } from './constants/Common';
@@ -112,7 +116,7 @@ class RichTextEditor {
         // TODO: discern 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
 
-        console.log(type, nextState);
+        console.log(type);
 
         this.history.push(nextState);
 
@@ -121,6 +125,10 @@ class RichTextEditor {
         // Chop off any divergent future state
 
         this.history.length = this.historyIndex + 1;
+
+        if (type === SET_SELECTION) return;
+
+        console.log('render', this.state);
 
         this.render();
 
@@ -197,7 +205,7 @@ class RichTextEditor {
         return new Range(rangeFrom, rangeTo, isRtl ? DIRECTION_RTL : DIRECTION_LTR);
     }
 
-    positionCaret({from, to}) {
+    positionCaret({from, to, isRtl}) {
         const range = document.createRange();
         const selection = window.getSelection();
 
@@ -240,34 +248,43 @@ class RichTextEditor {
             // Single caret
 
             range.collapse(true);
-        } else {
-            // Multi-character selection, reset child nodes
+            selection.removeAllRanges();
+            selection.addRange(range);
 
-            childNodes = this.root.childNodes;
-
-            for (let i = 0; (virtualNode = childNodes[i]); i++) {
-                if (virtualNode.end < to) continue;
-
-                if (virtualNode.childNodes.length) {
-                    childNodes = virtualNode.childNodes;
-
-                    i = -1;
-
-                    continue;
-                }
-
-                offsetEnd = to - virtualNode.start;
-
-                break;
-            }
-
-            nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
-
-            range.setEnd(nodeRight, offsetEnd);
+            return;
         }
 
+        // Multi-character selection, reset child nodes
+
+        childNodes = this.root.childNodes;
+
+        for (let i = 0; (virtualNode = childNodes[i]); i++) {
+            if (virtualNode.end < to) continue;
+
+            if (virtualNode.childNodes.length) {
+                childNodes = virtualNode.childNodes;
+
+                i = -1;
+
+                continue;
+            }
+
+            offsetEnd = to - virtualNode.start;
+
+            break;
+        }
+
+        nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
+
+        range.setEnd(nodeRight, offsetEnd);
+
         selection.removeAllRanges();
-        selection.addRange(range);
+
+        if (isRtl) {
+            selection.setBaseAndExtent(nodeRight, offsetEnd, nodeLeft, offsetStart);
+        } else {
+            selection.setBaseAndExtent(nodeLeft, offsetStart, nodeRight, offsetEnd);
+        }
     }
 
     static buildModelFromState(state) {
