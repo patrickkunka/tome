@@ -62,6 +62,8 @@ class RichTextEditor {
             state.markups.push(['p', 0, 0]);
         }
 
+        // TODO: if text but no markups, wrap entire in <p>
+
         state.markups = state.markups.map(markup => new Markup(markup));
 
         return state;
@@ -127,8 +129,6 @@ class RichTextEditor {
         this.history.length = this.historyIndex + 1;
 
         if (type === SET_SELECTION) return;
-
-        console.log('render', this.state);
 
         this.render();
 
