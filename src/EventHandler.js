@@ -56,6 +56,18 @@ class EventHandler {
                     actionType = Actions.SET_SELECTION;
 
                     break;
+                case Keys.B:
+                    actionType = Actions.TOGGLE_BOLD;
+
+                    e.preventDefault();
+
+                    break;
+                case Keys.I:
+                    actionType = Actions.TOGGLE_ITALIC;
+
+                    e.preventDefault();
+
+                    break;
                 // case Keys.C:
                 //    command = 'copy';
 

@@ -38,6 +38,13 @@ export default (prevState, action) => {
         case Actions.SHIFT_RETURN:
 
             break;
+        case Actions.TOGGLE_BOLD: {
+            const nextState = Util.extend(new State(), prevState, true);
+
+            Editor.toggleMarkup(nextState.markups, action.range.from, action.range.to, 'strong');
+
+            return nextState;
+        }
         default:
             return prevState;
     }

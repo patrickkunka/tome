@@ -62,6 +62,39 @@ class Editor {
         return collapsed;
     }
 
+    static toggleMarkup(markups, fromIndex, toIndex, tag) {
+        let parentBlock   = null;
+        let currentMarkup = null;
+        let nextMarkup    = null;
+
+        for (let i = 0; i < markups.length; i++) {
+            currentMarkup = nextMarkup ? nextMarkup : new Markup(markups[i]);
+            nextMarkup = new Markup(markups[i + 1]);
+
+            if (currentMarkup.isBlock) {
+                parentBlock = currentMarkup;
+            }
+
+            if (fromIndex >= parentBlock.start && toIndex <= parentBlock.end) {
+                if (currentMarkup.start <= fromIndex && nextMarkup.start > toIndex) {
+                    const newMarkup = [tag, fromIndex, toIndex];
+
+                    markups.splice(i + 1, 0, newMarkup);
+
+                    break;
+                }
+            } else {
+                // overlap
+
+                console.log('overlap');
+            }
+        }
+
+        // Iterate through markups, hold reference to current block parent
+        // if new markup is within parent, add markup at logical index (by start index)
+        // if new markup overlaps block parents, split and add where permissable
+    }
+
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
         const newMarkups = [];
 

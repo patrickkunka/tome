@@ -235,8 +235,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function applyAction(type) {
 	            var content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 	
-	            var selection = window.getSelection();
-	            var range = this.getRangeFromSelection(selection);
+	            var range = null;
+	
+	            if (type === _Actions.SET_SELECTION) {
+	                // Detect new selection from browser API
+	
+	                var selection = window.getSelection();
+	
+	                range = this.getRangeFromSelection(selection);
+	            } else {
+	                // Use previous range
+	
+	                range = this.state.selection;
+	            }
 	
 	            var nextState = [type].reduce(function (prevState, type) {
 	                var action = new _Action2.default();
@@ -249,7 +260,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }, this.state);
 	
 	            if (!(nextState instanceof _State2.default)) {
-	                throw new TypeError('[RichTextEditor] Action type "' + type + '" did not return a valid state object');
+	                throw new TypeError('[RichTextEditor] Action type "' + type.toString() + '" did not return a valid state object');
 	            }
 	
 	            if (nextState === this.state) return;
@@ -786,7 +797,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -795,6 +806,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _Markups = __webpack_require__(19);
+	
+	var Markups = _interopRequireWildcard(_Markups);
+	
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -820,19 +837,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this[2] = end;
 	
 	        Object.defineProperties(_this, {
+	            tag: {
+	                get: function get() {
+	                    return _this[0];
+	                }
+	            },
+	            start: {
+	                get: function get() {
+	                    return _this[1];
+	                }
+	            },
+	            end: {
+	                get: function get() {
+	                    return _this[2];
+	                }
+	            },
 	            type: {
 	                get: function get() {
-	                    return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].indexOf(this[0]) > -1 ? 'block' : 'inline';
+	                    return [Markups.H1, Markups.H2, Markups.H3, Markups.H4, Markups.H5, Markups.H6, Markups.P].indexOf(this[0]) > -1 ? Markups.MARKUP_TYPE_BLOCK : Markups.MARKUP_TYPE_INLINE;
 	                }
 	            },
 	            isBlock: {
 	                get: function get() {
-	                    return this.type === 'block';
+	                    return this.type === Markups.MARKUP_TYPE_BLOCK;
 	                }
 	            },
 	            isInline: {
 	                get: function get() {
-	                    return this.type === 'inline';
+	                    return this.type === Markups.MARKUP_TYPE_INLINE;
 	                }
 	            }
 	        });
@@ -1167,6 +1199,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        actionType = Actions.SET_SELECTION;
 	
 	                        break;
+	                    case Keys.B:
+	                        actionType = Actions.TOGGLE_BOLD;
+	
+	                        e.preventDefault();
+	
+	                        break;
+	                    case Keys.I:
+	                        actionType = Actions.TOGGLE_ITALIC;
+	
+	                        e.preventDefault();
+	
+	                        break;
 	                    // case Keys.C:
 	                    //    command = 'copy';
 	
@@ -1242,6 +1286,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DELETE = exports.DELETE = Symbol('ACTION_TYPE_DELETE');
 	var RETURN = exports.RETURN = Symbol('ACTION_TYPE_RETURN');
 	var SHIFT_RETURN = exports.SHIFT_RETURN = Symbol('ACTION_TYPE_SHIFT_RETURN');
+	var TOGGLE_BOLD = exports.TOGGLE_BOLD = Symbol('ACTION_TYPE_TOGGLE_BOLD');
+	var TOGGLE_ITALIC = exports.TOGGLE_ITALIC = Symbol('ACTION_TYPE_TOGGLE_ITALIC');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
 /***/ }),
@@ -1266,6 +1312,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var V = exports.V = 'v';
 	var S = exports.S = 's';
 	var Z = exports.Z = 'z';
+	var B = exports.B = 'b';
+	var I = exports.I = 'i';
 
 /***/ }),
 /* 14 */
@@ -1572,6 +1620,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case Actions.SHIFT_RETURN:
 	
 	            break;
+	        case Actions.TOGGLE_BOLD:
+	            {
+	                var _nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	
+	                _Editor2.default.toggleMarkup(_nextState.markups, action.range.from, action.range.to, 'strong');
+	
+	                return _nextState;
+	            }
 	        default:
 	            return prevState;
 	    }
@@ -1659,6 +1715,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	            collapsed = text.replace(/\n */g, '\n');
 	
 	            return collapsed;
+	        }
+	    }, {
+	        key: 'toggleMarkup',
+	        value: function toggleMarkup(markups, fromIndex, toIndex, tag) {
+	            var parentBlock = null;
+	            var currentMarkup = null;
+	            var nextMarkup = null;
+	
+	            for (var i = 0; i < markups.length; i++) {
+	                currentMarkup = nextMarkup ? nextMarkup : new _Markup2.default(markups[i]);
+	                nextMarkup = new _Markup2.default(markups[i + 1]);
+	
+	                if (currentMarkup.isBlock) {
+	                    parentBlock = currentMarkup;
+	                }
+	
+	                if (fromIndex >= parentBlock.start && toIndex <= parentBlock.end) {
+	                    if (currentMarkup.start <= fromIndex && nextMarkup.start > toIndex) {
+	                        var newMarkup = [tag, fromIndex, toIndex];
+	
+	                        markups.splice(i + 1, 0, newMarkup);
+	
+	                        break;
+	                    }
+	                } else {
+	                    // overlap
+	
+	                    console.log('overlap');
+	                }
+	            }
+	
+	            // Iterate through markups, hold reference to current block parent
+	            // if new markup is within parent, add markup at logical index (by start index)
+	            // if new markup overlaps block parents, split and add where permissable
 	        }
 	    }, {
 	        key: 'adjustMarkups',
@@ -1834,6 +1924,29 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports) {
 
 	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50]]}
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var H1 = exports.H1 = 'h1';
+	var H2 = exports.H2 = 'h2';
+	var H3 = exports.H3 = 'h3';
+	var H4 = exports.H4 = 'h4';
+	var H5 = exports.H5 = 'h5';
+	var H6 = exports.H6 = 'h6';
+	var P = exports.P = 'p';
+	
+	var STRONG = exports.STRONG = 'strong';
+	var EM = exports.EM = 'em';
+	
+	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
+	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
 
 /***/ })
 /******/ ])

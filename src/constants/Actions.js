@@ -4,5 +4,7 @@ export const BACKSPACE          = Symbol('ACTION_TYPE_BACKSPACE');
 export const DELETE             = Symbol('ACTION_TYPE_DELETE');
 export const RETURN             = Symbol('ACTION_TYPE_RETURN');
 export const SHIFT_RETURN       = Symbol('ACTION_TYPE_SHIFT_RETURN');
+export const TOGGLE_BOLD        = Symbol('ACTION_TYPE_TOGGLE_BOLD');
+export const TOGGLE_ITALIC      = Symbol('ACTION_TYPE_TOGGLE_ITALIC');
 export const NONE               = Symbol('ACTION_TYPE_NONE');
 

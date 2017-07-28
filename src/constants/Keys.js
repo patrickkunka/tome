@@ -11,3 +11,5 @@ export const C = 'c';
 export const V = 'v';
 export const S = 's';
 export const Z = 'z';
+export const B = 'b';
+export const I = 'i';

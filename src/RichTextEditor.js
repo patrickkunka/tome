@@ -95,8 +95,19 @@ class RichTextEditor {
     }
 
     applyAction(type, content='') {
-        const selection = window.getSelection();
-        const range = this.getRangeFromSelection(selection);
+        let range = null;
+
+        if (type === SET_SELECTION) {
+            // Detect new selection from browser API
+
+            const selection = window.getSelection();
+
+            range = this.getRangeFromSelection(selection);
+        } else {
+            // Use previous range
+
+            range = this.state.selection;
+        }
 
         const nextState = [type].reduce((prevState, type) => {
             const action = new Action();
@@ -109,7 +120,7 @@ class RichTextEditor {
         }, this.state);
 
         if (!(nextState instanceof State)) {
-            throw new TypeError(`[RichTextEditor] Action type "${type}" did not return a valid state object`);
+            throw new TypeError(`[RichTextEditor] Action type "${type.toString()}" did not return a valid state object`);
         }
 
         if (nextState === this.state) return;
