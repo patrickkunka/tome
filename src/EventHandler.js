@@ -105,7 +105,7 @@ class EventHandler {
 
         if (!actionType || actionType === Actions.NONE) return;
 
-        richTextEditor.applyAction(actionType);
+        setTimeout(() => richTextEditor.applyAction(actionType));
     }
 }
 

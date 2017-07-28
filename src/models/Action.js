@@ -6,10 +6,6 @@ class Action {
 
         Object.seal(this);
     }
-
-    get isRange() {
-        return this.range && this.range.from !== this.range.to;
-    }
 }
 
 export default Action;

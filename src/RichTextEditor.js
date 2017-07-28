@@ -7,7 +7,6 @@ import Range        from './models/Range';
 import State        from './models/State';
 import Action       from './models/Action';
 import EventHandler from './EventHandler';
-// import Editor       from './Editor';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 import reducer      from './actions/reducer';

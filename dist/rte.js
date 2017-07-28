@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(17);
+	var _data = __webpack_require__(18);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -76,9 +76,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	module.exports = factory;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -87,8 +87,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	// import Editor       from './Editor';
-	
 	
 	var _Dom = __webpack_require__(2);
 	
@@ -195,6 +193,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                state.markups.push(['p', 0, 0]);
 	            }
 	
+	            // TODO: if text but no markups, wrap entire in <p>
+	
 	            state.markups = state.markups.map(function (markup) {
 	                return new _Markup2.default(markup);
 	            });
@@ -268,8 +268,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.history.length = this.historyIndex + 1;
 	
 	            if (type === _Actions.SET_SELECTION) return;
-	
-	            console.log('render', this.state);
 	
 	            this.render();
 	
@@ -452,9 +450,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = RichTextEditor;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -474,9 +472,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Dom;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -786,9 +784,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Util;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -848,9 +846,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Markup;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -899,9 +897,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Node;
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -923,9 +921,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Caret;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -994,9 +992,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Range;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1006,9 +1004,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
 	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1049,9 +1047,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = State;
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1059,36 +1057,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var Action = function () {
-	    function Action() {
-	        _classCallCheck(this, Action);
+	var Action = function Action() {
+	    _classCallCheck(this, Action);
 	
-	        this.type = null;
-	        this.range = null;
-	        this.content = '';
+	    this.type = null;
+	    this.range = null;
+	    this.content = '';
 	
-	        Object.seal(this);
-	    }
-	
-	    _createClass(Action, [{
-	        key: 'isRange',
-	        get: function get() {
-	            return this.range && this.range.from !== this.range.to;
-	        }
-	    }]);
-	
-	    return Action;
-	}();
+	    Object.seal(this);
+	};
 	
 	exports.default = Action;
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1231,7 +1216,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            if (!actionType || actionType === Actions.NONE) return;
 	
-	            richTextEditor.applyAction(actionType);
+	            setTimeout(function () {
+	                return richTextEditor.applyAction(actionType);
+	            });
 	        }
 	    }]);
 	
@@ -1240,9 +1227,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = EventHandler;
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1257,9 +1244,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var SHIFT_RETURN = exports.SHIFT_RETURN = Symbol('ACTION_TYPE_SHIFT_RETURN');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1280,9 +1267,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var S = exports.S = 's';
 	var Z = exports.Z = 'z';
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1454,9 +1441,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = TreeBuilder;
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1516,9 +1503,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Renderer;
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1538,7 +1525,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Editor = __webpack_require__(18);
+	var _Editor = __webpack_require__(17);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
@@ -1547,97 +1534,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	exports.default = function (prevState, action) {
-	    var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
-	
 	    switch (action.type) {
 	        case Actions.SET_SELECTION:
-	            Object.assign(nextState.selection, action.range);
+	            {
+	                var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
 	
-	            break;
+	                Object.assign(nextState.selection, action.range);
+	
+	                return nextState;
+	            }
 	        case Actions.INSERT:
 	            {
-	                var totalDeleted = action.range.to - action.range.from;
-	
-	                var totalAdded = action.content.length;
-	                var adjustment = totalAdded - totalDeleted;
-	                var collapsed = '';
-	                var totalCollapsed = 0;
-	
-	                nextState.text = prevState.text.slice(0, action.range.from) + action.content + prevState.text.slice(action.range.to);
-	
-	                collapsed = _Editor2.default.collapseWhitespace(nextState.text);
-	
-	                if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
-	                    totalAdded -= totalCollapsed;
-	                    adjustment -= totalCollapsed;
-	
-	                    nextState.text = collapsed;
-	                }
-	
-	                nextState.markups = _Editor2.default.adjustMarkups(prevState.markups, action.range.from, action.range.to, totalAdded, adjustment);
-	
-	                if (action.content === '\n') {
-	                    nextState.markups = _Editor2.default.splitMarkups(nextState.markups, action.range.from);
-	                } else if (action.content === '') {
-	                    nextState.markups = _Editor2.default.joinMarkups(nextState.markups, action.range.from);
-	                }
-	
-	                nextState.selection.from = nextState.selection.to = action.range.from + totalAdded;
-	
-	                break;
+	                return _Editor2.default.insert(prevState, { from: action.range.from, to: action.range.to }, action.content);
 	            }
 	        case Actions.BACKSPACE:
+	            {
+	                var fromIndex = action.range.isCollapsed ? action.range.from - 1 : action.range.from;
 	
-	            break;
+	                // If at start, ignore
+	
+	                if (action.range.to === 0) return prevState;
+	
+	                return _Editor2.default.insert(prevState, { from: fromIndex, to: action.range.to }, '');
+	            }
 	        case Actions.DELETE:
+	            {
+	                var toIndex = action.range.isCollapsed ? action.range.from + 1 : action.range.to;
 	
-	            break;
+	                // If at end, ignore
+	
+	                if (action.range.from === prevState.text.length) return prevState;
+	
+	                return _Editor2.default.insert(prevState, { from: action.range.from, to: toIndex }, '');
+	            }
 	        case Actions.RETURN:
-	
-	            break;
+	            return _Editor2.default.insert(prevState, action.range, '\n');
 	        case Actions.SHIFT_RETURN:
 	
 	            break;
 	        default:
 	            return prevState;
 	    }
-	
-	    return nextState;
 	};
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports) {
-
-	module.exports = {
-		"text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing",
-		"markups": [
-			[
-				"p",
-				0,
-				27
-			],
-			[
-				"em",
-				6,
-				17
-			],
-			[
-				"strong",
-				12,
-				17
-			],
-			[
-				"h2",
-				28,
-				50
-			]
-		]
-	};
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1668,39 +1610,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(Editor, null, [{
 	        key: 'insert',
-	        value: function insert(state, range, characters) {
-	            var newState = new _State2.default();
+	        value: function insert(prevState, range, content) {
+	            var nextState = new _State2.default();
+	
 	            var totalDeleted = range.to - range.from;
 	
-	            var totalAdded = characters.length;
+	            var totalAdded = content.length;
 	            var adjustment = totalAdded - totalDeleted;
 	            var collapsed = '';
 	            var totalCollapsed = 0;
 	
-	            newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
+	            nextState.text = prevState.text.slice(0, range.from) + content + prevState.text.slice(range.to);
 	
-	            collapsed = Editor.collapseWhitespace(newState.text);
+	            collapsed = Editor.collapseWhitespace(nextState.text);
 	
-	            if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+	            if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
 	                totalAdded -= totalCollapsed;
 	                adjustment -= totalCollapsed;
 	
-	                newState.text = collapsed;
+	                nextState.text = collapsed;
 	            }
 	
-	            newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment);
+	            nextState.markups = Editor.adjustMarkups(prevState.markups, range.from, range.to, totalAdded, adjustment);
 	
-	            if (characters === '\n') {
-	                newState.markups = Editor.splitMarkups(newState.markups, range.from);
+	            if (content === '\n') {
+	                nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
+	            } else if (content === '') {
+	                nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
 	            }
 	
-	            if (characters === '') {
-	                newState.markups = Editor.joinMarkups(newState.markups, range.from);
-	            }
+	            nextState.selection.from = nextState.selection.to = range.from + totalAdded;
 	
-	            newState.selection = [range.from + totalAdded, range.from + totalAdded];
-	
-	            return newState;
+	            return nextState;
 	        }
 	    }, {
 	        key: 'collapseWhitespace',
@@ -1718,33 +1659,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            collapsed = text.replace(/\n */g, '\n');
 	
 	            return collapsed;
-	        }
-	    }, {
-	        key: 'backspace',
-	        value: function backspace(state, range) {
-	            var isRange = range.from !== range.to;
-	            var fromIndex = isRange ? range.from : range.to - 1;
-	
-	            if (range.to === 0) return state;
-	
-	            return Editor.insert(state, { from: fromIndex, to: range.to }, '');
-	        }
-	    }, {
-	        key: 'delete',
-	        value: function _delete(state, range) {
-	            var isRange = range.from !== range.to;
-	            var toIndex = isRange ? range.to : range.from + 1;
-	
-	            if (range.from === state.text.length) return state;
-	
-	            return Editor.insert(state, { from: range.from, to: toIndex }, '');
-	        }
-	    }, {
-	        key: 'return',
-	        value: function _return(state, range) {
-	            // TODO: Disallow if already empty line
-	
-	            return Editor.insert(state, range, '\n');
 	        }
 	    }, {
 	        key: 'adjustMarkups',
@@ -1915,7 +1829,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Editor;
 
-/***/ }
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50]]}
+
+/***/ })
 /******/ ])
 });
 ;

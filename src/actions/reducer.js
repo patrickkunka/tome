@@ -4,69 +4,41 @@ import * as Actions from '../constants/Actions';
 import Editor       from '../Editor';
 
 export default (prevState, action) => {
-    const nextState = Util.extend(new State(), prevState, true);
-
     switch (action.type) {
-        case Actions.SET_SELECTION:
+        case Actions.SET_SELECTION: {
+            const nextState = Util.extend(new State(), prevState, true);
+
             Object.assign(nextState.selection, action.range);
 
-            break;
-        case Actions.INSERT: {
-            const totalDeleted = action.range.to - action.range.from;
-
-            let totalAdded = action.content.length;
-            let adjustment = totalAdded - totalDeleted;
-            let collapsed = '';
-            let totalCollapsed = 0;
-
-            nextState.text =
-                prevState.text.slice(0, action.range.from) +
-                action.content +
-                prevState.text.slice(action.range.to);
-
-            collapsed = Editor.collapseWhitespace(nextState.text);
-
-            if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
-                totalAdded -= totalCollapsed;
-                adjustment -= totalCollapsed;
-
-                nextState.text = collapsed;
-            }
-
-            nextState.markups = Editor.adjustMarkups(
-                prevState.markups,
-                action.range.from,
-                action.range.to,
-                totalAdded,
-                adjustment
-            );
-
-            if (action.content === '\n') {
-                nextState.markups = Editor.splitMarkups(nextState.markups, action.range.from);
-            } else if (action.content === '') {
-                nextState.markups = Editor.joinMarkups(nextState.markups, action.range.from);
-            }
-
-            nextState.selection.from =
-            nextState.selection.to   = action.range.from + totalAdded;
-
-            break;
+            return nextState;
         }
-        case Actions.BACKSPACE:
+        case Actions.INSERT: {
+            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
+        }
+        case Actions.BACKSPACE: {
+            const fromIndex = action.range.isCollapsed ? action.range.from - 1 : action.range.from;
 
-            break;
-        case Actions.DELETE:
+            // If at start, ignore
 
-            break;
+            if (action.range.to === 0) return prevState;
+
+            return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
+        }
+        case Actions.DELETE: {
+            const toIndex = action.range.isCollapsed ? action.range.from + 1 :  action.range.to;
+
+            // If at end, ignore
+
+            if (action.range.from === prevState.text.length) return prevState;
+
+            return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
+        }
         case Actions.RETURN:
-
-            break;
+            return Editor.insert(prevState, action.range, '\n');
         case Actions.SHIFT_RETURN:
 
             break;
         default:
             return prevState;
     }
-
-    return nextState;
 };

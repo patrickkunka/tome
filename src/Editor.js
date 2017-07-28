@@ -2,41 +2,49 @@ import State    from './models/State';
 import Markup   from './models/Markup';
 
 class Editor {
-    static insert(state, range, characters) {
-        const newState = new State();
+    static insert(prevState, range, content) {
+        const nextState = new State();
+
         const totalDeleted = range.to - range.from;
 
-        let totalAdded = characters.length;
+        let totalAdded = content.length;
         let adjustment = totalAdded - totalDeleted;
         let collapsed = '';
         let totalCollapsed = 0;
 
-        newState.text = state.text.slice(0, range.from) + characters + state.text.slice(range.to);
+        nextState.text =
+            prevState.text.slice(0, range.from) +
+            content +
+            prevState.text.slice(range.to);
 
-        collapsed = Editor.collapseWhitespace(newState.text);
+        collapsed = Editor.collapseWhitespace(nextState.text);
 
-        if ((totalCollapsed = newState.text.length - collapsed.length) > 0) {
+        if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
             totalAdded -= totalCollapsed;
             adjustment -= totalCollapsed;
 
-            newState.text = collapsed;
+            nextState.text = collapsed;
         }
 
-        newState.markups = Editor.adjustMarkups(state.markups, range.from, range.to, totalAdded, adjustment);
+        nextState.markups = Editor.adjustMarkups(
+            prevState.markups,
+            range.from,
+            range.to,
+            totalAdded,
+            adjustment
+        );
 
-        if (characters === '\n') {
-            newState.markups = Editor.splitMarkups(newState.markups, range.from);
+        if (content === '\n') {
+            nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
+        } else if (content === '') {
+            nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
         }
 
-        if (characters === '') {
-            newState.markups = Editor.joinMarkups(newState.markups, range.from);
-        }
+        nextState.selection.from =
+        nextState.selection.to   = range.from + totalAdded;
 
-        newState.selection = [range.from + totalAdded, range.from + totalAdded];
-
-        return newState;
+        return nextState;
     }
-
 
     static collapseWhitespace(text) {
         // Replace 3 or more spaces with a single space.
@@ -52,30 +60,6 @@ class Editor {
         collapsed = text.replace(/\n */g, '\n');
 
         return collapsed;
-    }
-
-    static backspace(state, range) {
-        const isRange = range.from !== range.to;
-        const fromIndex = isRange ? range.from : range.to - 1;
-
-        if (range.to === 0) return state;
-
-        return Editor.insert(state, {from: fromIndex, to: range.to}, '');
-    }
-
-    static delete(state, range) {
-        const isRange = range.from !== range.to;
-        const toIndex = isRange ? range.to : range.from + 1;
-
-        if (range.from === state.text.length) return state;
-
-        return Editor.insert(state, {from: range.from, to: toIndex}, '');
-    }
-
-    static return(state, range) {
-        // TODO: Disallow if already empty line
-
-        return Editor.insert(state, range, '\n');
     }
 
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
