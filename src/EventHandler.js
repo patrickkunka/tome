@@ -8,16 +8,16 @@ class EventHandler {
 
         root.addEventListener('keypress', this.delegator);
         root.addEventListener('keydown', this.delegator);
-        root.addEventListener('mouseup', this.delegator);
         root.addEventListener('mousedown', this.delegator);
+        window.addEventListener('mouseup', this.delegator);
     }
 
     unbindEvents(root) {
         root.removeEventListener('keypress', this.delegator);
         root.removeEventListener('keydown', this.delegator);
         root.removeEventListener('click', this.delegator);
-        root.addEventListener('mouseup', this.delegator);
         root.addEventListener('mousedown', this.delegator);
+        window.addEventListener('mouseup', this.delegator);
     }
 
     delegator(richTextEditor, e) {
@@ -38,6 +38,8 @@ class EventHandler {
     }
 
     handleMouseup(e, richTextEditor) {
+        if (richTextEditor.dom.root !== document.activeElement) return;
+
         richTextEditor.applyAction(Actions.SET_SELECTION);
     }
 

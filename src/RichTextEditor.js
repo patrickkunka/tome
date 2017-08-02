@@ -125,7 +125,7 @@ class RichTextEditor {
 
         if (nextState === this.state) return;
 
-        // TODO: discern 'push' vs 'replace' commands i.e. inserting a
+        // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
 
         console.log(type);

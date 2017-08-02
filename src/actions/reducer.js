@@ -1,6 +1,7 @@
 import State        from '../models/State';
 import Util         from '../Util';
 import * as Actions from '../constants/Actions';
+import {STRONG}     from '../constants/Markups';
 import Editor       from '../Editor';
 
 export default (prevState, action) => {
@@ -9,6 +10,8 @@ export default (prevState, action) => {
             const nextState = Util.extend(new State(), prevState, true);
 
             Object.assign(nextState.selection, action.range);
+
+            Editor.setActiveMarkups(nextState, action.range);
 
             return nextState;
         }
@@ -39,9 +42,19 @@ export default (prevState, action) => {
 
             break;
         case Actions.TOGGLE_BOLD: {
-            const nextState = Util.extend(new State(), prevState, true);
+            let nextState = null;
 
-            Editor.toggleMarkup(nextState.markups, action.range.from, action.range.to, 'strong');
+            // TODO: if collapsed, simply change state to disable/enable active markup
+
+            if (prevState.isTagActive(STRONG)) {
+                nextState = Editor.removeInlineMarkup(prevState, STRONG, action.range.from, action.range.to);
+            } else {
+                nextState = Editor.addInlineMarkup(prevState, STRONG, action.range.from, action.range.to);
+            }
+
+            Editor.setActiveMarkups(nextState, action.range);
+
+            console.log(nextState);
 
             return nextState;
         }

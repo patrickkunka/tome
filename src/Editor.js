@@ -1,5 +1,11 @@
 import State    from './models/State';
 import Markup   from './models/Markup';
+import Util     from './Util';
+
+/**
+ * A static class of utility functions for performing edits to
+ * the editor state.
+ */
 
 class Editor {
     static insert(prevState, range, content) {
@@ -43,6 +49,8 @@ class Editor {
         nextState.selection.from =
         nextState.selection.to   = range.from + totalAdded;
 
+        Editor.setActiveMarkups(nextState, nextState.selection);
+
         return nextState;
     }
 
@@ -62,37 +70,66 @@ class Editor {
         return collapsed;
     }
 
-    static toggleMarkup(markups, fromIndex, toIndex, tag) {
-        let parentBlock   = null;
-        let currentMarkup = null;
-        let nextMarkup    = null;
+    static addInlineMarkup(prevState, tag, from, to) {
+        const nextState = Util.extend(new State(), prevState, true);
 
-        for (let i = 0; i < markups.length; i++) {
-            currentMarkup = nextMarkup ? nextMarkup : new Markup(markups[i]);
-            nextMarkup = new Markup(markups[i + 1]);
+        let insertIndex = -1;
 
-            if (currentMarkup.isBlock) {
-                parentBlock = currentMarkup;
-            }
+        if (prevState.envelopedBlockMarkups.length > 1) {
+            let formattedState = nextState;
 
-            if (fromIndex >= parentBlock.start && toIndex <= parentBlock.end) {
-                if (currentMarkup.start <= fromIndex && nextMarkup.start > toIndex) {
-                    const newMarkup = [tag, fromIndex, toIndex];
+            // Split and delegate the command
 
-                    markups.splice(i + 1, 0, newMarkup);
+            formattedState.envelopedBlockMarkups.length = 0;
 
-                    break;
-                }
-            } else {
-                // overlap
+            prevState.envelopedBlockMarkups.forEach((markup, i) => {
+                const formatFrom = i === 0 ? from : markup.start;
+                const formatTo   = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
 
-                console.log('overlap');
+                formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
+            });
+
+            return formattedState;
+        }
+
+        Editor.ingestMarkups(nextState.markups, tag, from, to);
+
+        for (let i = 0, markup; (markup = nextState.markups[i]); i++) {
+            // NB: When inserting an inline markup there should always be at
+            // least one block markup in the array
+
+            insertIndex = i + 1;
+
+            if (markup.start > from) {
+                break;
             }
         }
 
-        // Iterate through markups, hold reference to current block parent
-        // if new markup is within parent, add markup at logical index (by start index)
-        // if new markup overlaps block parents, split and add where permissable
+        nextState.markups.splice(insertIndex, 0, [tag, from, to]);
+
+        Editor.joinMarkups(nextState.markups, from);
+        Editor.joinMarkups(nextState.markups, to);
+
+        return nextState;
+    }
+
+    static removeInlineMarkup(prevState, tag, from, to) {
+        const nextState = Util.extend(new State(), prevState, true);
+        // for each block markup in range, split command to target each
+        // one individually if no markup exists either around or at range, abort
+        // if at range, remove it
+        // if greater than range, split the markup
+
+        console.log('remove', tag, 'at', from, to);
+
+        Editor.joinMarkups(nextState.markups, from);
+        Editor.joinMarkups(nextState.markups, to);
+
+        return nextState;
+    }
+
+    static replaceBlockMarkup() {
+
     }
 
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
@@ -209,22 +246,22 @@ class Editor {
 
         let closingBlock = null;
 
-        for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [markupTag, markupStart, markupEnd] = markup;
+        for (let i = 0; i < markups.length; i++) {
+            const markup = new Markup(markups[i]);
 
-            if (markupEnd === index) {
+            if (markup.end === index) {
                 if (markup.isBlock) {
                     closingBlock = markup;
                 } else {
-                    closingInlines[markupTag] = markup;
+                    closingInlines[markup.tag] = markups[i];
                 }
-            } else if (markupStart === index) {
+            } else if (markup.start === index) {
                 let extend = null;
 
                 if (markup.isBlock && closingBlock) {
                     extend = closingBlock;
-                } else if (markup.isInline && closingInlines[markupTag]) {
-                    extend = closingInlines[markupTag];
+                } else if (markup.isInline && closingInlines[markup.tag]) {
+                    extend = closingInlines[markup.tag];
                 }
 
                 if (extend) {
@@ -238,6 +275,89 @@ class Editor {
         }
 
         return markups;
+    }
+
+    /**
+     * Removes or shortens any markups matching the provided tag within the
+     * provided range.
+     *
+     * @static
+     * @param {Array.<Markup>} markups
+     * @param {string}         tag
+     * @param {number}         from
+     * @param {number}         to
+     */
+
+    static ingestMarkups(markups, tag, from, to) {
+        for (let i = 0, markup; (markup = markups[i]); i++) {
+            const [markupTag, markupStart, markupEnd] = markup;
+
+            if (markupTag !== tag) continue;
+
+            if (markupStart >= from && markupEnd <= to) {
+                // Markup enveloped, remove
+
+                markups.splice(i, 1);
+
+                i--;
+            } else if (markupStart < from && markupEnd > to) {
+                // Markup overlaps start, shorten by moving end to
+                // start of selection
+
+                markup[2] = from;
+            } else if (markupStart > from && markupStart < to) {
+                // Markup overlaps end, shorten by moving start to
+                // end of selection
+
+                markup[1] = to;
+            }
+        }
+    }
+
+    /**
+     * Determines which block and inline markups should be "active"
+     * or "enveloped" for particular selection.
+     *
+     * @static
+     * @param  {State} state
+     * @param  {Range} range
+     * @return {void}
+     */
+
+    static setActiveMarkups(state, range) {
+        state.activeBlockMarkup = null;
+
+        state.activeInlineMarkups.length    =
+        state.envelopedBlockMarkups.length  = 0;
+
+        for (let i = 0; i < state.markups.length; i++) {
+            const markup = new Markup(state.markups[i]);
+
+            // Active markups are those that surround the start of the
+            // selection and should be highlighted in any UI
+
+            if (markup.start <= range.from && markup.end >= range.from) {
+                if (markup.isBlock) {
+                    // Only one block markup may be active at a time
+
+                    state.activeBlockMarkup = markup;
+                } else if (markup.end >= range.to) {
+                    state.activeInlineMarkups.push(markup);
+                }
+            }
+
+            if (!markup.isBlock) continue;
+
+            // Enveloped block markups are those that are partially or completely
+            // enveloped by the selection.
+
+            if (
+                (markup.start <= range.from && markup.end >= range.from) ||
+                (markup.start <= range.to && markup.end >= range.from)
+            ) {
+                state.envelopedBlockMarkups.push(markup);
+            }
+        }
     }
 }
 

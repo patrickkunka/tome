@@ -265,7 +265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            if (nextState === this.state) return;
 	
-	            // TODO: discern 'push' vs 'replace' commands i.e. inserting a
+	            // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
 	            // char vs moving a cursor
 	
 	            console.log(type);
@@ -1063,11 +1063,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.text = '';
 	        this.markups = [];
 	        this.selection = new _Range2.default();
+	        this.activeBlockMarkup = null;
+	        this.activeInlineMarkups = [];
+	        this.envelopedBlockMarkups = [];
 	
 	        Object.seal(this);
 	    }
 	
 	    _createClass(State, [{
+	        key: 'isTagActive',
+	        value: function isTagActive(tag) {
+	            for (var i = 0, markup; markup = this.activeInlineMarkups[i]; i++) {
+	                if (markup[0] === tag) return true;
+	            }
+	
+	            return false;
+	        }
+	    }, {
 	        key: 'length',
 	        get: function get() {
 	            return this.text.length;
@@ -1145,8 +1157,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            root.addEventListener('keypress', this.delegator);
 	            root.addEventListener('keydown', this.delegator);
-	            root.addEventListener('mouseup', this.delegator);
 	            root.addEventListener('mousedown', this.delegator);
+	            window.addEventListener('mouseup', this.delegator);
 	        }
 	    }, {
 	        key: 'unbindEvents',
@@ -1154,8 +1166,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            root.removeEventListener('keypress', this.delegator);
 	            root.removeEventListener('keydown', this.delegator);
 	            root.removeEventListener('click', this.delegator);
-	            root.addEventListener('mouseup', this.delegator);
 	            root.addEventListener('mousedown', this.delegator);
+	            window.addEventListener('mouseup', this.delegator);
 	        }
 	    }, {
 	        key: 'delegator',
@@ -1179,6 +1191,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'handleMouseup',
 	        value: function handleMouseup(e, richTextEditor) {
+	            if (richTextEditor.dom.root !== document.activeElement) return;
+	
 	            richTextEditor.applyAction(Actions.SET_SELECTION);
 	        }
 	    }, {
@@ -1573,6 +1587,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
+	var _Markups = __webpack_require__(19);
+	
 	var _Editor = __webpack_require__(17);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
@@ -1588,6 +1604,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
 	
 	                Object.assign(nextState.selection, action.range);
+	
+	                _Editor2.default.setActiveMarkups(nextState, action.range);
 	
 	                return nextState;
 	            }
@@ -1622,9 +1640,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            break;
 	        case Actions.TOGGLE_BOLD:
 	            {
-	                var _nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	                var _nextState = null;
 	
-	                _Editor2.default.toggleMarkup(_nextState.markups, action.range.from, action.range.to, 'strong');
+	                // TODO: if collapsed, simply change state to disable/enable active markup
+	
+	                if (prevState.isTagActive(_Markups.STRONG)) {
+	                    _nextState = _Editor2.default.removeInlineMarkup(prevState, _Markups.STRONG, action.range.from, action.range.to);
+	                } else {
+	                    _nextState = _Editor2.default.addInlineMarkup(prevState, _Markups.STRONG, action.range.from, action.range.to);
+	                }
+	
+	                _Editor2.default.setActiveMarkups(_nextState, action.range);
+	
+	                console.log(_nextState);
 	
 	                return _nextState;
 	            }
@@ -1655,9 +1683,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Markup2 = _interopRequireDefault(_Markup);
 	
+	var _Util = __webpack_require__(3);
+	
+	var _Util2 = _interopRequireDefault(_Util);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	/**
+	 * A static class of utility functions for performing edits to
+	 * the editor state.
+	 */
 	
 	var Editor = function () {
 	    function Editor() {
@@ -1697,6 +1734,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            nextState.selection.from = nextState.selection.to = range.from + totalAdded;
 	
+	            Editor.setActiveMarkups(nextState, nextState.selection);
+	
 	            return nextState;
 	        }
 	    }, {
@@ -1717,39 +1756,68 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return collapsed;
 	        }
 	    }, {
-	        key: 'toggleMarkup',
-	        value: function toggleMarkup(markups, fromIndex, toIndex, tag) {
-	            var parentBlock = null;
-	            var currentMarkup = null;
-	            var nextMarkup = null;
+	        key: 'addInlineMarkup',
+	        value: function addInlineMarkup(prevState, tag, from, to) {
+	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
 	
-	            for (var i = 0; i < markups.length; i++) {
-	                currentMarkup = nextMarkup ? nextMarkup : new _Markup2.default(markups[i]);
-	                nextMarkup = new _Markup2.default(markups[i + 1]);
+	            var insertIndex = -1;
 	
-	                if (currentMarkup.isBlock) {
-	                    parentBlock = currentMarkup;
-	                }
+	            if (prevState.envelopedBlockMarkups.length > 1) {
+	                var formattedState = nextState;
 	
-	                if (fromIndex >= parentBlock.start && toIndex <= parentBlock.end) {
-	                    if (currentMarkup.start <= fromIndex && nextMarkup.start > toIndex) {
-	                        var newMarkup = [tag, fromIndex, toIndex];
+	                // Split and delegate the command
 	
-	                        markups.splice(i + 1, 0, newMarkup);
+	                formattedState.envelopedBlockMarkups.length = 0;
 	
-	                        break;
-	                    }
-	                } else {
-	                    // overlap
+	                prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                    var formatFrom = i === 0 ? from : markup.start;
+	                    var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
 	
-	                    console.log('overlap');
+	                    formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                });
+	
+	                return formattedState;
+	            }
+	
+	            Editor.ingestMarkups(nextState.markups, tag, from, to);
+	
+	            for (var i = 0, markup; markup = nextState.markups[i]; i++) {
+	                // NB: When inserting an inline markup there should always be at
+	                // least one block markup in the array
+	
+	                insertIndex = i + 1;
+	
+	                if (markup.start > from) {
+	                    break;
 	                }
 	            }
 	
-	            // Iterate through markups, hold reference to current block parent
-	            // if new markup is within parent, add markup at logical index (by start index)
-	            // if new markup overlaps block parents, split and add where permissable
+	            nextState.markups.splice(insertIndex, 0, [tag, from, to]);
+	
+	            Editor.joinMarkups(nextState.markups, from);
+	            Editor.joinMarkups(nextState.markups, to);
+	
+	            return nextState;
 	        }
+	    }, {
+	        key: 'removeInlineMarkup',
+	        value: function removeInlineMarkup(prevState, tag, from, to) {
+	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	            // for each block markup in range, split command to target each
+	            // one individually if no markup exists either around or at range, abort
+	            // if at range, remove it
+	            // if greater than range, split the markup
+	
+	            console.log('remove', tag, 'at', from, to);
+	
+	            Editor.joinMarkups(nextState.markups, from);
+	            Editor.joinMarkups(nextState.markups, to);
+	
+	            return nextState;
+	        }
+	    }, {
+	        key: 'replaceBlockMarkup',
+	        value: function replaceBlockMarkup() {}
 	    }, {
 	        key: 'adjustMarkups',
 	        value: function adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
@@ -1878,26 +1946,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var closingBlock = null;
 	
-	            for (var i = 0, markup; markup = markups[i]; i++) {
-	                var _markup5 = markup,
-	                    _markup6 = _slicedToArray(_markup5, 3),
-	                    markupTag = _markup6[0],
-	                    markupStart = _markup6[1],
-	                    markupEnd = _markup6[2];
+	            for (var i = 0; i < markups.length; i++) {
+	                var markup = new _Markup2.default(markups[i]);
 	
-	                if (markupEnd === index) {
+	                if (markup.end === index) {
 	                    if (markup.isBlock) {
 	                        closingBlock = markup;
 	                    } else {
-	                        closingInlines[markupTag] = markup;
+	                        closingInlines[markup.tag] = markups[i];
 	                    }
-	                } else if (markupStart === index) {
+	                } else if (markup.start === index) {
 	                    var extend = null;
 	
 	                    if (markup.isBlock && closingBlock) {
 	                        extend = closingBlock;
-	                    } else if (markup.isInline && closingInlines[markupTag]) {
-	                        extend = closingInlines[markupTag];
+	                    } else if (markup.isInline && closingInlines[markup.tag]) {
+	                        extend = closingInlines[markup.tag];
 	                    }
 	
 	                    if (extend) {
@@ -1911,6 +1975,93 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            return markups;
+	        }
+	
+	        /**
+	         * Removes or shortens any markups matching the provided tag within the
+	         * provided range.
+	         *
+	         * @static
+	         * @param {Array.<Markup>} markups
+	         * @param {string}         tag
+	         * @param {number}         from
+	         * @param {number}         to
+	         */
+	
+	    }, {
+	        key: 'ingestMarkups',
+	        value: function ingestMarkups(markups, tag, from, to) {
+	            for (var i = 0, markup; markup = markups[i]; i++) {
+	                var _markup5 = markup,
+	                    _markup6 = _slicedToArray(_markup5, 3),
+	                    markupTag = _markup6[0],
+	                    markupStart = _markup6[1],
+	                    markupEnd = _markup6[2];
+	
+	                if (markupTag !== tag) continue;
+	
+	                if (markupStart >= from && markupEnd <= to) {
+	                    // Markup enveloped, remove
+	
+	                    markups.splice(i, 1);
+	
+	                    i--;
+	                } else if (markupStart < from && markupEnd > to) {
+	                    // Markup overlaps start, shorten by moving end to
+	                    // start of selection
+	
+	                    markup[2] = from;
+	                } else if (markupStart > from && markupStart < to) {
+	                    // Markup overlaps end, shorten by moving start to
+	                    // end of selection
+	
+	                    markup[1] = to;
+	                }
+	            }
+	        }
+	
+	        /**
+	         * Determines which block and inline markups should be "active"
+	         * or "enveloped" for particular selection.
+	         *
+	         * @static
+	         * @param  {State} state
+	         * @param  {Range} range
+	         * @return {void}
+	         */
+	
+	    }, {
+	        key: 'setActiveMarkups',
+	        value: function setActiveMarkups(state, range) {
+	            state.activeBlockMarkup = null;
+	
+	            state.activeInlineMarkups.length = state.envelopedBlockMarkups.length = 0;
+	
+	            for (var i = 0; i < state.markups.length; i++) {
+	                var markup = new _Markup2.default(state.markups[i]);
+	
+	                // Active markups are those that surround the start of the
+	                // selection and should be highlighted in any UI
+	
+	                if (markup.start <= range.from && markup.end >= range.from) {
+	                    if (markup.isBlock) {
+	                        // Only one block markup may be active at a time
+	
+	                        state.activeBlockMarkup = markup;
+	                    } else if (markup.end >= range.to) {
+	                        state.activeInlineMarkups.push(markup);
+	                    }
+	                }
+	
+	                if (!markup.isBlock) continue;
+	
+	                // Enveloped block markups are those that are partially or completely
+	                // enveloped by the selection.
+	
+	                if (markup.start <= range.from && markup.end >= range.from || markup.start <= range.to && markup.end >= range.from) {
+	                    state.envelopedBlockMarkups.push(markup);
+	                }
+	            }
 	        }
 	    }]);
 	
@@ -1944,6 +2095,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var STRONG = exports.STRONG = 'strong';
 	var EM = exports.EM = 'em';
+	var BR = exports.BR = 'br';
 	
 	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
 	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');

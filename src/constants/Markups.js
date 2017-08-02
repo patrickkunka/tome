@@ -8,6 +8,7 @@ export const P  = 'p';
 
 export const STRONG = 'strong';
 export const EM     = 'em';
+export const BR     = 'br';
 
 export const MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
 export const MARKUP_TYPE_BLOCK  = Symbol('MARKUP_TYPE_BLOCK');

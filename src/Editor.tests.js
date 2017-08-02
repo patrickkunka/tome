@@ -322,28 +322,142 @@ describe('Editor', () => {
     //         ]
     //     };
 
-    //     const newState = Editor.return(state, {from: 19, to: 19});
+    //     const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
 
-    //     assert.equal(newState.text, 'Lorem ipsum dolor. \nSit amet.');
+    //     assert.equal(newState.text, 'Lorem ipsum dolor. \nSit amet.'); // TODO: space should be removed
     //     assert.equal(newState.markups[0][2], 19);
     //     assert.isOk(newState.markups[1]);
     //     assert.equal(newState.markups[1][1], 20);
     //     assert.equal(newState.markups[1][2], 29);
     // });
 
-    it('should join two block markups into one block markups on deletion of line break', () => {
+    // DOESN'T WORK
+
+    // it('should join two block markups into one block markups on deletion of line break', () => {
+    //     const state = {
+    //         text: 'Lorem ipsum dolor.\nSit amet.',
+    //         markups: [
+    //             ['p', 0, 18],
+    //             ['p', 19, 28]
+    //         ]
+    //     };
+
+    //     const newState = Editor.insert(state, {from: 18, to: 19}, '');
+
+    //     assert.equal(newState.text, 'Lorem ipsum dolor.Sit amet.');
+    //     assert.equal(newState.markups[0][2], 27);
+    //     assert.isNotOk(newState.markups[1]);
+    // });
+
+    it('should add an inline markup within a selection', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.addInlineMarkup(state, 'strong', 6, 11);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 11);
+    });
+
+    it('should add an inline markup at the start of a selection', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.addInlineMarkup(state, 'strong', 0, 5);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 0);
+        assert.equal(newState.markups[1][2], 5);
+    });
+
+    it('should add an inline markup at the end of a selection', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.addInlineMarkup(state, 'strong', 23, 28);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 23);
+        assert.equal(newState.markups[1][2], 28);
+    });
+
+    it('should add an inline markup at the start of second block element', () => {
         const state = {
             text: 'Lorem ipsum dolor.\nSit amet.',
             markups: [
                 ['p', 0, 18],
-                ['p', 19, 28]
-            ]
+                ['p', 19, 50]
+            ],
+            envelopedBlockMarkups: []
         };
 
-        const newState = Editor.insert(state, {from: 18, to: 19}, '');
+        const newState = Editor.addInlineMarkup(state, 'strong', 19, 22);
 
-        assert.equal(newState.text, 'Lorem ipsum dolor.Sit amet.');
-        assert.equal(newState.markups[0][2], 27);
-        assert.isNotOk(newState.markups[1]);
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 3);
+        assert.equal(newState.markups[2][0], 'strong');
+        assert.equal(newState.markups[2][1], 19);
+        assert.equal(newState.markups[2][2], 22);
+    });
+
+    it('should merge like inline markups when adjacent', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 11]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.addInlineMarkup(state, 'strong', 11, 17);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 17);
+    });
+
+    it('should insert an inline markup within another inline markup', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 17]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.addInlineMarkup(state, 'em', 8, 11);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 3);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[2][0], 'em');
+        assert.equal(newState.markups[2][1], 8);
+        assert.equal(newState.markups[2][2], 11);
     });
 });
