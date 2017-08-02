@@ -8,6 +8,17 @@ import Util     from './Util';
  */
 
 class Editor {
+    /**
+     * Inserts zero or more characters into a range, deleting
+     * the contents of the range. Adjusts all markups affected by
+     * insertion.
+     *
+     * @static
+     * @param {State}  prevState
+     * @param {Range}  range
+     * @param {string} content
+     */
+
     static insert(prevState, range, content) {
         const nextState = new State();
 
@@ -53,6 +64,14 @@ class Editor {
 
         return nextState;
     }
+
+    /**
+     * Collapses whitespace in a provided string.
+     *
+     * @static
+     * @param {string} text
+     * @return {string}
+     */
 
     static collapseWhitespace(text) {
         // Replace 3 or more spaces with a single space.
@@ -132,6 +151,19 @@ class Editor {
 
     }
 
+    /**
+     * Adjusts the position/length of existing markups in
+     * response to characters being added/removed.
+     *
+     * @static
+     * @param {Array.<Markup>} markups
+     * @param {number} fromIndex
+     * @param {number} toIndex
+     * @param {number} totalAdded
+     * @param {number} adjustment
+     * @return {Array.<Markups>}
+     */
+
     static adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
         const newMarkups = [];
 
@@ -205,6 +237,16 @@ class Editor {
         return newMarkups;
     }
 
+    /**
+     * Returns the next block markup after the markup at the
+     * provided index.
+     *
+     * @static
+     * @param {Array.<Markup>} markups
+     * @param {number} index
+     * @return {(Markup|null)}
+     */
+
     static getNextBlockMarkup(markups, index) {
         for (let i = index + 1, markup; (markup = markups[i]); i++) {
             if (!(markup instanceof Markup)) {
@@ -218,6 +260,17 @@ class Editor {
 
         return null;
     }
+
+    /**
+     * Splits a markup at the provided index, creating a new markup
+     * of the same type starting a character later. Assumes the addition
+     * of a single new line character, but this could be provided for
+     * further flexibility.
+     *
+     * @param  {Array.<Markup>} markups
+     * @param  {number}         index
+     * @return {Array.<Markup>}
+     */
 
     static splitMarkups(markups, index) {
         for (let i = 0, markup; (markup = markups[i]); i++) {
@@ -240,6 +293,14 @@ class Editor {
 
         return markups;
     }
+
+    /**
+     * Joins two adjacent markups at a provided (known) index.
+     *
+     * @param  {Array.<Markup>} markups
+     * @param  {number} index
+     * @return {Array.<Markup>}
+     */
 
     static joinMarkups(markups, index) {
         const closingInlines = {};

@@ -1703,6 +1703,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(Editor, null, [{
 	        key: 'insert',
+	
+	        /**
+	         * Inserts zero or more characters into a range, deleting
+	         * the contents of the range. Adjusts all markups affected by
+	         * insertion.
+	         *
+	         * @static
+	         * @param {State}  prevState
+	         * @param {Range}  range
+	         * @param {string} content
+	         */
+	
 	        value: function insert(prevState, range, content) {
 	            var nextState = new _State2.default();
 	
@@ -1738,6 +1750,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return nextState;
 	        }
+	
+	        /**
+	         * Collapses whitespace in a provided string.
+	         *
+	         * @static
+	         * @param {string} text
+	         * @return {string}
+	         */
+	
 	    }, {
 	        key: 'collapseWhitespace',
 	        value: function collapseWhitespace(text) {
@@ -1818,6 +1839,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'replaceBlockMarkup',
 	        value: function replaceBlockMarkup() {}
+	
+	        /**
+	         * Adjusts the position/length of existing markups in
+	         * response to characters being added/removed.
+	         *
+	         * @static
+	         * @param {Array.<Markup>} markups
+	         * @param {number} fromIndex
+	         * @param {number} toIndex
+	         * @param {number} totalAdded
+	         * @param {number} adjustment
+	         * @return {Array.<Markups>}
+	         */
+	
 	    }, {
 	        key: 'adjustMarkups',
 	        value: function adjustMarkups(markups, fromIndex, toIndex, totalAdded, adjustment) {
@@ -1897,6 +1932,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return newMarkups;
 	        }
+	
+	        /**
+	         * Returns the next block markup after the markup at the
+	         * provided index.
+	         *
+	         * @static
+	         * @param {Array.<Markup>} markups
+	         * @param {number} index
+	         * @return {(Markup|null)}
+	         */
+	
 	    }, {
 	        key: 'getNextBlockMarkup',
 	        value: function getNextBlockMarkup(markups, index) {
@@ -1912,6 +1958,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return null;
 	        }
+	
+	        /**
+	         * Splits a markup at the provided index, creating a new markup
+	         * of the same type starting a character later. Assumes the addition
+	         * of a single new line character, but this could be provided for
+	         * further flexibility.
+	         *
+	         * @param  {Array.<Markup>} markups
+	         * @param  {number}         index
+	         * @return {Array.<Markup>}
+	         */
+	
 	    }, {
 	        key: 'splitMarkups',
 	        value: function splitMarkups(markups, index) {
@@ -1939,6 +1997,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return markups;
 	        }
+	
+	        /**
+	         * Joins two adjacent markups at a provided (known) index.
+	         *
+	         * @param  {Array.<Markup>} markups
+	         * @param  {number} index
+	         * @return {Array.<Markup>}
+	         */
+	
 	    }, {
 	        key: 'joinMarkups',
 	        value: function joinMarkups(markups, index) {
