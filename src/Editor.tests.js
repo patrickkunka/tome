@@ -314,22 +314,62 @@ describe('Editor', () => {
         assert.isNotOk(newState.markups[2]);
     });
 
-    // it('should split a block markup into two block markups on return', () => {
-    //     const state = {
-    //         text: 'Lorem ipsum dolor. Sit amet.',
-    //         markups: [
-    //             ['p', 0, 28]
-    //         ]
-    //     };
+    it('should split a block markup into two block markups at an arbitrary point', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ]
+        };
 
-    //     const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
+        const newState = Editor.insert(state, {from: 3, to: 3}, '\n');
 
-    //     assert.equal(newState.text, 'Lorem ipsum dolor. \nSit amet.'); // TODO: space should be removed
-    //     assert.equal(newState.markups[0][2], 19);
-    //     assert.isOk(newState.markups[1]);
-    //     assert.equal(newState.markups[1][1], 20);
-    //     assert.equal(newState.markups[1][2], 29);
-    // });
+        assert.equal(newState.text, 'Lor\nem ipsum dolor. Sit amet.');
+        assert.equal(newState.markups[0][2], 3);
+        assert.isOk(newState.markups[1]);
+        assert.equal(newState.markups[1][1], 4);
+        assert.equal(newState.markups[1][2], 29);
+        assert.equal(newState.selection.from, 4);
+    });
+
+    it('should split a block markup into two block markups at a whitespace, removing whitespace around the break', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
+
+        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+        assert.equal(newState.text.length, 28);
+        assert.equal(newState.markups[0][2], 18); // TODO: markups not reflective of trimmed whitespace
+        assert.isOk(newState.markups[1]);
+        assert.equal(newState.markups[1][1], 19);
+        assert.equal(newState.markups[1][2], 28);
+        assert.equal(newState.selection.from, 19);
+
+        console.log(newState.text);
+    });
+
+    it('should split a subsequent block markup into two block markups at an arbitrary point', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.\nTest Heading',
+            markups: [
+                ['p', 0, 28],
+                ['h2', 29, 42]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 34, to: 34}, '\n');
+
+        assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.\nTest\nHeading');
+        assert.equal(newState.markups.length, 3);
+        assert.equal(newState.markups[2][1], 35);
+        assert.equal(newState.markups[2][2], 43);
+        assert.equal(newState.selection.from, 35);
+    });
 
     // DOESN'T WORK
 

@@ -24,15 +24,28 @@ class Editor {
 
         const totalDeleted = range.to - range.from;
 
+        let before = prevState.text.slice(0, range.from);
+        let after  = prevState.text.slice(range.to);
         let totalAdded = content.length;
         let adjustment = totalAdded - totalDeleted;
         let collapsed = '';
         let totalCollapsed = 0;
 
-        nextState.text =
-            prevState.text.slice(0, range.from) +
-            content +
-            prevState.text.slice(range.to);
+        if (content === '\n') {
+            if (before.charAt(before.length - 1) === ' ') {
+                // Ensure trailing whitespace is removed before break
+
+                before = before.slice(0, -1);
+            }
+
+            if (after.charAt(0) === ' ') {
+                // Ensure leading whitespace is removed after break
+
+                after.slice(1);
+            }
+        }
+
+        nextState.text = before + content + after;
 
         collapsed = Editor.collapseWhitespace(nextState.text);
 

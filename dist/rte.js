@@ -60,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _RichTextEditor2 = _interopRequireDefault(_RichTextEditor);
 	
-	var _data = __webpack_require__(18);
+	var _data = __webpack_require__(19);
 	
 	var _data2 = _interopRequireDefault(_data);
 	
@@ -100,45 +100,45 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Markup2 = _interopRequireDefault(_Markup);
 	
-	var _Node = __webpack_require__(5);
+	var _Node = __webpack_require__(6);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
-	var _Caret = __webpack_require__(6);
+	var _Caret = __webpack_require__(7);
 	
 	var _Caret2 = _interopRequireDefault(_Caret);
 	
-	var _Range = __webpack_require__(7);
+	var _Range = __webpack_require__(8);
 	
 	var _Range2 = _interopRequireDefault(_Range);
 	
-	var _State = __webpack_require__(9);
+	var _State = __webpack_require__(10);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
-	var _Action = __webpack_require__(10);
+	var _Action = __webpack_require__(11);
 	
 	var _Action2 = _interopRequireDefault(_Action);
 	
-	var _EventHandler = __webpack_require__(11);
+	var _EventHandler = __webpack_require__(12);
 	
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 	
-	var _TreeBuilder = __webpack_require__(14);
+	var _TreeBuilder = __webpack_require__(15);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(15);
+	var _Renderer = __webpack_require__(16);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
-	var _reducer = __webpack_require__(16);
+	var _reducer = __webpack_require__(17);
 	
 	var _reducer2 = _interopRequireDefault(_reducer);
 	
-	var _Actions = __webpack_require__(12);
+	var _Actions = __webpack_require__(13);
 	
-	var _Common = __webpack_require__(8);
+	var _Common = __webpack_require__(9);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -807,7 +807,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
-	var _Markups = __webpack_require__(19);
+	var _Markups = __webpack_require__(5);
 	
 	var Markups = _interopRequireWildcard(_Markups);
 	
@@ -885,6 +885,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var H1 = exports.H1 = 'h1';
+	var H2 = exports.H2 = 'h2';
+	var H3 = exports.H3 = 'h3';
+	var H4 = exports.H4 = 'h4';
+	var H5 = exports.H5 = 'h5';
+	var H6 = exports.H6 = 'h6';
+	var P = exports.P = 'p';
+	
+	var STRONG = exports.STRONG = 'strong';
+	var EM = exports.EM = 'em';
+	var BR = exports.BR = 'br';
+	
+	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
+	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	
@@ -930,7 +954,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Node;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -954,7 +978,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Caret;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -965,7 +989,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Common = __webpack_require__(8);
+	var _Common = __webpack_require__(9);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1025,7 +1049,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Range;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1037,7 +1061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1048,7 +1072,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Range = __webpack_require__(7);
+	var _Range = __webpack_require__(8);
 	
 	var _Range2 = _interopRequireDefault(_Range);
 	
@@ -1092,7 +1116,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = State;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1116,7 +1140,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Action;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1131,11 +1155,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Actions = __webpack_require__(12);
+	var _Actions = __webpack_require__(13);
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Keys = __webpack_require__(13);
+	var _Keys = __webpack_require__(14);
 	
 	var Keys = _interopRequireWildcard(_Keys);
 	
@@ -1286,7 +1310,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = EventHandler;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1305,7 +1329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1330,7 +1354,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var I = exports.I = 'i';
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1341,7 +1365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _Node = __webpack_require__(5);
+	var _Node = __webpack_require__(6);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
@@ -1504,7 +1528,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1566,7 +1590,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1575,7 +1599,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
-	var _State = __webpack_require__(9);
+	var _State = __webpack_require__(10);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
@@ -1583,13 +1607,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Actions = __webpack_require__(12);
+	var _Actions = __webpack_require__(13);
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Markups = __webpack_require__(19);
+	var _Markups = __webpack_require__(5);
 	
-	var _Editor = __webpack_require__(17);
+	var _Editor = __webpack_require__(18);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
@@ -1662,7 +1686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1675,7 +1699,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _State = __webpack_require__(9);
+	var _State = __webpack_require__(10);
 	
 	var _State2 = _interopRequireDefault(_State);
 	
@@ -1720,12 +1744,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var totalDeleted = range.to - range.from;
 	
+	            var before = prevState.text.slice(0, range.from);
+	            var after = prevState.text.slice(range.to);
 	            var totalAdded = content.length;
 	            var adjustment = totalAdded - totalDeleted;
 	            var collapsed = '';
 	            var totalCollapsed = 0;
 	
-	            nextState.text = prevState.text.slice(0, range.from) + content + prevState.text.slice(range.to);
+	            if (content === '\n') {
+	                if (before.charAt(before.length - 1) === ' ') {
+	                    // Ensure trailing whitespace is removed before break
+	
+	                    before = before.slice(0, -1);
+	                }
+	
+	                if (after.charAt(0) === ' ') {
+	                    // Ensure leading whitespace is removed after break
+	
+	                    after.slice(1);
+	                }
+	            }
+	
+	            nextState.text = before + content + after;
 	
 	            collapsed = Editor.collapseWhitespace(nextState.text);
 	
@@ -2138,34 +2178,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Editor;
 
 /***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50]]}
-
-/***/ }),
 /* 19 */
 /***/ (function(module, exports) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var H1 = exports.H1 = 'h1';
-	var H2 = exports.H2 = 'h2';
-	var H3 = exports.H3 = 'h3';
-	var H4 = exports.H4 = 'h4';
-	var H5 = exports.H5 = 'h5';
-	var H6 = exports.H6 = 'h6';
-	var P = exports.P = 'p';
-	
-	var STRONG = exports.STRONG = 'strong';
-	var EM = exports.EM = 'em';
-	var BR = exports.BR = 'br';
-	
-	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
-	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
+	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50]]}
 
 /***/ })
 /******/ ])
