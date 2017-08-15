@@ -44,7 +44,8 @@ export default (prevState, action) => {
         case Actions.TOGGLE_BOLD: {
             let nextState = null;
 
-            // TODO: if collapsed, simply change state to disable/enable active markup
+            // TODO: if collapsed, simply change state to disable/enable active
+            // markup, any further set selections will reset it as appropriate
 
             if (prevState.isTagActive(STRONG)) {
                 nextState = Editor.removeInlineMarkup(prevState, STRONG, action.range.from, action.range.to);
@@ -53,8 +54,6 @@ export default (prevState, action) => {
             }
 
             Editor.setActiveMarkups(nextState, action.range);
-
-            console.log(nextState);
 
             return nextState;
         }

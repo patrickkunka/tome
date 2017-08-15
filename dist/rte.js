@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -76,9 +76,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	module.exports = factory;
 
-/***/ }),
+/***/ },
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -461,9 +461,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = RichTextEditor;
 
-/***/ }),
+/***/ },
 /* 2 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -483,9 +483,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Dom;
 
-/***/ }),
+/***/ },
 /* 3 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -795,9 +795,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Util;
 
-/***/ }),
+/***/ },
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -878,9 +878,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Markup;
 
-/***/ }),
+/***/ },
 /* 5 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -895,6 +895,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var H6 = exports.H6 = 'h6';
 	var P = exports.P = 'p';
 	
+	var BLOCK_BREAK = exports.BLOCK_BREAK = '\n\n';
+	var LINE_BREAK = exports.LINE_BREAK = '\n';
+	
 	var STRONG = exports.STRONG = 'strong';
 	var EM = exports.EM = 'em';
 	var BR = exports.BR = 'br';
@@ -902,9 +905,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
 	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
 
-/***/ }),
+/***/ },
 /* 6 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -953,9 +956,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Node;
 
-/***/ }),
+/***/ },
 /* 7 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -977,9 +980,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Caret;
 
-/***/ }),
+/***/ },
 /* 8 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1048,9 +1051,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Range;
 
-/***/ }),
+/***/ },
 /* 9 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1060,9 +1063,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
 	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
 
-/***/ }),
+/***/ },
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1115,9 +1118,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = State;
 
-/***/ }),
+/***/ },
 /* 11 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1139,9 +1142,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Action;
 
-/***/ }),
+/***/ },
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1309,9 +1312,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = EventHandler;
 
-/***/ }),
+/***/ },
 /* 13 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1328,9 +1331,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TOGGLE_ITALIC = exports.TOGGLE_ITALIC = Symbol('ACTION_TYPE_TOGGLE_ITALIC');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
-/***/ }),
+/***/ },
 /* 14 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1353,9 +1356,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var B = exports.B = 'b';
 	var I = exports.I = 'i';
 
-/***/ }),
+/***/ },
 /* 15 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1527,9 +1530,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = TreeBuilder;
 
-/***/ }),
+/***/ },
 /* 16 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1589,9 +1592,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Renderer;
 
-/***/ }),
+/***/ },
 /* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1666,7 +1669,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            {
 	                var _nextState = null;
 	
-	                // TODO: if collapsed, simply change state to disable/enable active markup
+	                // TODO: if collapsed, simply change state to disable/enable active
+	                // markup, any further set selections will reset it as appropriate
 	
 	                if (prevState.isTagActive(_Markups.STRONG)) {
 	                    _nextState = _Editor2.default.removeInlineMarkup(prevState, _Markups.STRONG, action.range.from, action.range.to);
@@ -1676,8 +1680,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                _Editor2.default.setActiveMarkups(_nextState, action.range);
 	
-	                console.log(_nextState);
-	
 	                return _nextState;
 	            }
 	        default:
@@ -1685,9 +1687,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-/***/ }),
+/***/ },
 /* 18 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1696,6 +1698,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -1710,6 +1714,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Util = __webpack_require__(3);
 	
 	var _Util2 = _interopRequireDefault(_Util);
+	
+	var _Markups = __webpack_require__(5);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1751,7 +1757,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var collapsed = '';
 	            var totalCollapsed = 0;
 	
-	            if (content === '\n') {
+	            if (content === _Markups.LINE_BREAK) {
 	                if (before.charAt(before.length - 1) === ' ') {
 	                    // Ensure trailing whitespace is removed before break
 	
@@ -1778,7 +1784,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            nextState.markups = Editor.adjustMarkups(prevState.markups, range.from, range.to, totalAdded, adjustment);
 	
-	            if (content === '\n') {
+	            if (content === _Markups.LINE_BREAK) {
 	                nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 	            } else if (content === '') {
 	                nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
@@ -1824,31 +1830,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var insertIndex = -1;
 	
 	            if (prevState.envelopedBlockMarkups.length > 1) {
-	                var formattedState = nextState;
+	                var _ret = function () {
+	                    var formattedState = nextState;
 	
-	                // Split and delegate the command
+	                    // Split and delegate the command
 	
-	                formattedState.envelopedBlockMarkups.length = 0;
+	                    formattedState.envelopedBlockMarkups.length = 0;
 	
-	                prevState.envelopedBlockMarkups.forEach(function (markup, i) {
-	                    var formatFrom = i === 0 ? from : markup.start;
-	                    var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                        var formatFrom = i === 0 ? from : markup.start;
+	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
 	
-	                    formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
-	                });
+	                        formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                    });
 	
-	                return formattedState;
+	                    return {
+	                        v: formattedState
+	                    };
+	                }();
+	
+	                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	            }
 	
 	            Editor.ingestMarkups(nextState.markups, tag, from, to);
 	
-	            for (var i = 0, markup; markup = nextState.markups[i]; i++) {
+	            for (var i = 0; i < nextState.markups.length; i++) {
+	                var markup = new _Markup2.default(nextState.markups[i]);
+	
 	                // NB: When inserting an inline markup there should always be at
 	                // least one block markup in the array
 	
-	                insertIndex = i + 1;
+	                insertIndex = i;
 	
-	                if (markup.start > from) {
+	                if (markup.isInline && markup.start > from) {
+	                    break;
+	                } else if (markup.isBlock && markup.start <= from && markup.end >= to) {
+	                    insertIndex++;
+	
 	                    break;
 	                }
 	            }
@@ -1864,15 +1882,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'removeInlineMarkup',
 	        value: function removeInlineMarkup(prevState, tag, from, to) {
 	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
-	            // for each block markup in range, split command to target each
-	            // one individually if no markup exists either around or at range, abort
-	            // if at range, remove it
-	            // if greater than range, split the markup
 	
-	            console.log('remove', tag, 'at', from, to);
+	            if (prevState.envelopedBlockMarkups.length > 1) {
+	                var _ret2 = function () {
+	                    var formattedState = nextState;
 	
-	            Editor.joinMarkups(nextState.markups, from);
-	            Editor.joinMarkups(nextState.markups, to);
+	                    // Split and delegate the command
+	
+	                    formattedState.envelopedBlockMarkups.length = 0;
+	
+	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                        var formatFrom = i === 0 ? from : markup.start;
+	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	
+	                        formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                    });
+	
+	                    return {
+	                        v: formattedState
+	                    };
+	                }();
+	
+	                if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	            }
+	
+	            Editor.ingestMarkups(nextState.markups, tag, from, to);
+	
+	            // Editor.joinMarkups(nextState.markups, from);
+	            // Editor.joinMarkups(nextState.markups, to);
 	
 	            return nextState;
 	        }
@@ -2054,10 +2091,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var closingBlock = null;
 	
 	            for (var i = 0; i < markups.length; i++) {
-	                var markup = new _Markup2.default(markups[i]);
+	                var markup = markups[i];
 	
 	                if (markup.end === index) {
 	                    if (markup.isBlock) {
+	                        // Block markup closes at index
+	
 	                        closingBlock = markup;
 	                    } else {
 	                        closingInlines[markup.tag] = markups[i];
@@ -2066,12 +2105,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var extend = null;
 	
 	                    if (markup.isBlock && closingBlock) {
+	                        // Block markup opens at index, and will touch
+	                        // previous block
+	
 	                        extend = closingBlock;
 	                    } else if (markup.isInline && closingInlines[markup.tag]) {
 	                        extend = closingInlines[markup.tag];
 	                    }
 	
 	                    if (extend) {
+	                        // Block should be extended
+	
 	                        extend[2] = markup[2];
 	
 	                        markups.splice(i, 1);
@@ -2144,8 +2188,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            state.activeInlineMarkups.length = state.envelopedBlockMarkups.length = 0;
 	
+	            var adjacentInlineMarkups = [];
+	            var parentBlock = null;
+	
 	            for (var i = 0; i < state.markups.length; i++) {
 	                var markup = new _Markup2.default(state.markups[i]);
+	                var lastAdjacent = adjacentInlineMarkups[adjacentInlineMarkups.length - 1];
 	
 	                // Active markups are those that surround the start of the
 	                // selection and should be highlighted in any UI
@@ -2153,17 +2201,46 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (markup.start <= range.from && markup.end >= range.from) {
 	                    if (markup.isBlock) {
 	                        // Only one block markup may be active at a time
+	                        // (the first one)
 	
 	                        state.activeBlockMarkup = markup;
 	                    } else if (markup.end >= range.to) {
+	                        // Simple enveloped inline markup
+	
 	                        state.activeInlineMarkups.push(markup);
+	                    } else if (markup.end === parentBlock.end) {
+	                        // Potential first adjacent inline markup
+	
+	                        adjacentInlineMarkups.push(markup);
+	
+	                        continue;
 	                    }
+	                }
+	
+	                if (lastAdjacent && lastAdjacent.tag === markup.tag && (markup.start === parentBlock.start && markup.end >= range.to || markup.start === parentBlock.start && markup.end === parentBlock.end)) {
+	                    // Continuation or end of an adjacent inline markup
+	
+	                    adjacentInlineMarkups.push(markup);
+	
+	                    if (range.to <= markup.end) {
+	                        var _state$activeInlineMa;
+	
+	                        // Final adjacent inline markup, move all to state
+	
+	                        (_state$activeInlineMa = state.activeInlineMarkups).push.apply(_state$activeInlineMa, adjacentInlineMarkups);
+	                    }
+	                } else if (markup.isInline) {
+	                    // Doesn't match tag, or not a continuation, reset
+	
+	                    adjacentInlineMarkups.length = 0;
 	                }
 	
 	                if (!markup.isBlock) continue;
 	
-	                // Enveloped block markups are those that are partially or completely
-	                // enveloped by the selection.
+	                parentBlock = markup;
+	
+	                // Enveloped block markups are those that are partially or
+	                // completely enveloped by the selection.
 	
 	                if (markup.start <= range.from && markup.end >= range.from || markup.start <= range.to && markup.end >= range.from) {
 	                    state.envelopedBlockMarkups.push(markup);
@@ -2177,13 +2254,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Editor;
 
-/***/ }),
+/***/ },
 /* 19 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
-	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50]]}
+	module.exports = {
+		"text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing\nfoo",
+		"markups": [
+			[
+				"p",
+				0,
+				27
+			],
+			[
+				"em",
+				6,
+				17
+			],
+			[
+				"strong",
+				12,
+				17
+			],
+			[
+				"h2",
+				28,
+				50
+			],
+			[
+				"h3",
+				51,
+				54
+			]
+		]
+	};
 
-/***/ })
+/***/ }
 /******/ ])
 });
 ;

@@ -6,6 +6,9 @@ export const H5 = 'h5';
 export const H6 = 'h6';
 export const P  = 'p';
 
+export const BLOCK_BREAK = '\n\n';
+export const LINE_BREAK  = '\n';
+
 export const STRONG = 'strong';
 export const EM     = 'em';
 export const BR     = 'br';

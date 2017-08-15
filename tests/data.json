@@ -1,9 +1,10 @@
 {
-    "text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing",
+    "text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing\nfoo",
     "markups": [
         ["p", 0, 27],
         ["em", 6, 17],
         ["strong", 12, 17],
-        ["h2", 28, 50]
+        ["h2", 28, 50],
+        ["h3", 51, 54]
     ]
 }
