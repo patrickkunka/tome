@@ -50,6 +50,8 @@ class Editor {
 
         totalTrimmed = Editor.trimWhitespace(nextState);
 
+        console.log(totalTrimmed, totalAdded, totalDeleted);
+
         nextState.selection.from =
         nextState.selection.to   = range.from + totalAdded + totalTrimmed;
 
@@ -282,6 +284,13 @@ class Editor {
 
             const trimmed = content.trim();
             const totalTrimmed = trimmed.length - content.length;
+
+            console.log('before:', content.replace(/\s/g, '-'));
+            console.log('after:', trimmed.replace(/\s/g, '-'));
+            console.log('total:', totalTrimmed);
+
+            // TODO: seems not to be quite working.. needs further
+            // investigation?
 
             if (totalTrimmed === 0) continue;
 

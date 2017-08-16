@@ -1766,6 +1766,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            totalTrimmed = Editor.trimWhitespace(nextState);
 	
+	            console.log(totalTrimmed, totalAdded, totalDeleted);
+	
 	            nextState.selection.from = nextState.selection.to = range.from + totalAdded + totalTrimmed;
 	
 	            Editor.setActiveMarkups(nextState, nextState.selection);
@@ -2009,6 +2011,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                var trimmed = content.trim();
 	                var totalTrimmed = trimmed.length - content.length;
+	
+	                console.log('before:', content.replace(/\s/g, '-'));
+	                console.log('after:', trimmed.replace(/\s/g, '-'));
+	                console.log('total:', totalTrimmed);
+	
+	                // TODO: seems not to be quite working.. needs further
+	                // investigation?
 	
 	                if (totalTrimmed === 0) continue;
 	

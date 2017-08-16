@@ -356,7 +356,7 @@ describe('Editor', () => {
             text: 'Lorem ipsum dolor. Sit amet.\nTest Heading',
             markups: [
                 ['p', 0, 28],
-                ['h2', 29, 42]
+                ['h2', 29, 41]
             ]
         };
 
