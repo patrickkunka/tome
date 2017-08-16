@@ -332,7 +332,7 @@ describe('Editor', () => {
         assert.equal(newState.selection.from, 4);
     });
 
-    it('should split a block markup into two block markups at a whitespace, removing whitespace around the break', () => {
+    it('should split a block markup into two block markups at a whitespace, removing whitespace before the break', () => {
         const state = {
             text: 'Lorem ipsum dolor. Sit amet.',
             markups: [
@@ -344,7 +344,26 @@ describe('Editor', () => {
 
         assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
         assert.equal(newState.text.length, 28);
-        assert.equal(newState.markups[0][2], 18); // TODO: markups not reflective of trimmed whitespace
+        assert.equal(newState.markups[0][2], 18);
+        assert.isOk(newState.markups[1]);
+        assert.equal(newState.markups[1][1], 19);
+        assert.equal(newState.markups[1][2], 28);
+        assert.equal(newState.selection.from, 19);
+    });
+
+    it('should split a block markup into two block markups at a whitespace, removing whitespace after the break', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 18, to: 18}, '\n');
+
+        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+        assert.equal(newState.text.length, 28);
+        assert.equal(newState.markups[0][2], 18);
         assert.isOk(newState.markups[1]);
         assert.equal(newState.markups[1][1], 19);
         assert.equal(newState.markups[1][2], 28);
@@ -366,7 +385,7 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 3);
         assert.equal(newState.markups[2][1], 34);
         assert.equal(newState.markups[2][2], 41);
-        assert.equal(newState.selection.from, 35);
+        assert.equal(newState.selection.from, 34);
     });
 
     // DOESN'T WORK
@@ -497,5 +516,80 @@ describe('Editor', () => {
         assert.equal(newState.markups[2][0], 'em');
         assert.equal(newState.markups[2][1], 8);
         assert.equal(newState.markups[2][2], 11);
+    });
+
+    it('should remove an inline markup', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 17]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.removeInlineMarkup(state, 'strong', 6, 17);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 1);
+    });
+
+    it('should remove the start of inline markup', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 17]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.removeInlineMarkup(state, 'strong', 6, 12);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 12);
+        assert.equal(newState.markups[1][2], 17);
+    });
+
+    it('should remove the end of inline markup', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 17]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.removeInlineMarkup(state, 'strong', 11, 17);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 11);
+    });
+
+    it('should remove an internal section of an inline markup', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 50],
+                ['strong', 6, 17]
+            ],
+            envelopedBlockMarkups: []
+        };
+
+        const newState = Editor.removeInlineMarkup(state, 'strong', 12, 14);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 3);
+        assert.equal(newState.markups[1][0], 'strong');
+        assert.equal(newState.markups[1][1], 6);
+        assert.equal(newState.markups[1][2], 12);
+        assert.equal(newState.markups[2][1], 14);
+        assert.equal(newState.markups[2][2], 17);
     });
 });

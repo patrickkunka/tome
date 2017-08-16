@@ -44,13 +44,11 @@ class Editor {
 
         if (content === LINE_BREAK) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
+
+            totalTrimmed = Editor.trimWhitespace(nextState, range.from);
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
         }
-
-        totalTrimmed = Editor.trimWhitespace(nextState);
-
-        console.log(totalTrimmed, totalAdded, totalDeleted);
 
         nextState.selection.from =
         nextState.selection.to   = range.from + totalAdded + totalTrimmed;
@@ -84,7 +82,7 @@ class Editor {
 
         Editor.ingestMarkups(nextState.markups, tag, from, to);
 
-        for (let i = 0; i < nextState.markups.length; i++) {
+        for (let i = 0, len = nextState.markups.length; i < len; i++) {
             const markup = new Markup(nextState.markups[i]);
 
             // NB: When inserting an inline markup there should always be at
@@ -92,9 +90,13 @@ class Editor {
 
             insertIndex = i;
 
-            if (markup.isInline && markup.start > from) {
+            if (markup.start > from) {
+                // Markup starts after markup to insert, insert at index
+
                 break;
-            } else if (markup.isBlock && markup.start <= from && markup.end >= to) {
+            } else if (i === len - 1) {
+                // Last markup, insert after
+
                 insertIndex++;
 
                 break;
@@ -130,9 +132,6 @@ class Editor {
         }
 
         Editor.ingestMarkups(nextState.markups, tag, from, to);
-
-        // Editor.joinMarkups(nextState.markups, from);
-        // Editor.joinMarkups(nextState.markups, to);
 
         return nextState;
     }
@@ -252,19 +251,22 @@ class Editor {
     }
 
     /**
-     * Trims leading/trailing whitespace from block elements.
-     * Returns the total adjustment made to the text.
+     * Trims leading/trailing whitespace from block elements
+     * when a block is split.
      *
-     * @param  {State} nextState
+     * Returns the total adjustment made to the text before the split.
+     *
+     * @param  {State}  nextState
+     * @param  {number} splitIndex
      * @return {number}
      */
 
-    static trimWhitespace(nextState) {
+    static trimWhitespace(nextState, splitIndex) {
         let totalAllTrimmed = 0;
+        let caretAdjustment = 0;
 
         for (let i = 0; i < nextState.markups.length; i++) {
             const markupRaw = nextState.markups[i];
-            const markup    = new Markup(markupRaw);
 
             if (totalAllTrimmed !== 0) {
                 // If previous adjustments have been made, adjust markup
@@ -273,6 +275,8 @@ class Editor {
                 markupRaw[1] += totalAllTrimmed;
                 markupRaw[2] += totalAllTrimmed;
             }
+
+            const markup = new Markup(markupRaw);
 
             if (!markup.isBlock) continue;
 
@@ -285,16 +289,19 @@ class Editor {
             const trimmed = content.trim();
             const totalTrimmed = trimmed.length - content.length;
 
-            console.log('before:', content.replace(/\s/g, '-'));
-            console.log('after:', trimmed.replace(/\s/g, '-'));
-            console.log('total:', totalTrimmed);
-
             // TODO: seems not to be quite working.. needs further
             // investigation?
 
             if (totalTrimmed === 0) continue;
 
             totalAllTrimmed += totalTrimmed;
+
+            if (markup.start < splitIndex) {
+                // If the affected markup starts before the split index,
+                // increase the total
+
+                caretAdjustment += totalTrimmed;
+            }
 
             // Reduce markup end by trimmed amount
 
@@ -305,7 +312,7 @@ class Editor {
             nextState.text = before + trimmed + after;
         }
 
-        return totalAllTrimmed;
+        return caretAdjustment;
     }
 
     /**
@@ -352,10 +359,12 @@ class Editor {
     static joinMarkups(markups, index) {
         const closingInlines = {};
 
+        // TODO: use quick search to find start index
+
         let closingBlock = null;
 
         for (let i = 0; i < markups.length; i++) {
-            const markup = markups[i];
+            const markup = new Markup(markups[i]);
 
             if (markup.end === index) {
                 if (markup.isBlock) {
@@ -378,7 +387,7 @@ class Editor {
                 }
 
                 if (extend) {
-                    // Block should be extended
+                    // Markup should be extended
 
                     extend[2] = markup[2];
 
@@ -386,6 +395,10 @@ class Editor {
 
                     i--;
                 }
+            } else if (markup.start > index) {
+                // Passed joining index, done
+
+                break;
             }
         }
 
@@ -415,9 +428,19 @@ class Editor {
                 markups.splice(i, 1);
 
                 i--;
-            } else if (markupStart < from && markupEnd > to) {
+            } else if (markupStart < from && markupEnd >= to) {
                 // Markup overlaps start, shorten by moving end to
                 // start of selection
+
+                if (markupEnd > to) {
+                    // Split markup into two
+
+                    const newMarkup = [markupTag, to, markupEnd];
+
+                    markups.splice(i + 1, 0, newMarkup);
+
+                    i++;
+                }
 
                 markup[2] = from;
             } else if (markupStart > from && markupStart < to) {
@@ -425,9 +448,11 @@ class Editor {
                 // end of selection
 
                 markup[1] = to;
-            }
+            } else if (markupStart === from && markupEnd > to) {
+                // Markup envelops range from start
 
-            // TODO: final case: remove internal range of markup and split into two
+                markup[1] = to;
+            }
         }
     }
 
