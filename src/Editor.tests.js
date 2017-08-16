@@ -349,8 +349,6 @@ describe('Editor', () => {
         assert.equal(newState.markups[1][1], 19);
         assert.equal(newState.markups[1][2], 28);
         assert.equal(newState.selection.from, 19);
-
-        console.log(newState.text);
     });
 
     it('should split a subsequent block markup into two block markups at an arbitrary point', () => {
@@ -366,8 +364,8 @@ describe('Editor', () => {
 
         assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.\nTest\nHeading');
         assert.equal(newState.markups.length, 3);
-        assert.equal(newState.markups[2][1], 35);
-        assert.equal(newState.markups[2][2], 43);
+        assert.equal(newState.markups[2][1], 34);
+        assert.equal(newState.markups[2][2], 41);
         assert.equal(newState.selection.from, 35);
     });
 

@@ -30,33 +30,9 @@ class Editor {
         let after  = prevState.text.slice(range.to);
         let totalAdded = content.length;
         let adjustment = totalAdded - totalDeleted;
-        let collapsed = '';
-        let totalCollapsed = 0;
-
-        if (content === LINE_BREAK) {
-            if (before.charAt(before.length - 1) === ' ') {
-                // Ensure trailing whitespace is removed before break
-
-                before = before.slice(0, -1);
-            }
-
-            if (after.charAt(0) === ' ') {
-                // Ensure leading whitespace is removed after break
-
-                after.slice(1);
-            }
-        }
+        let totalTrimmed = 0;
 
         nextState.text = before + content + after;
-
-        collapsed = Editor.collapseWhitespace(nextState.text);
-
-        if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
-            totalAdded -= totalCollapsed;
-            adjustment -= totalCollapsed;
-
-            nextState.text = collapsed;
-        }
 
         nextState.markups = Editor.adjustMarkups(
             prevState.markups,
@@ -72,36 +48,14 @@ class Editor {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
         }
 
+        totalTrimmed = Editor.trimWhitespace(nextState);
+
         nextState.selection.from =
-        nextState.selection.to   = range.from + totalAdded;
+        nextState.selection.to   = range.from + totalAdded + totalTrimmed;
 
         Editor.setActiveMarkups(nextState, nextState.selection);
 
         return nextState;
-    }
-
-    /**
-     * Collapses whitespace in a provided string.
-     *
-     * @static
-     * @param {string} text
-     * @return {string}
-     */
-
-    static collapseWhitespace(text) {
-        // Replace 3 or more spaces with a single space.
-
-        let collapsed = text.replace(/ {3,}/g, ' ');
-
-        // Replace 1 or more spaces before a new line with a single space
-
-        collapsed = text.replace(/ +\n/g, ' \n');
-
-        // Disallow spaces at the start of a new line
-
-        collapsed = text.replace(/\n */g, '\n');
-
-        return collapsed;
     }
 
     static addInlineMarkup(prevState, tag, from, to) {
@@ -293,6 +247,56 @@ class Editor {
         }
 
         return null;
+    }
+
+    /**
+     * Trims leading/trailing whitespace from block elements.
+     * Returns the total adjustment made to the text.
+     *
+     * @param  {State} nextState
+     * @return {number}
+     */
+
+    static trimWhitespace(nextState) {
+        let totalAllTrimmed = 0;
+
+        for (let i = 0; i < nextState.markups.length; i++) {
+            const markupRaw = nextState.markups[i];
+            const markup    = new Markup(markupRaw);
+
+            if (totalAllTrimmed !== 0) {
+                // If previous adjustments have been made, adjust markup
+                // position accordingly
+
+                markupRaw[1] += totalAllTrimmed;
+                markupRaw[2] += totalAllTrimmed;
+            }
+
+            if (!markup.isBlock) continue;
+
+            const before  = nextState.text.slice(0, markup.start);
+            const content = nextState.text.slice(markup.start, markup.end);
+            const after   = nextState.text.slice(markup.end);
+
+            // Trim whitespace from start and end of blocks
+
+            const trimmed = content.trim();
+            const totalTrimmed = trimmed.length - content.length;
+
+            if (totalTrimmed === 0) continue;
+
+            totalAllTrimmed += totalTrimmed;
+
+            // Reduce markup end by trimmed amount
+
+            markupRaw[2] += totalTrimmed;
+
+            // Rebuild text
+
+            nextState.text = before + trimmed + after;
+        }
+
+        return totalAllTrimmed;
     }
 
     /**

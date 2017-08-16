@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -76,9 +76,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	module.exports = factory;
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -461,9 +461,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = RichTextEditor;
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -483,9 +483,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Dom;
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -795,9 +795,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Util;
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -878,9 +878,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Markup;
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -905,9 +905,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
 	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -956,9 +956,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Node;
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	"use strict";
 	
@@ -980,9 +980,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Caret;
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1051,9 +1051,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Range;
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1063,9 +1063,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
 	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1118,9 +1118,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = State;
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1142,9 +1142,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Action;
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1312,9 +1312,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = EventHandler;
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1331,9 +1331,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var TOGGLE_ITALIC = exports.TOGGLE_ITALIC = Symbol('ACTION_TYPE_TOGGLE_ITALIC');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1356,9 +1356,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var B = exports.B = 'b';
 	var I = exports.I = 'i';
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1530,9 +1530,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = TreeBuilder;
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 	
@@ -1592,9 +1592,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Renderer;
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1687,9 +1687,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-/***/ },
+/***/ }),
 /* 18 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1698,8 +1698,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -1754,33 +1752,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var after = prevState.text.slice(range.to);
 	            var totalAdded = content.length;
 	            var adjustment = totalAdded - totalDeleted;
-	            var collapsed = '';
-	            var totalCollapsed = 0;
-	
-	            if (content === _Markups.LINE_BREAK) {
-	                if (before.charAt(before.length - 1) === ' ') {
-	                    // Ensure trailing whitespace is removed before break
-	
-	                    before = before.slice(0, -1);
-	                }
-	
-	                if (after.charAt(0) === ' ') {
-	                    // Ensure leading whitespace is removed after break
-	
-	                    after.slice(1);
-	                }
-	            }
+	            var totalTrimmed = 0;
 	
 	            nextState.text = before + content + after;
-	
-	            collapsed = Editor.collapseWhitespace(nextState.text);
-	
-	            if ((totalCollapsed = nextState.text.length - collapsed.length) > 0) {
-	                totalAdded -= totalCollapsed;
-	                adjustment -= totalCollapsed;
-	
-	                nextState.text = collapsed;
-	            }
 	
 	            nextState.markups = Editor.adjustMarkups(prevState.markups, range.from, range.to, totalAdded, adjustment);
 	
@@ -1790,37 +1764,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
 	            }
 	
-	            nextState.selection.from = nextState.selection.to = range.from + totalAdded;
+	            totalTrimmed = Editor.trimWhitespace(nextState);
+	
+	            nextState.selection.from = nextState.selection.to = range.from + totalAdded + totalTrimmed;
 	
 	            Editor.setActiveMarkups(nextState, nextState.selection);
 	
 	            return nextState;
-	        }
-	
-	        /**
-	         * Collapses whitespace in a provided string.
-	         *
-	         * @static
-	         * @param {string} text
-	         * @return {string}
-	         */
-	
-	    }, {
-	        key: 'collapseWhitespace',
-	        value: function collapseWhitespace(text) {
-	            // Replace 3 or more spaces with a single space.
-	
-	            var collapsed = text.replace(/ {3,}/g, ' ');
-	
-	            // Replace 1 or more spaces before a new line with a single space
-	
-	            collapsed = text.replace(/ +\n/g, ' \n');
-	
-	            // Disallow spaces at the start of a new line
-	
-	            collapsed = text.replace(/\n */g, '\n');
-	
-	            return collapsed;
 	        }
 	    }, {
 	        key: 'addInlineMarkup',
@@ -1830,26 +1780,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var insertIndex = -1;
 	
 	            if (prevState.envelopedBlockMarkups.length > 1) {
-	                var _ret = function () {
-	                    var formattedState = nextState;
+	                var formattedState = nextState;
 	
-	                    // Split and delegate the command
+	                // Split and delegate the command
 	
-	                    formattedState.envelopedBlockMarkups.length = 0;
+	                formattedState.envelopedBlockMarkups.length = 0;
 	
-	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
-	                        var formatFrom = i === 0 ? from : markup.start;
-	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	                prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                    var formatFrom = i === 0 ? from : markup.start;
+	                    var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
 	
-	                        formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
-	                    });
+	                    formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                });
 	
-	                    return {
-	                        v: formattedState
-	                    };
-	                }();
-	
-	                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+	                return formattedState;
 	            }
 	
 	            Editor.ingestMarkups(nextState.markups, tag, from, to);
@@ -1884,26 +1828,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
 	
 	            if (prevState.envelopedBlockMarkups.length > 1) {
-	                var _ret2 = function () {
-	                    var formattedState = nextState;
+	                var formattedState = nextState;
 	
-	                    // Split and delegate the command
+	                // Split and delegate the command
 	
-	                    formattedState.envelopedBlockMarkups.length = 0;
+	                formattedState.envelopedBlockMarkups.length = 0;
 	
-	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
-	                        var formatFrom = i === 0 ? from : markup.start;
-	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	                prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                    var formatFrom = i === 0 ? from : markup.start;
+	                    var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
 	
-	                        formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
-	                    });
+	                    formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                });
 	
-	                    return {
-	                        v: formattedState
-	                    };
-	                }();
-	
-	                if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+	                return formattedState;
 	            }
 	
 	            Editor.ingestMarkups(nextState.markups, tag, from, to);
@@ -2034,6 +1972,58 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            return null;
+	        }
+	
+	        /**
+	         * Trims leading/trailing whitespace from block elements.
+	         * Returns the total adjustment made to the text.
+	         *
+	         * @param  {State} nextState
+	         * @return {number}
+	         */
+	
+	    }, {
+	        key: 'trimWhitespace',
+	        value: function trimWhitespace(nextState) {
+	            var totalAllTrimmed = 0;
+	
+	            for (var i = 0; i < nextState.markups.length; i++) {
+	                var markupRaw = nextState.markups[i];
+	                var markup = new _Markup2.default(markupRaw);
+	
+	                if (totalAllTrimmed !== 0) {
+	                    // If previous adjustments have been made, adjust markup
+	                    // position accordingly
+	
+	                    markupRaw[1] += totalAllTrimmed;
+	                    markupRaw[2] += totalAllTrimmed;
+	                }
+	
+	                if (!markup.isBlock) continue;
+	
+	                var before = nextState.text.slice(0, markup.start);
+	                var content = nextState.text.slice(markup.start, markup.end);
+	                var after = nextState.text.slice(markup.end);
+	
+	                // Trim whitespace from start and end of blocks
+	
+	                var trimmed = content.trim();
+	                var totalTrimmed = trimmed.length - content.length;
+	
+	                if (totalTrimmed === 0) continue;
+	
+	                totalAllTrimmed += totalTrimmed;
+	
+	                // Reduce markup end by trimmed amount
+	
+	                markupRaw[2] += totalTrimmed;
+	
+	                // Rebuild text
+	
+	                nextState.text = before + trimmed + after;
+	            }
+	
+	            return totalAllTrimmed;
 	        }
 	
 	        /**
@@ -2168,6 +2158,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    markup[1] = to;
 	                }
+	
+	                // TODO: final case: remove internal range of markup and split into two
 	            }
 	        }
 	
@@ -2254,42 +2246,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Editor;
 
-/***/ },
+/***/ }),
 /* 19 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
-	module.exports = {
-		"text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing\nfoo",
-		"markups": [
-			[
-				"p",
-				0,
-				27
-			],
-			[
-				"em",
-				6,
-				17
-			],
-			[
-				"strong",
-				12,
-				17
-			],
-			[
-				"h2",
-				28,
-				50
-			],
-			[
-				"h3",
-				51,
-				54
-			]
-		]
-	};
+	module.exports = {"text":"Lorem ipsum dolor sit amet.\nConsectetur adipiscing\nfoo","markups":[["p",0,27],["em",6,17],["strong",12,17],["h2",28,50],["h3",51,54]]}
 
-/***/ }
+/***/ })
 /******/ ])
 });
 ;
