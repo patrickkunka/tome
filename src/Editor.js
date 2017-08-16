@@ -413,6 +413,8 @@ class Editor {
 
                 markup[1] = to;
             }
+
+            // TODO: final case: remove internal range of markup and split into two
         }
     }
 
