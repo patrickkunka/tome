@@ -1778,10 +1778,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'addInlineMarkup',
 	        value: function addInlineMarkup(prevState, tag, from, to) {
 	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	            var enveloped = prevState.envelopedBlockMarkups || [];
 	
 	            var insertIndex = -1;
 	
-	            if (prevState.envelopedBlockMarkups.length > 1) {
+	            if (enveloped.length > 1) {
 	                var _ret = function () {
 	                    var formattedState = nextState;
 	
@@ -1789,9 +1790,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    formattedState.envelopedBlockMarkups.length = 0;
 	
-	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                    enveloped.forEach(function (markup, i) {
 	                        var formatFrom = i === 0 ? from : markup.start;
-	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	                        var formatTo = i === enveloped.length - 1 ? to : markup.end;
 	
 	                        formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
 	                    });
@@ -1838,8 +1839,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'removeInlineMarkup',
 	        value: function removeInlineMarkup(prevState, tag, from, to) {
 	            var nextState = _Util2.default.extend(new _State2.default(), prevState, true);
+	            var enveloped = prevState.envelopedBlockMarkups || [];
 	
-	            if (prevState.envelopedBlockMarkups.length > 1) {
+	            if (enveloped.length > 1) {
 	                var _ret2 = function () {
 	                    var formattedState = nextState;
 	
@@ -1847,9 +1849,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    formattedState.envelopedBlockMarkups.length = 0;
 	
-	                    prevState.envelopedBlockMarkups.forEach(function (markup, i) {
+	                    enveloped.forEach(function (markup, i) {
 	                        var formatFrom = i === 0 ? from : markup.start;
-	                        var formatTo = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+	                        var formatTo = i === enveloped.length - 1 ? to : markup.end;
 	
 	                        formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
 	                    });
@@ -2119,7 +2121,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (markup.isBlock) {
 	                        // Block markup closes at index
 	
-	                        closingBlock = markup;
+	                        closingBlock = markups[i];
 	                    } else {
 	                        closingInlines[markup.tag] = markups[i];
 	                    }

@@ -60,19 +60,20 @@ class Editor {
 
     static addInlineMarkup(prevState, tag, from, to) {
         const nextState = Util.extend(new State(), prevState, true);
+        const enveloped = prevState.envelopedBlockMarkups || [];
 
         let insertIndex = -1;
 
-        if (prevState.envelopedBlockMarkups.length > 1) {
+        if (enveloped.length > 1) {
             let formattedState = nextState;
 
             // Split and delegate the command
 
             formattedState.envelopedBlockMarkups.length = 0;
 
-            prevState.envelopedBlockMarkups.forEach((markup, i) => {
+            enveloped.forEach((markup, i) => {
                 const formatFrom = i === 0 ? from : markup.start;
-                const formatTo   = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+                const formatTo   = i === enveloped.length - 1 ? to : markup.end;
 
                 formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
             });
@@ -113,17 +114,18 @@ class Editor {
 
     static removeInlineMarkup(prevState, tag, from, to) {
         const nextState = Util.extend(new State(), prevState, true);
+        const enveloped = prevState.envelopedBlockMarkups || [];
 
-        if (prevState.envelopedBlockMarkups.length > 1) {
+        if (enveloped.length > 1) {
             let formattedState = nextState;
 
             // Split and delegate the command
 
             formattedState.envelopedBlockMarkups.length = 0;
 
-            prevState.envelopedBlockMarkups.forEach((markup, i) => {
+            enveloped.forEach((markup, i) => {
                 const formatFrom = i === 0 ? from : markup.start;
-                const formatTo   = i === prevState.envelopedBlockMarkups.length - 1 ? to : markup.end;
+                const formatTo   = i === enveloped.length - 1 ? to : markup.end;
 
                 formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
             });
@@ -370,7 +372,7 @@ class Editor {
                 if (markup.isBlock) {
                     // Block markup closes at index
 
-                    closingBlock = markup;
+                    closingBlock = markups[i];
                 } else {
                     closingInlines[markup.tag] = markups[i];
                 }
