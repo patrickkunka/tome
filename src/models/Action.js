@@ -3,6 +3,7 @@ class Action {
         this.type    = null;
         this.range   = null;
         this.content = '';
+        this.tag     = '';
 
         Object.seal(this);
     }

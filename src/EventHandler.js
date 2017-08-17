@@ -2,6 +2,8 @@ import Util         from './Util';
 import * as Actions from './constants/Actions';
 import * as Keys    from './constants/Keys';
 
+import {STRONG, EM} from './constants/Markups';
+
 class EventHandler {
     bindEvents(root, richTextEditor) {
         this.delegator = this.delegator.bind(this, richTextEditor);
@@ -34,38 +36,38 @@ class EventHandler {
     handleKeypress(e, richTextEditor) {
         e.preventDefault();
 
-        richTextEditor.applyAction(Actions.INSERT, e.key);
+        richTextEditor.applyAction({type: Actions.INSERT, content: e.key});
     }
 
     handleMouseup(e, richTextEditor) {
         if (richTextEditor.dom.root !== document.activeElement) return;
 
-        richTextEditor.applyAction(Actions.SET_SELECTION);
+        richTextEditor.applyAction({type: Actions.SET_SELECTION});
     }
 
     handleMousedown(e, richTextEditor) {
-        richTextEditor.applyAction(Actions.SET_SELECTION);
+        richTextEditor.applyAction({type: Actions.SET_SELECTION});
     }
 
     handleKeydown(e, richTextEditor) {
         const key = e.key.toLowerCase();
 
-        let actionType = '';
+        let action = {};
 
         if (e.metaKey) {
             switch (key) {
                 case Keys.A:
-                    actionType = Actions.SET_SELECTION;
+                    action = {type: Actions.SET_SELECTION};
 
                     break;
                 case Keys.B:
-                    actionType = Actions.TOGGLE_BOLD;
+                    action = {type: Actions.TOGGLE_INLINE, tag: STRONG};
 
                     e.preventDefault();
 
                     break;
                 case Keys.I:
-                    actionType = Actions.TOGGLE_ITALIC;
+                    action = {type: Actions.TOGGLE_INLINE, tag: EM};
 
                     e.preventDefault();
 
@@ -91,19 +93,19 @@ class EventHandler {
 
         switch (key) {
             case Keys.ENTER:
-                actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
+                action = {type: e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN};
 
                 e.preventDefault();
 
                 break;
             case Keys.BACKSPACE:
-                actionType = Actions.BACKSPACE;
+                action = {type: Actions.BACKSPACE};
 
                 e.preventDefault();
 
                 break;
             case Keys.DELETE:
-                actionType = Actions.DELETE;
+                action = {type: Actions.DELETE};
 
                 e.preventDefault();
 
@@ -112,15 +114,17 @@ class EventHandler {
             case Keys.ARROW_RIGHT:
             case Keys.ARROW_UP:
             case Keys.ARROW_DOWN:
-                actionType = Actions.SET_SELECTION;
+                action = {type: Actions.SET_SELECTION};
 
                 break;
         }
 
-        if (!actionType || actionType === Actions.NONE) return;
+        if (!action || action.type === Actions.NONE) return;
 
-        setTimeout(() => richTextEditor.applyAction(actionType));
+        setTimeout(() => richTextEditor.applyAction(action), EventHandler.SELECTION_DELAY);
     }
 }
+
+EventHandler.SELECTION_DELAY = 10;
 
 export default EventHandler;

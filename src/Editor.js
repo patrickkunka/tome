@@ -48,6 +48,7 @@ class Editor {
             totalTrimmed = Editor.trimWhitespace(nextState, range.from);
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
+            nextState.markups = Editor.joinMarkups(nextState.markups, range.to);
         }
 
         nextState.selection.from =
@@ -175,7 +176,7 @@ class Editor {
                     // Markup should be preserved is a) is block element,
                     // b) is inline and inserting
                     newMarkup[2] = markupStart + totalAdded;
-                } else if (!markup.isBlock) {
+                } else if (!markup.isBlock || markupStart > fromIndex) {
                     removeMarkup = true;
                 }
             } else if (markupStart <= fromIndex && markupEnd >= toIndex) {
@@ -212,11 +213,11 @@ class Editor {
 
                     newMarkup[2] = fromIndex + totalAdded;
                 } else {
-                    const nextBlockMarkup = Editor.getNextBlockMarkup(markups, i);
+                    const closingBlockMarkup = Editor.getClosingBlockMarkup(markups, i, toIndex);
 
-                    // Extend block markup to end of next block +/- adjustment
+                    // Extend block markup to end of closing block +/- adjustment
 
-                    newMarkup[2] = nextBlockMarkup[2] + adjustment;
+                    newMarkup[2] = closingBlockMarkup[2] + adjustment;
                 }
             }
 
@@ -229,22 +230,23 @@ class Editor {
     }
 
     /**
-     * Returns the next block markup after the markup at the
+     * Returns the closing block markup after the markup at the
      * provided index.
      *
      * @static
-     * @param {Array.<Markup>} markups
-     * @param {number} index
+     * @param  {Array.<Markup>} markups
+     * @param  {number} markupIndex
+     * @param  {number} toIndex
      * @return {(Markup|null)}
      */
 
-    static getNextBlockMarkup(markups, index) {
-        for (let i = index + 1, markup; (markup = markups[i]); i++) {
+    static getClosingBlockMarkup(markups, markupIndex, toIndex) {
+        for (let i = markupIndex + 1, markup; (markup = markups[i]); i++) {
             if (!(markup instanceof Markup)) {
                 markup = new Markup(markup);
             }
 
-            if (markup.isBlock) {
+            if (markup.isBlock && markup.start <= toIndex && markup.end >= toIndex) {
                 return markup;
             }
         }

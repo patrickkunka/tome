@@ -94,33 +94,31 @@ class RichTextEditor {
         this.positionCaret(this.state.selection);
     }
 
-    applyAction(type, content='') {
-        let range = null;
+    /**
+     * @param {object} actionRaw
+     * @param {string} content
+     * @return {void}
+     */
 
-        if (type === SET_SELECTION) {
+    applyAction(actionRaw) {
+        const action = Object.assign(new Action(), actionRaw);
+
+        if (action.type === SET_SELECTION) {
             // Detect new selection from browser API
 
             const selection = window.getSelection();
 
-            range = this.getRangeFromSelection(selection);
+            action.range = this.getRangeFromSelection(selection);
         } else {
             // Use previous range
 
-            range = this.state.selection;
+            action.range = this.state.selection;
         }
 
-        const nextState = [type].reduce((prevState, type) => {
-            const action = new Action();
-
-            action.type     = type;
-            action.range    = range;
-            action.content  = content;
-
-            return reducer(prevState, action);
-        }, this.state);
+        const nextState = [action].reduce(reducer, this.state);
 
         if (!(nextState instanceof State)) {
-            throw new TypeError(`[RichTextEditor] Action type "${type.toString()}" did not return a valid state object`);
+            throw new TypeError(`[RichTextEditor] Action type "${action.type.toString()}" did not return a valid state object`);
         }
 
         if (nextState === this.state) return;
@@ -128,7 +126,7 @@ class RichTextEditor {
         // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
 
-        console.log(type);
+        console.log(action.type);
 
         this.history.push(nextState);
 
@@ -138,7 +136,7 @@ class RichTextEditor {
 
         this.history.length = this.historyIndex + 1;
 
-        if (type === SET_SELECTION) return;
+        if (action.type === SET_SELECTION) return;
 
         this.render();
 
@@ -191,6 +189,7 @@ class RichTextEditor {
         let isRtl = false;
         let rangeFrom = -1;
         let rangeTo = -1;
+
 
         if (!selection.isCollapsed) {
             extentPath = this.getPathFromNode(selection.extentNode);

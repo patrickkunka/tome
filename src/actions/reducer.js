@@ -1,7 +1,6 @@
 import State        from '../models/State';
 import Util         from '../Util';
 import * as Actions from '../constants/Actions';
-import {STRONG}     from '../constants/Markups';
 import Editor       from '../Editor';
 
 export default (prevState, action) => {
@@ -41,16 +40,16 @@ export default (prevState, action) => {
         case Actions.SHIFT_RETURN:
 
             break;
-        case Actions.TOGGLE_BOLD: {
+        case Actions.TOGGLE_INLINE: {
             let nextState = null;
 
             // TODO: if collapsed, simply change state to disable/enable active
             // markup, any further set selections will reset it as appropriate
 
-            if (prevState.isTagActive(STRONG)) {
-                nextState = Editor.removeInlineMarkup(prevState, STRONG, action.range.from, action.range.to);
+            if (prevState.isTagActive(action.tag)) {
+                nextState = Editor.removeInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
             } else {
-                nextState = Editor.addInlineMarkup(prevState, STRONG, action.range.from, action.range.to);
+                nextState = Editor.addInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
             }
 
             Editor.setActiveMarkups(nextState, action.range);

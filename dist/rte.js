@@ -230,37 +230,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.positionCaret(this.state.selection);
 	        }
+	
+	        /**
+	         * @param {object} actionRaw
+	         * @param {string} content
+	         * @return {void}
+	         */
+	
 	    }, {
 	        key: 'applyAction',
-	        value: function applyAction(type) {
-	            var content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+	        value: function applyAction(actionRaw) {
+	            var action = Object.assign(new _Action2.default(), actionRaw);
 	
-	            var range = null;
-	
-	            if (type === _Actions.SET_SELECTION) {
+	            if (action.type === _Actions.SET_SELECTION) {
 	                // Detect new selection from browser API
 	
 	                var selection = window.getSelection();
 	
-	                range = this.getRangeFromSelection(selection);
+	                action.range = this.getRangeFromSelection(selection);
 	            } else {
 	                // Use previous range
 	
-	                range = this.state.selection;
+	                action.range = this.state.selection;
 	            }
 	
-	            var nextState = [type].reduce(function (prevState, type) {
-	                var action = new _Action2.default();
-	
-	                action.type = type;
-	                action.range = range;
-	                action.content = content;
-	
-	                return (0, _reducer2.default)(prevState, action);
-	            }, this.state);
+	            var nextState = [action].reduce(_reducer2.default, this.state);
 	
 	            if (!(nextState instanceof _State2.default)) {
-	                throw new TypeError('[RichTextEditor] Action type "' + type.toString() + '" did not return a valid state object');
+	                throw new TypeError('[RichTextEditor] Action type "' + action.type.toString() + '" did not return a valid state object');
 	            }
 	
 	            if (nextState === this.state) return;
@@ -268,7 +265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
 	            // char vs moving a cursor
 	
-	            console.log(type);
+	            console.log(action.type);
 	
 	            this.history.push(nextState);
 	
@@ -278,7 +275,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this.history.length = this.historyIndex + 1;
 	
-	            if (type === _Actions.SET_SELECTION) return;
+	            if (action.type === _Actions.SET_SELECTION) return;
 	
 	            this.render();
 	
@@ -1136,6 +1133,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.type = null;
 	    this.range = null;
 	    this.content = '';
+	    this.tag = '';
 	
 	    Object.seal(this);
 	};
@@ -1165,6 +1163,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _Keys = __webpack_require__(14);
 	
 	var Keys = _interopRequireWildcard(_Keys);
+	
+	var _Markups = __webpack_require__(5);
 	
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 	
@@ -1213,41 +1213,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function handleKeypress(e, richTextEditor) {
 	            e.preventDefault();
 	
-	            richTextEditor.applyAction(Actions.INSERT, e.key);
+	            richTextEditor.applyAction({ type: Actions.INSERT, content: e.key });
 	        }
 	    }, {
 	        key: 'handleMouseup',
 	        value: function handleMouseup(e, richTextEditor) {
 	            if (richTextEditor.dom.root !== document.activeElement) return;
 	
-	            richTextEditor.applyAction(Actions.SET_SELECTION);
+	            richTextEditor.applyAction({ type: Actions.SET_SELECTION });
 	        }
 	    }, {
 	        key: 'handleMousedown',
 	        value: function handleMousedown(e, richTextEditor) {
-	            richTextEditor.applyAction(Actions.SET_SELECTION);
+	            richTextEditor.applyAction({ type: Actions.SET_SELECTION });
 	        }
 	    }, {
 	        key: 'handleKeydown',
 	        value: function handleKeydown(e, richTextEditor) {
 	            var key = e.key.toLowerCase();
 	
-	            var actionType = '';
+	            var action = {};
 	
 	            if (e.metaKey) {
 	                switch (key) {
 	                    case Keys.A:
-	                        actionType = Actions.SET_SELECTION;
+	                        action = { type: Actions.SET_SELECTION };
 	
 	                        break;
 	                    case Keys.B:
-	                        actionType = Actions.TOGGLE_BOLD;
+	                        action = { type: Actions.TOGGLE_INLINE, tag: _Markups.STRONG };
 	
 	                        e.preventDefault();
 	
 	                        break;
 	                    case Keys.I:
-	                        actionType = Actions.TOGGLE_ITALIC;
+	                        action = { type: Actions.TOGGLE_INLINE, tag: _Markups.EM };
 	
 	                        e.preventDefault();
 	
@@ -1273,19 +1273,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            switch (key) {
 	                case Keys.ENTER:
-	                    actionType = e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN;
+	                    action = { type: e.shiftKey ? Actions.SHIFT_RETURN : Actions.RETURN };
 	
 	                    e.preventDefault();
 	
 	                    break;
 	                case Keys.BACKSPACE:
-	                    actionType = Actions.BACKSPACE;
+	                    action = { type: Actions.BACKSPACE };
 	
 	                    e.preventDefault();
 	
 	                    break;
 	                case Keys.DELETE:
-	                    actionType = Actions.DELETE;
+	                    action = { type: Actions.DELETE };
 	
 	                    e.preventDefault();
 	
@@ -1294,21 +1294,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case Keys.ARROW_RIGHT:
 	                case Keys.ARROW_UP:
 	                case Keys.ARROW_DOWN:
-	                    actionType = Actions.SET_SELECTION;
+	                    action = { type: Actions.SET_SELECTION };
 	
 	                    break;
 	            }
 	
-	            if (!actionType || actionType === Actions.NONE) return;
+	            if (!action || action.type === Actions.NONE) return;
 	
 	            setTimeout(function () {
-	                return richTextEditor.applyAction(actionType);
-	            });
+	                return richTextEditor.applyAction(action);
+	            }, EventHandler.SELECTION_DELAY);
 	        }
 	    }]);
 	
 	    return EventHandler;
 	}();
+	
+	EventHandler.SELECTION_DELAY = 10;
 	
 	exports.default = EventHandler;
 
@@ -1327,8 +1329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DELETE = exports.DELETE = Symbol('ACTION_TYPE_DELETE');
 	var RETURN = exports.RETURN = Symbol('ACTION_TYPE_RETURN');
 	var SHIFT_RETURN = exports.SHIFT_RETURN = Symbol('ACTION_TYPE_SHIFT_RETURN');
-	var TOGGLE_BOLD = exports.TOGGLE_BOLD = Symbol('ACTION_TYPE_TOGGLE_BOLD');
-	var TOGGLE_ITALIC = exports.TOGGLE_ITALIC = Symbol('ACTION_TYPE_TOGGLE_ITALIC');
+	var TOGGLE_INLINE = exports.TOGGLE_INLINE = Symbol('ACTION_TYPE_TOGGLE_INLINE');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
 /***/ },
@@ -1614,8 +1615,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Markups = __webpack_require__(5);
-	
 	var _Editor = __webpack_require__(18);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
@@ -1665,17 +1664,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        case Actions.SHIFT_RETURN:
 	
 	            break;
-	        case Actions.TOGGLE_BOLD:
+	        case Actions.TOGGLE_INLINE:
 	            {
 	                var _nextState = null;
 	
 	                // TODO: if collapsed, simply change state to disable/enable active
 	                // markup, any further set selections will reset it as appropriate
 	
-	                if (prevState.isTagActive(_Markups.STRONG)) {
-	                    _nextState = _Editor2.default.removeInlineMarkup(prevState, _Markups.STRONG, action.range.from, action.range.to);
+	                if (prevState.isTagActive(action.tag)) {
+	                    _nextState = _Editor2.default.removeInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
 	                } else {
-	                    _nextState = _Editor2.default.addInlineMarkup(prevState, _Markups.STRONG, action.range.from, action.range.to);
+	                    _nextState = _Editor2.default.addInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
 	                }
 	
 	                _Editor2.default.setActiveMarkups(_nextState, action.range);
@@ -1766,6 +1765,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                totalTrimmed = Editor.trimWhitespace(nextState, range.from);
 	            } else if (content === '') {
 	                nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
+	                nextState.markups = Editor.joinMarkups(nextState.markups, range.to);
 	            }
 	
 	            nextState.selection.from = nextState.selection.to = range.from + totalAdded + totalTrimmed;
@@ -1912,7 +1912,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        // Markup should be preserved is a) is block element,
 	                        // b) is inline and inserting
 	                        newMarkup[2] = markupStart + totalAdded;
-	                    } else if (!markup.isBlock) {
+	                    } else if (!markup.isBlock || markupStart > fromIndex) {
 	                        removeMarkup = true;
 	                    }
 	                } else if (markupStart <= fromIndex && markupEnd >= toIndex) {
@@ -1949,11 +1949,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                        newMarkup[2] = fromIndex + totalAdded;
 	                    } else {
-	                        var nextBlockMarkup = Editor.getNextBlockMarkup(markups, i);
+	                        var closingBlockMarkup = Editor.getClosingBlockMarkup(markups, i, toIndex);
 	
-	                        // Extend block markup to end of next block +/- adjustment
+	                        // Extend block markup to end of closing block +/- adjustment
 	
-	                        newMarkup[2] = nextBlockMarkup[2] + adjustment;
+	                        newMarkup[2] = closingBlockMarkup[2] + adjustment;
 	                    }
 	                }
 	
@@ -1966,24 +1966,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	
 	        /**
-	         * Returns the next block markup after the markup at the
+	         * Returns the closing block markup after the markup at the
 	         * provided index.
 	         *
 	         * @static
-	         * @param {Array.<Markup>} markups
-	         * @param {number} index
+	         * @param  {Array.<Markup>} markups
+	         * @param  {number} markupIndex
+	         * @param  {number} toIndex
 	         * @return {(Markup|null)}
 	         */
 	
 	    }, {
-	        key: 'getNextBlockMarkup',
-	        value: function getNextBlockMarkup(markups, index) {
-	            for (var i = index + 1, markup; markup = markups[i]; i++) {
+	        key: 'getClosingBlockMarkup',
+	        value: function getClosingBlockMarkup(markups, markupIndex, toIndex) {
+	            for (var i = markupIndex + 1, markup; markup = markups[i]; i++) {
 	                if (!(markup instanceof _Markup2.default)) {
 	                    markup = new _Markup2.default(markup);
 	                }
 	
-	                if (markup.isBlock) {
+	                if (markup.isBlock && markup.start <= toIndex && markup.end >= toIndex) {
 	                    return markup;
 	                }
 	            }
@@ -2301,32 +2302,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	module.exports = {
-		"text": "Lorem ipsum dolor sit amet.\nConsectetur adipiscing\nfoo",
+		"text": "Lorem ipsum dolor.\n\nSit amet.",
 		"markups": [
 			[
 				"p",
 				0,
-				27
+				18
 			],
 			[
-				"em",
-				6,
-				17
+				"p",
+				19,
+				19
 			],
 			[
-				"strong",
-				12,
-				17
-			],
-			[
-				"h2",
-				28,
-				50
-			],
-			[
-				"h3",
-				51,
-				54
+				"p",
+				20,
+				29
 			]
 		]
 	};

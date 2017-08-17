@@ -549,4 +549,40 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[0], ['p', 0, 18]);
         assert.deepEqual(newState.markups[1], ['p', 19, 28]);
     });
+
+    it('should remove a range enveloping multiple blocks including empty lines', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.\n\nSit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['p', 19, 19],
+                ['p', 20, 29]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 12, to: 24}, '');
+
+        assert.equal(newState.text, 'Lorem ipsum amet.');
+        assert.equal(newState.markups.length, 1);
+        assert.deepEqual(newState.markups[0], ['p', 0, 17]);
+    });
+
+    it('should remove all blocks in a selection', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.\n\nSit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['p', 19, 19],
+                ['p', 20, 29]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 0, to: 29}, '');
+
+        assert.equal(newState.text, '');
+        assert.equal(newState.markups.length, 1);
+        assert.deepEqual(newState.markups[0], ['p', 0, 0]);
+    });
+
+    // TODO: test - apply inline markups across multiple blocks (works but selection is fucked afterwards)
 });
