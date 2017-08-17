@@ -73,8 +73,8 @@ class Editor {
             formattedState.envelopedBlockMarkups.length = 0;
 
             enveloped.forEach((markup, i) => {
-                const formatFrom = i === 0 ? from : markup.start;
-                const formatTo   = i === enveloped.length - 1 ? to : markup.end;
+                const formatFrom = i === 0 ? from : markup[1];
+                const formatTo   = i === enveloped.length - 1 ? to : markup[2];
 
                 formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
             });

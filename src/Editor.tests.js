@@ -1,8 +1,9 @@
 /* eslint-disable no-magic-numbers */
 
-import chai         from 'chai';
-import deepEqual    from 'chai-shallow-deep-equal';
-import Editor       from './Editor';
+import chai             from 'chai';
+import deepEqual        from 'chai-shallow-deep-equal';
+import Editor           from './Editor';
+import {DIRECTION_LTR}  from './constants/Common';
 
 chai.use(deepEqual);
 
@@ -435,6 +436,32 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[2], ['strong', 19, 22]);
     });
 
+    it('should add an inline markups accross multiple blocks', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.\n\nSit amet.',
+            markups: [
+                ['p', 0, 18],
+                ['p', 19, 19],
+                ['p', 20, 29]
+            ],
+            selection: {from: 0, to: 29, direction: DIRECTION_LTR}
+        };
+
+        state.envelopedBlockMarkups = state.markups;
+
+        const newState = Editor.addInlineMarkup(state, 'em', 0, 29);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 6);
+        assert.deepEqual(newState.markups[0], ['p', 0, 18]);
+        assert.deepEqual(newState.markups[1], ['em', 0, 18]);
+        assert.deepEqual(newState.markups[2], ['p', 19, 19]);
+        assert.deepEqual(newState.markups[3], ['em', 19, 19]);
+        assert.deepEqual(newState.markups[4], ['p', 20, 29]);
+        assert.deepEqual(newState.markups[5], ['em', 20, 29]);
+        assert.deepEqual(newState.selection, {from: 0, to: 29, direction: DIRECTION_LTR});
+    });
+
     it('should merge like inline markups when adjacent', () => {
         const state = {
             text: 'Lorem ipsum dolor. Sit amet.',
@@ -583,6 +610,4 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 1);
         assert.deepEqual(newState.markups[0], ['p', 0, 0]);
     });
-
-    // TODO: test - apply inline markups across multiple blocks (works but selection is fucked afterwards)
 });

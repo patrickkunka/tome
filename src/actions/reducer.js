@@ -54,6 +54,8 @@ export default (prevState, action) => {
 
             Editor.setActiveMarkups(nextState, action.range);
 
+            console.log(nextState);
+
             return nextState;
         }
         default:

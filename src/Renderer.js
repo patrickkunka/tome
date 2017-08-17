@@ -1,3 +1,5 @@
+import {TEXT} from './constants/Markups';
+
 class Renderer {
     static renderNodes(nodes, parent=null) {
         return nodes.map(node => Renderer.renderNode(node, parent)).join('');
@@ -6,7 +8,7 @@ class Renderer {
     static renderNode(node, parent) {
         let html = '';
 
-        if (node.tag) {
+        if (node.tag !== TEXT) {
             html += '<' + node.tag + '>';
         }
 
@@ -22,7 +24,7 @@ class Renderer {
             html += '&#8203;';
         }
 
-        if (node.tag) {
+        if (node.tag !== TEXT) {
             html += '</' + node.tag + '>';
         }
 

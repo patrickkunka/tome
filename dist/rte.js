@@ -891,6 +891,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var H5 = exports.H5 = 'h5';
 	var H6 = exports.H6 = 'h6';
 	var P = exports.P = 'p';
+	var TEXT = exports.TEXT = '#text';
 	
 	var BLOCK_BREAK = exports.BLOCK_BREAK = '\n\n';
 	var LINE_BREAK = exports.LINE_BREAK = '\n';
@@ -904,7 +905,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -913,6 +914,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Markups = __webpack_require__(5);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -934,12 +937,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(Node, [{
 	        key: 'isText',
 	        get: function get() {
-	            return this.tag === '';
+	            return this.tag === _Markups.TEXT;
 	        }
 	    }, {
 	        key: 'isBlock',
 	        get: function get() {
-	            return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].indexOf(this.tag);
+	            return [_Markups.H1, _Markups.H2, _Markups.H3, _Markups.H4, _Markups.H5, _Markups.H6, _Markups.P].indexOf(this.tag);
 	        }
 	    }, {
 	        key: 'isInline',
@@ -1401,21 +1404,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.start = 0;
 	            node.end = text.length;
 	
+	            // Iterate through characters in text string
+	
 	            for (var i = 0; i <= text.length; i++) {
 	                var requiresNewLeaf = false;
 	
 	                for (var j = 0, markup; markup = markups[j]; j++) {
 	                    var closedNode = null;
 	
+	                    // If markup does not end at index, or collapsed
+	                    // markup, continue
+	
 	                    if (markup[2] !== i || markup[1] === markup[2]) continue;
+	
+	                    // If is at leaf, and last open node is a text node
 	
 	                    if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
 	                        var textNode = openNodes.pop();
+	
+	                        // Close leaf node
 	
 	                        TreeBuilder.closeNode(textNode, i, text);
 	
 	                        isAtLeaf = false;
 	                    }
+	
+	                    // Close last open node
 	
 	                    requiresNewLeaf = true;
 	
@@ -1423,15 +1437,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    TreeBuilder.closeNode(closedNode, i);
 	
+	                    // Go up
+	
 	                    node = closedNode.parent;
 	                }
 	
 	                for (var _j = 0, _markup; _markup = markups[_j]; _j++) {
 	                    var newNode = null;
 	
+	                    // If markup does not open at index, continue
+	
 	                    if (_markup[1] !== i) continue;
 	
 	                    if (isAtLeaf) {
+	                        // If at leaf, close leaf
+	
 	                        var _textNode = openNodes.pop();
 	
 	                        TreeBuilder.closeNode(_textNode, i, text);
@@ -1439,13 +1459,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        isAtLeaf = false;
 	                    }
 	
+	                    // Open node at index
+	
 	                    newNode = TreeBuilder.getOpenNode(_markup[0], i, node);
+	
+	                    // Push into open tracking array
 	
 	                    openNodes.push(newNode);
 	
+	                    // Push into parent's children
+	
 	                    node.childNodes.push(newNode);
 	
+	                    // Make new node current node
+	
 	                    node = newNode;
+	
+	                    // Flag leaf required
 	
 	                    requiresNewLeaf = true;
 	
@@ -1456,28 +1486,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	
-	                if (requiresNewLeaf) {
-	                    var leaf = TreeBuilder.getOpenNode('', i, node);
+	                if (!requiresNewLeaf) continue;
 	
-	                    if (node.start === node.end) {
-	                        // Empty leaf in empty node, close immediately
+	                if (node.start === node.end) {
+	                    // Empty leaf in empty node, close immediately
 	
-	                        node.childNodes.push(leaf);
+	                    var leaf = TreeBuilder.getOpenNode('#text', i, node);
 	
-	                        TreeBuilder.closeNode(leaf, i);
+	                    node.childNodes.push(leaf);
+	
+	                    TreeBuilder.closeNode(leaf, i);
+	
+	                    while (node.parent && node.start === node.end) {
+	                        // While in empty node, go up
 	
 	                        node = node.parent;
 	
 	                        openNodes.pop();
-	                    } else if (i < text.length) {
-	                        // Should open leaf node, but not at end of string
-	
-	                        node.childNodes.push(leaf);
-	
-	                        openNodes.push(leaf);
-	
-	                        isAtLeaf = true;
 	                    }
+	                }
+	
+	                if (i < text.length) {
+	                    // Should open leaf node, but yet not at end of string
+	
+	                    var _leaf = TreeBuilder.getOpenNode('#text', i, node);
+	
+	                    node.childNodes.push(_leaf);
+	
+	                    openNodes.push(_leaf);
+	
+	                    isAtLeaf = true;
 	
 	                    requiresNewLeaf = false;
 	                }
@@ -1533,7 +1571,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 16 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1542,6 +1580,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Markups = __webpack_require__(5);
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1564,7 +1604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function renderNode(node, parent) {
 	            var html = '';
 	
-	            if (node.tag) {
+	            if (node.tag !== _Markups.TEXT) {
 	                html += '<' + node.tag + '>';
 	            }
 	
@@ -1580,7 +1620,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                html += '&#8203;';
 	            }
 	
-	            if (node.tag) {
+	            if (node.tag !== _Markups.TEXT) {
 	                html += '</' + node.tag + '>';
 	            }
 	
@@ -1678,6 +1718,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	
 	                _Editor2.default.setActiveMarkups(_nextState, action.range);
+	
+	                console.log(_nextState);
 	
 	                return _nextState;
 	            }
@@ -1791,8 +1833,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    formattedState.envelopedBlockMarkups.length = 0;
 	
 	                    enveloped.forEach(function (markup, i) {
-	                        var formatFrom = i === 0 ? from : markup.start;
-	                        var formatTo = i === enveloped.length - 1 ? to : markup.end;
+	                        var formatFrom = i === 0 ? from : markup[1];
+	                        var formatTo = i === enveloped.length - 1 ? to : markup[2];
 	
 	                        formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
 	                    });

@@ -1,3 +1,5 @@
+import {TEXT, H1, H2, H3, H4, H5, H6, P} from '../constants/Markups';
+
 class Node {
     constructor() {
         this.childNodes = [];
@@ -12,11 +14,11 @@ class Node {
     }
 
     get isText() {
-        return this.tag === '';
+        return this.tag === TEXT;
     }
 
     get isBlock() {
-        return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'].indexOf(this.tag);
+        return [H1, H2, H3, H4, H5, H6, P].indexOf(this.tag);
     }
 
     get isInline() {
