@@ -63,7 +63,7 @@ class Editor {
         const nextState = Util.extend(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
-        let insertIndex = -1;
+        let insertIndex  = -1;
 
         if (enveloped.length > 1) {
             let formattedState = nextState;
@@ -80,6 +80,18 @@ class Editor {
             });
 
             return formattedState;
+        }
+
+        // Single block markup
+
+        const markup = enveloped[0];
+
+        if (markup) {
+            // ensure range does not extend over breaks
+            // around markups
+
+            from = from < markup[1] ? markup[1] : from;
+            to = to > markup[2] ? markup[2] : to;
         }
 
         Editor.ingestMarkups(nextState.markups, tag, from, to);
@@ -215,7 +227,8 @@ class Editor {
                 } else {
                     const closingBlockMarkup = Editor.getClosingBlockMarkup(markups, i, toIndex);
 
-                    // Extend block markup to end of closing block +/- adjustment
+                    // Extend block markup to end of closing block +/-
+                    // adjustment
 
                     newMarkup[2] = closingBlockMarkup[2] + adjustment;
                 }
@@ -535,8 +548,17 @@ class Editor {
             // completely enveloped by the selection.
 
             if (
-                (markup.start <= range.from && markup.end >= range.from) ||
-                (markup.start <= range.to && markup.end >= range.from)
+                // overlapping end
+
+                (range.from >= markup.start && range.from < markup.end) ||
+
+                // overlapping start
+
+                (range.to > markup.start && range.to <= markup.end) ||
+
+                // enveloped
+
+                (range.from <= markup.start && range.to >= markup.end)
             ) {
                 state.envelopedBlockMarkups.push(markup);
             }

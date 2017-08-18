@@ -190,13 +190,18 @@ class RichTextEditor {
         let rangeFrom = -1;
         let rangeTo = -1;
 
-
         if (!selection.isCollapsed) {
             extentPath = this.getPathFromNode(selection.extentNode);
             virtualExtentNode = this.getNodeByPath(extentPath, this.root);
         }
 
-        isRtl = extentPath < anchorPath || !(extentPath > anchorPath) && selection.anchorOffset > selection.extentOffset;
+        // If the anchor is greater than the extent, or both paths are equal
+        // but the anchor offset is greater than the extent offset, the range
+        // should be considered "RTL"
+
+        isRtl =
+            Util.isGreaterPath(anchorPath, extentPath) ||
+            (!Util.isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
 
         from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
         from.offset = to.offset = isRtl ? selection.extentOffset : selection.anchorOffset;

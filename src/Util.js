@@ -259,6 +259,34 @@ class Util {
             .replace(/^-/, '')
             .toLowerCase();
     }
+
+    /**
+     * Compares two arrays of indices, returning `true` if `pathOne` points
+     * to a node at a greater position in the tree.
+     *
+     * @param  {Array.<number>} pathOne
+     * @param  {Array.<number>} pathTwo
+     * @return {boolean}
+     */
+
+    static isGreaterPath(pathOne, pathTwo) {
+        let index    = 0;
+        let valueOne = pathOne[index];
+        let valueTwo = pathTwo[index];
+
+        while (typeof valueOne === 'number' && typeof valueTwo === 'number') {
+            if (valueOne > valueTwo) {
+                return true;
+            }
+
+            index++;
+
+            valueOne = pathOne[index];
+            valueTwo = pathTwo[index];
+        }
+
+        return false;
+    }
 }
 
 export default Util;
