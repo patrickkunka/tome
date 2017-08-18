@@ -483,6 +483,35 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[2], ['strong', 19, 29]);
     });
 
+    it('should not add inline markups over multiple breaks between block markups', () => {
+        const state = {
+            text: 'awd\n\nawd\nawd',
+            markups: [
+                ['p', 0, 3],
+                ['p', 4, 4],
+                ['p', 5, 8],
+                ['p', 9, 12]
+            ]
+        };
+
+        state.envelopedBlockMarkups = state.markups.slice(1, 4);
+
+        const newState = Editor.addInlineMarkup(state, 'strong', 3, 12);
+
+        assert.equal(newState.text, 'awd\n\nawd\nawd');
+
+        console.log(newState.markups);
+
+        assert.equal(newState.markups.length, 7);
+        assert.deepEqual(newState.markups[0], ['p', 0, 3]);
+        assert.deepEqual(newState.markups[1], ['p', 4, 4]);
+        assert.deepEqual(newState.markups[2], ['strong', 4, 4]);
+        assert.deepEqual(newState.markups[3], ['p', 5, 8]);
+        assert.deepEqual(newState.markups[4], ['strong', 5, 8]);
+        assert.deepEqual(newState.markups[5], ['p', 9, 12]);
+        assert.deepEqual(newState.markups[6], ['strong', 9, 12]);
+    });
+
     it('should merge like inline markups when adjacent', () => {
         const state = {
             text: 'Lorem ipsum dolor. Sit amet.',
