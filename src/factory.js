@@ -1,10 +1,7 @@
 import RichTextEditor from './RichTextEditor';
-import data           from '../tests/data.json';
 
-function factory(el) {
-    const richTextEditor = new RichTextEditor();
-
-    richTextEditor.attach(el, data);
+function factory(el, config={}) {
+    const richTextEditor = new RichTextEditor(el, config);
 
     return richTextEditor;
 }

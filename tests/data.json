@@ -1,8 +1,0 @@
-{
-    "text": "Lorem ipsum dolor.\n\nSit amet.",
-    "markups": [
-        ["p", 0, 18],
-        ["p", 19, 19],
-        ["p", 20, 29]
-    ]
-}

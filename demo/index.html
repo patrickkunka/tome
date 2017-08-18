@@ -1,14 +1,65 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style>
+            .editor {
+                width: 30%;
+                min-height: 400px;
+                display: inline-block;
+                vertical-align: top;
+                background: white;
+            }
+
+            .editor:focus {
+                outline: none;
+            }
+
+            .pre {
+                width: 30%;
+                height: auto;
+                vertical-align: top;
+                display: inline-block;
+            }
+
+            .plaintext {
+                display: inline-block;
+                vertical-align: top;
+                width:  30%;
+                min-height: 400px;
+            }
+        </style>
         <title>RTE Demo</title>
     </head>
     <body style="background: #eee;">
-        <div class="editor" contenteditable="true" style="min-height: 400px; background: #fff;">
+        <div class="editor" contenteditable="true">
         </div>
+        <textarea class="plaintext"></textarea>
+        <pre class="pre"></pre>
     </body>
     <script src="../dist/rte.js"></script>
     <script>
-        const editor = rte(document.querySelector('.editor'));
+        const plainText = document.querySelector('textarea');
+        const pre       = document.querySelector('pre');
+
+        const editor = rte(document.querySelector('.editor'), {
+            value: {
+                text: 'Lorem ipsum dolor.\n\nSit amet.',
+                markups: [
+                    ['p', 0, 18],
+                    ['p', 19, 19],
+                    ['p', 20, 29]
+                ]
+            },
+            callbacks: {
+                onStateChange: handleStateChange
+            }
+        });
+
+        function handleStateChange(state, action) {
+            plainText.value = state.text;
+            pre.innerHTML = JSON.stringify(state.markups);
+
+            console.log(action);
+        }
     </script>
 </html>

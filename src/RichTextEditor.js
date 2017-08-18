@@ -6,13 +6,16 @@ import Caret        from './models/Caret';
 import Range        from './models/Range';
 import State        from './models/State';
 import Action       from './models/Action';
+import ConfigRoot   from './config/ConfigRoot';
 import EventHandler from './EventHandler';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 import reducer      from './actions/reducer';
 
 import {
-    SET_SELECTION
+    SET_SELECTION,
+    UNDO,
+    REDO
 } from './constants/Actions';
 
 import {
@@ -21,9 +24,10 @@ import {
 } from './constants/Common';
 
 class RichTextEditor {
-    constructor() {
+    constructor(el, config) {
         this.dom            = new Dom();
         this.eventHandler   = new EventHandler();
+        this.config         = new ConfigRoot();
         this.root           = null;
         this.history        = [];
         this.historyIndex   = -1;
@@ -35,12 +39,20 @@ class RichTextEditor {
                 }
             }
         });
+
+        this.init(el, config);
     }
 
-    attach(el, initialState=new State()) {
+    init(el, config) {
+        Util.extend(this.config, config, true);
+
+        if (!el.contentEditable) {
+            el.contentEditable = true;
+        }
+
         this.dom.root = el;
 
-        this.history.push(this.buildInitialState(initialState));
+        this.history.push(this.buildInitialState(this.config.value));
 
         this.historyIndex++;
 
@@ -77,25 +89,33 @@ class RichTextEditor {
     undo() {
         if (this.historyIndex === 1) return;
 
-        console.log('UNDO');
+        const fn = this.config.callbacks.onStateChange;
 
         this.historyIndex--;
 
         this.render();
 
         this.positionCaret(this.state.selection);
+
+        if (typeof fn === 'function') {
+            fn(this.state, UNDO);
+        }
     }
 
     redo() {
         if (this.history.length - 1 === this.historyIndex) return;
 
-        console.log('REDO');
+        const fn = this.config.callbacks.onStateChange;
 
         this.historyIndex++;
 
         this.render();
 
         this.positionCaret(this.state.selection);
+
+        if (typeof fn === 'function') {
+            fn(this.state, REDO);
+        }
     }
 
     /**
@@ -106,11 +126,14 @@ class RichTextEditor {
 
     applyAction(actionRaw) {
         const action = Object.assign(new Action(), actionRaw);
+        const fn = this.config.callbacks.onStateChange;
 
         if (action.type === SET_SELECTION) {
             // Detect new selection from browser API
 
             const selection = window.getSelection();
+
+            if (!selection.anchorNode || !this.dom.root.contains(selection.anchorNode)) return;
 
             action.range = this.getRangeFromSelection(selection);
         } else {
@@ -127,10 +150,13 @@ class RichTextEditor {
 
         if (nextState === this.state) return;
 
+        Object.freeze(nextState);
+        Object.freeze(nextState.markups);
+        Object.freeze(nextState.activeInlineMarkups);
+        Object.freeze(nextState.envelopedBlockMarkups);
+
         // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
         // char vs moving a cursor
-
-        console.log(action.type);
 
         // Chop off any divergent future state
 
@@ -142,13 +168,15 @@ class RichTextEditor {
 
         this.historyIndex++;
 
-        if (action.type === SET_SELECTION) return;
+        if (action.type !== SET_SELECTION) {
+            this.render();
 
-        this.render();
+            this.positionCaret(this.state.selection);
+        }
 
-        this.positionCaret(this.state.selection);
-
-        // console.log(JSON.stringify(this.state.markups));
+        if (typeof fn === 'function') {
+            fn(this.state, action.type);
+        }
     }
 
     getPathFromNode(node) {

@@ -500,8 +500,6 @@ describe('Editor', () => {
 
         assert.equal(newState.text, 'awd\n\nawd\nawd');
 
-        console.log(newState.markups);
-
         assert.equal(newState.markups.length, 7);
         assert.deepEqual(newState.markups[0], ['p', 0, 3]);
         assert.deepEqual(newState.markups[1], ['p', 4, 4]);

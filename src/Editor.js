@@ -59,7 +59,7 @@ class Editor {
         return nextState;
     }
 
-    static addInlineMarkup(prevState, tag, from, to) {
+    static addInlineMarkup(prevState, tag, from, to, markup=null) {
         const nextState = Util.extend(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
@@ -76,7 +76,7 @@ class Editor {
                 const formatFrom = i === 0 ? from : markup[1];
                 const formatTo   = i === enveloped.length - 1 ? to : markup[2];
 
-                formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo);
+                formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo, markup);
             });
 
             return formattedState;
@@ -84,7 +84,7 @@ class Editor {
 
         // Single block markup
 
-        const markup = enveloped[0];
+        markup = markup || enveloped[0];
 
         if (markup) {
             // ensure range does not extend over breaks
@@ -93,6 +93,8 @@ class Editor {
             from = from < markup[1] ? markup[1] : from;
             to = to > markup[2] ? markup[2] : to;
         }
+
+        // Remove all existing inline markups of type within range
 
         Editor.ingestMarkups(nextState.markups, tag, from, to);
 

@@ -5,5 +5,7 @@ export const DELETE             = Symbol('ACTION_TYPE_DELETE');
 export const RETURN             = Symbol('ACTION_TYPE_RETURN');
 export const SHIFT_RETURN       = Symbol('ACTION_TYPE_SHIFT_RETURN');
 export const TOGGLE_INLINE      = Symbol('ACTION_TYPE_TOGGLE_INLINE');
+export const UNDO               = Symbol('ACTION_TYPE_UNDO');
+export const REDO               = Symbol('ACTION_TYPE_REDO');
 export const NONE               = Symbol('ACTION_TYPE_NONE');
 
