@@ -211,7 +211,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'undo',
 	        value: function undo() {
-	            if (this.historyIndex === 0) return;
+	            if (this.historyIndex === 1) return;
+	
+	            console.log('UNDO');
 	
 	            this.historyIndex--;
 	
@@ -223,6 +225,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'redo',
 	        value: function redo() {
 	            if (this.history.length - 1 === this.historyIndex) return;
+	
+	            console.log('REDO');
 	
 	            this.historyIndex++;
 	
@@ -267,13 +271,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            console.log(action.type);
 	
-	            this.history.push(nextState);
-	
-	            this.historyIndex++;
-	
 	            // Chop off any divergent future state
 	
 	            this.history.length = this.historyIndex + 1;
+	
+	            // Push in new state
+	
+	            this.history.push(nextState);
+	
+	            this.historyIndex++;
 	
 	            if (action.type === _Actions.SET_SELECTION) return;
 	
