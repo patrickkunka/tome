@@ -360,6 +360,9 @@ class Editor {
 
                 markups.splice(i + 1, 0, newMarkup);
 
+                // TODO: insert index must account for other inline
+                // markups that may be present (needs failing test)
+
                 i++;
             }
         }
