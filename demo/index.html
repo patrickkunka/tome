@@ -43,11 +43,11 @@
 
         const editor = rte(document.querySelector('.editor'), {
             value: {
-                text: 'Lorem ipsum dolor.\n\nSit amet.',
+                text: 'Lorem ipsum dolor.',
                 markups: [
                     ['p', 0, 18],
-                    ['p', 19, 19],
-                    ['p', 20, 29]
+                    ['strong', 6, 11],
+                    ['em', 8, 14]
                 ]
             },
             callbacks: {

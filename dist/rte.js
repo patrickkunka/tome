@@ -1462,6 +1462,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        value: function buildTreeFromRoot(root, text, markups) {
 	            var openNodes = [];
+	            var openMarkups = [];
 	
 	            var isAtLeaf = false;
 	            var node = root;
@@ -1475,6 +1476,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var requiresNewLeaf = false;
 	
 	                for (var j = 0, markup; markup = markups[j]; j++) {
+	                    var closedMarkup = null;
 	                    var closedNode = null;
 	
 	                    // If markup does not end at index, or collapsed
@@ -1485,9 +1487,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    // If is at leaf, and last open node is a text node
 	
 	                    if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
-	                        var textNode = openNodes.pop();
-	
 	                        // Close leaf node
+	
+	                        var textNode = openNodes.pop();
 	
 	                        TreeBuilder.closeNode(textNode, i, text);
 	
@@ -1498,21 +1500,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                    requiresNewLeaf = true;
 	
-	                    closedNode = openNodes.pop();
+	                    while (closedNode = openNodes.pop()) {
+	                        closedMarkup = openMarkups.pop();
 	
-	                    TreeBuilder.closeNode(closedNode, i);
+	                        TreeBuilder.closeNode(closedNode, i);
 	
-	                    // Go up
+	                        // Go up until node and all child nodes have been closed
 	
-	                    node = closedNode.parent;
+	                        node = closedNode.parent;
+	
+	                        if (closedMarkup === markup) break;
+	                    }
 	                }
 	
 	                for (var _j = 0, _markup; _markup = markups[_j]; _j++) {
 	                    var newNode = null;
 	
-	                    // If markup does not open at index, continue
+	                    // If markup does not envelop index, is collapsed at index,
+	                    // or is already open, continue
 	
-	                    if (_markup[1] !== i) continue;
+	                    if (_markup[1] > i || _markup[2] <= i && _markup[2] !== _markup[1] || openMarkups.indexOf(_markup) > -1) continue;
 	
 	                    if (isAtLeaf) {
 	                        // If at leaf, close leaf
@@ -1531,6 +1538,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    // Push into open tracking array
 	
 	                    openNodes.push(newNode);
+	                    openMarkups.push(_markup);
 	
 	                    // Push into parent's children
 	
@@ -1568,6 +1576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        node = node.parent;
 	
 	                        openNodes.pop();
+	                        openMarkups.pop();
 	                    }
 	                }
 	

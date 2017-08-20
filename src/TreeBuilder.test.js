@@ -96,4 +96,25 @@ describe('TreeBuilder', () => {
             assert.equal(leafNode.end, emNode.end);
         }
     });
+
+    it('should correctly split overlapping inline markups', () => {
+        const text = 'Lorem ipsum dolor.';
+        const markups = [
+            ['p', 0, 18],
+            ['strong', 6, 11],
+            ['em', 8, 14]
+        ];
+
+        // <p>Lorem <strong>ip<em>sum</em></strong><em> do</em>lor</p>
+
+        const root = new Node();
+
+        TreeBuilder.buildTreeFromRoot(root, text, markups);
+
+        assert.equal(root.childNodes.length, 1);
+
+        const pNode = root.childNodes[0];
+
+        assert.equal(pNode.childNodes.length, 4);
+    });
 });

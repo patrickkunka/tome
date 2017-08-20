@@ -10,6 +10,7 @@ class TreeBuilder {
 
     static buildTreeFromRoot(root, text, markups) {
         const openNodes = [];
+        const openMarkups = [];
 
         let isAtLeaf = false;
         let node = root;
@@ -23,6 +24,7 @@ class TreeBuilder {
             let requiresNewLeaf = false;
 
             for (let j = 0, markup; (markup = markups[j]); j++) {
+                let closedMarkup = null;
                 let closedNode = null;
 
                 // If markup does not end at index, or collapsed
@@ -33,9 +35,9 @@ class TreeBuilder {
                 // If is at leaf, and last open node is a text node
 
                 if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
-                    const textNode = openNodes.pop();
-
                     // Close leaf node
+
+                    const textNode = openNodes.pop();
 
                     TreeBuilder.closeNode(textNode, i, text);
 
@@ -46,21 +48,26 @@ class TreeBuilder {
 
                 requiresNewLeaf = true;
 
-                closedNode = openNodes.pop();
+                while ((closedNode = openNodes.pop())) {
+                    closedMarkup = openMarkups.pop();
 
-                TreeBuilder.closeNode(closedNode, i);
+                    TreeBuilder.closeNode(closedNode, i);
 
-                // Go up
+                    // Go up until node and all child nodes have been closed
 
-                node = closedNode.parent;
+                    node = closedNode.parent;
+
+                    if (closedMarkup === markup) break;
+                }
             }
 
             for (let j = 0, markup; (markup = markups[j]); j++) {
                 let newNode = null;
 
-                // If markup does not open at index, continue
+                // If markup does not envelop index, is collapsed at index,
+                // or is already open, continue
 
-                if (markup[1] !== i) continue;
+                if (markup[1] > i || (markup[2] <= i && markup[2] !== markup[1]) || openMarkups.indexOf(markup) > -1) continue;
 
                 if (isAtLeaf) {
                     // If at leaf, close leaf
@@ -79,6 +86,7 @@ class TreeBuilder {
                 // Push into open tracking array
 
                 openNodes.push(newNode);
+                openMarkups.push(markup);
 
                 // Push into parent's children
 
@@ -116,6 +124,7 @@ class TreeBuilder {
                     node = node.parent;
 
                     openNodes.pop();
+                    openMarkups.pop();
                 }
             }
 
