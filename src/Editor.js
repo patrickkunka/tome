@@ -2,7 +2,7 @@ import State        from './models/State';
 import Markup       from './models/Markup';
 import Util         from './Util';
 
-import {LINE_BREAK} from './constants/Markups';
+import {LINE_BREAK, P} from './constants/Markups';
 
 /**
  * A static class of utility functions for performing edits to
@@ -346,24 +346,33 @@ class Editor {
      */
 
     static splitMarkups(markups, index) {
-        for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [markupTag, markupStart, markupEnd] = markup;
+        for (let i = 0; i < markups.length; i++) {
+            const markupRaw = markups[i];
+            const markup = new Markup(markupRaw);
 
             let newMarkup = null;
 
-            if (markupStart <= index && markupEnd >= index) {
-                const newTag = markup.isBlock && markupEnd === index + 1 ? 'p' : markupTag;
+            if (markup.start <= index && markup.end >= index) {
+                const newStartIndex = index + 1;
+                const newTag = markup.isBlock && markup.end === newStartIndex ? P : markup.tag;
 
-                markup[2] = index;
+                let j = i + 1;
 
-                newMarkup = new Markup([newTag, index + 1, markupEnd]);
+                markupRaw[2] = index;
 
-                markups.splice(i + 1, 0, newMarkup);
+                newMarkup = new Markup([newTag, newStartIndex, markup.end]);
 
-                // TODO: insert index must account for other inline
-                // markups that may be present (needs failing test)
+                for (; j < markups.length; j++) {
+                    const markup = new Markup(markups[j]);
 
-                i++;
+                    if (markup.start > newStartIndex) {
+                        break;
+                    }
+                }
+
+                markups.splice(j, 0, newMarkup);
+
+                i = j;
             }
         }
 

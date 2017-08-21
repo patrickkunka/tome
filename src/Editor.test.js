@@ -359,6 +359,26 @@ describe('Editor', () => {
         assert.equal(newState.selection.from, 34);
     });
 
+    it('should create a new empty block markup when a block is split at its end', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                ['p', 0, 18],
+                ['strong', 6, 11],
+                ['em', 8, 14]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 18, to: 18}, '\n');
+
+        assert.equal(newState.text, 'Lorem ipsum dolor.\n');
+        assert.equal(newState.markups.length, 4);
+        assert.deepEqual(newState.markups[0], ['p', 0, 18]);
+        assert.deepEqual(newState.markups[1], ['strong', 6, 11]);
+        assert.deepEqual(newState.markups[2], ['em', 8, 14]);
+        assert.deepEqual(newState.markups[3], ['p', 19, 19]);
+    });
+
     it('should join two block markups into one block markups on deletion of line break', () => {
         const state = {
             text: 'Lorem ipsum dolor.\nSit amet.',
