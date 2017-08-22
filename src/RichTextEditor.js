@@ -338,7 +338,7 @@ class RichTextEditor {
     static buildModelFromState(state) {
         const root = new Node();
 
-        TreeBuilder.buildTreeFromRoot(root, state.text, state.markups);
+        TreeBuilder.build(root, state.text, state.markups);
 
         return root;
     }

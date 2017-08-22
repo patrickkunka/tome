@@ -118,5 +118,12 @@ describe('TreeBuilder', () => {
         const pNode = root.childNodes[0];
 
         assert.equal(pNode.childNodes.length, 4);
+        assert.equal(pNode.childNodes[0].text, 'Lorem ');
+        assert.equal(pNode.childNodes[1].childNodes[0].text, 'ip');
+        assert.equal(pNode.childNodes[1].childNodes[1].childNodes[0].text, 'sum');
+        assert.equal(pNode.childNodes[2].tag, 'em');
+        assert.equal(pNode.childNodes[2].childNodes.length, 1);
+        assert.equal(pNode.childNodes[2].childNodes[0].text, ' do');
+        assert.equal(pNode.childNodes[3].text, 'lor.');
     });
 });

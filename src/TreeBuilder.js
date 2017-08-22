@@ -130,9 +130,8 @@ class TreeBuilder {
                 hasOpened = true;
             }
 
-            if (i !== text.length && hasClosed && !hasOpened) {
-                // A node has been closed, nothing has been opened, and not at
-                // end of string, create new text node
+            if ((i !== text.length && hasClosed && !hasOpened) || (hasOpened && !textNode)) {
+                // Node closed and nothing to be opened, or node (re)opened
 
                 textNode = TreeBuilder.createTextNode(node, i);
 
