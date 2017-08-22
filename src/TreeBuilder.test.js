@@ -18,7 +18,7 @@ describe('TreeBuilder', () => {
 
         const root = new Node();
 
-        TreeBuilder.buildTreeFromRoot(root, text, markups);
+        TreeBuilder.build(root, text, markups);
 
         assert.equal(root.childNodes.length, 1);
         assert.equal(root.childNodes[0].tag, 'p');
@@ -39,7 +39,7 @@ describe('TreeBuilder', () => {
 
         const root = new Node();
 
-        TreeBuilder.buildTreeFromRoot(root, text, markups);
+        TreeBuilder.build(root, text, markups);
 
         assert.equal(root.childNodes.length, 1);
         assert.equal(root.childNodes[0].tag, 'p');
@@ -64,9 +64,11 @@ describe('TreeBuilder', () => {
 
         const root = new Node();
 
-        TreeBuilder.buildTreeFromRoot(root, text, markups);
+        TreeBuilder.build(root, text, markups);
 
         assert.equal(root.childNodes.length, 5);
+
+        // <p><em>...</em></p>#text<p><em>#text</em></p>#text<p><em>...</em></p>
 
         for (let i = 0, pNode; (pNode = root.childNodes[i]); i++) {
             if (pNode.tag === '#text') {
@@ -109,7 +111,7 @@ describe('TreeBuilder', () => {
 
         const root = new Node();
 
-        TreeBuilder.buildTreeFromRoot(root, text, markups);
+        TreeBuilder.build(root, text, markups);
 
         assert.equal(root.childNodes.length, 1);
 

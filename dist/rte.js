@@ -116,27 +116,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Action2 = _interopRequireDefault(_Action);
 	
-	var _ConfigRoot = __webpack_require__(20);
+	var _ConfigRoot = __webpack_require__(12);
 	
 	var _ConfigRoot2 = _interopRequireDefault(_ConfigRoot);
 	
-	var _EventHandler = __webpack_require__(12);
+	var _EventHandler = __webpack_require__(14);
 	
 	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 	
-	var _TreeBuilder = __webpack_require__(15);
+	var _TreeBuilder = __webpack_require__(17);
 	
 	var _TreeBuilder2 = _interopRequireDefault(_TreeBuilder);
 	
-	var _Renderer = __webpack_require__(16);
+	var _Renderer = __webpack_require__(18);
 	
 	var _Renderer2 = _interopRequireDefault(_Renderer);
 	
-	var _reducer = __webpack_require__(17);
+	var _reducer = __webpack_require__(19);
 	
 	var _reducer2 = _interopRequireDefault(_reducer);
 	
-	var _Actions = __webpack_require__(13);
+	var _Actions = __webpack_require__(15);
 	
 	var _Common = __webpack_require__(9);
 	
@@ -1216,17 +1216,73 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
+	var _ConfigCallbacks = __webpack_require__(13);
+	
+	var _ConfigCallbacks2 = _interopRequireDefault(_ConfigCallbacks);
+	
+	var _State = __webpack_require__(10);
+	
+	var _State2 = _interopRequireDefault(_State);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var ConfigRoot = function ConfigRoot() {
+	    _classCallCheck(this, ConfigRoot);
+	
+	    this.callbacks = new _ConfigCallbacks2.default();
+	    this.value = new _State2.default();
+	
+	    Object.seal(this);
+	};
+	
+	exports.default = ConfigRoot;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var ConfigCallbacks = function ConfigCallbacks() {
+	    _classCallCheck(this, ConfigCallbacks);
+	
+	    this.onStateChange = null;
+	    this.onValueChange = null;
+	
+	    Object.seal(this);
+	};
+	
+	exports.default = ConfigCallbacks;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _Util = __webpack_require__(3);
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Actions = __webpack_require__(13);
+	var _Actions = __webpack_require__(15);
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Keys = __webpack_require__(14);
+	var _Keys = __webpack_require__(16);
 	
 	var Keys = _interopRequireWildcard(_Keys);
 	
@@ -1381,7 +1437,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = EventHandler;
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1401,7 +1457,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1426,7 +1482,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var I = exports.I = 'i';
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1441,6 +1497,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
+	var _Markups = __webpack_require__(5);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1451,190 +1509,173 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(TreeBuilder, null, [{
-	        key: 'buildTreeFromRoot',
-	
-	        /**
-	         * @param   {Node}            root
-	         * @param   {string}          text
-	         * @param   {Array.<Markup>}  markups
-	         * @return  {void}
-	         */
-	
-	        value: function buildTreeFromRoot(root, text, markups) {
-	            var openNodes = [];
+	        key: 'build',
+	        value: function build(root, text, markups) {
 	            var openMarkups = [];
 	
-	            var isAtLeaf = false;
 	            var node = root;
+	            var textNode = null;
 	
 	            node.start = 0;
 	            node.end = text.length;
 	
-	            // Iterate through characters in text string
-	
 	            for (var i = 0; i <= text.length; i++) {
-	                var requiresNewLeaf = false;
+	                var reOpen = [];
 	
-	                for (var j = 0, markup; markup = markups[j]; j++) {
-	                    var closedMarkup = null;
-	                    var closedNode = null;
+	                var j = -1;
+	                var markup = null;
+	                var hasOpened = false;
+	                var hasClosed = false;
 	
-	                    // If markup does not end at index, or collapsed
-	                    // markup, continue
+	                for (j = 0; markup = markups[j]; j++) {
+	                    // Out of range, break
 	
-	                    if (markup[2] !== i || markup[1] === markup[2]) continue;
+	                    if (markup[1] > i) break;
 	
-	                    // If is at leaf, and last open node is a text node
+	                    // If markup end is before current index or is currently
+	                    // open, continue
 	
-	                    if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
-	                        // Close leaf node
+	                    if (markup[2] < i || openMarkups.indexOf(markup) > -1) continue;
 	
-	                        var textNode = openNodes.pop();
+	                    // Markup opens at, or is open at index (and not in open
+	                    // markups array)
 	
-	                        TreeBuilder.closeNode(textNode, i, text);
+	                    if (textNode) {
+	                        // If open text node, close it before opening sibling
 	
-	                        isAtLeaf = false;
+	                        textNode = TreeBuilder.closeTextNode(textNode, text, i);
 	                    }
 	
-	                    // Close last open node
+	                    // Open a new markup at index
 	
-	                    requiresNewLeaf = true;
-	
-	                    while (closedNode = openNodes.pop()) {
-	                        closedMarkup = openMarkups.pop();
-	
-	                        TreeBuilder.closeNode(closedNode, i);
-	
-	                        // Go up until node and all child nodes have been closed
-	
-	                        node = closedNode.parent;
-	
-	                        if (closedMarkup === markup) break;
-	                    }
-	                }
-	
-	                for (var _j = 0, _markup; _markup = markups[_j]; _j++) {
-	                    var newNode = null;
-	
-	                    // If markup does not envelop index, is collapsed at index,
-	                    // or is already open, continue
-	
-	                    if (_markup[1] > i || _markup[2] <= i && _markup[2] !== _markup[1] || openMarkups.indexOf(_markup) > -1) continue;
-	
-	                    if (isAtLeaf) {
-	                        // If at leaf, close leaf
-	
-	                        var _textNode = openNodes.pop();
-	
-	                        TreeBuilder.closeNode(_textNode, i, text);
-	
-	                        isAtLeaf = false;
-	                    }
-	
-	                    // Open node at index
-	
-	                    newNode = TreeBuilder.getOpenNode(_markup[0], i, node);
-	
-	                    // Push into open tracking array
-	
-	                    openNodes.push(newNode);
-	                    openMarkups.push(_markup);
-	
-	                    // Push into parent's children
+	                    var newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
 	
 	                    node.childNodes.push(newNode);
 	
-	                    // Make new node current node
+	                    openMarkups.push(markup);
 	
 	                    node = newNode;
 	
-	                    // Flag leaf required
+	                    hasOpened = true;
+	                }
 	
-	                    requiresNewLeaf = true;
+	                if (hasOpened) {
+	                    // A markup has been opened at index
 	
-	                    if (_markup[1] === _markup[2]) {
-	                        // Empty tag, close immediately
+	                    if (textNode) {
+	                        // A text node exists, close it
 	
-	                        TreeBuilder.closeNode(node, i);
+	                        textNode = TreeBuilder.closeTextNode(textNode, text, i);
+	                    } else {
+	                        // A text node does not exist and we are now at a leaf,
+	                        // so create one
+	
+	                        textNode = TreeBuilder.createTextNode(node, node.start);
+	
+	                        node.childNodes.push(textNode);
 	                    }
 	                }
 	
-	                if (!requiresNewLeaf) continue;
+	                for (j = markups.length - 1; markup = markups[j]; j--) {
+	                    if (markup[2] !== i) continue;
 	
-	                if (node.start === node.end) {
-	                    // Empty leaf in empty node, close immediately
+	                    // Markup to be closed at index
 	
-	                    var leaf = TreeBuilder.getOpenNode('#text', i, node);
+	                    if (textNode) {
+	                        // A text node is open within the markup, close it and
+	                        // nullify ref
 	
-	                    node.childNodes.push(leaf);
+	                        textNode = TreeBuilder.closeTextNode(textNode, text, i);
+	                    }
 	
-	                    TreeBuilder.closeNode(leaf, i);
+	                    if (markup[1] === markup[2]) {
+	                        // The markup is collapsed, and has closed immediately,
+	                        // therefore nothing has opened at the index
 	
-	                    while (node.parent && node.start === node.end) {
-	                        // While in empty node, go up
+	                        hasOpened = false;
+	                    }
+	
+	                    // For each open markup, close it until the markup to be
+	                    // closed is found
+	
+	                    while (openMarkups.length > 0) {
+	                        var closed = openMarkups.pop();
+	
+	                        if (closed !== markup) {
+	                            // If a child of the markup to be closed, push into
+	                            // `reOpen` array
+	
+	                            reOpen.push(closed);
+	                        }
+	
+	                        node.end = i;
 	
 	                        node = node.parent;
 	
-	                        openNodes.pop();
-	                        openMarkups.pop();
+	                        // If at desired markup, break
+	
+	                        if (closed === markup) break;
 	                    }
+	
+	                    // Mark that at least one markup has been closed at index
+	
+	                    hasClosed = true;
 	                }
 	
-	                if (i < text.length) {
-	                    // Should open leaf node, but yet not at end of string
+	                while (reOpen.length > 0) {
+	                    // Reopen each markup in the `reOpen` array
 	
-	                    var _leaf = TreeBuilder.getOpenNode('#text', i, node);
+	                    markup = reOpen.pop();
 	
-	                    node.childNodes.push(_leaf);
+	                    var _newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
 	
-	                    openNodes.push(_leaf);
+	                    node.childNodes.push(_newNode);
 	
-	                    isAtLeaf = true;
+	                    openMarkups.push(markup);
 	
-	                    requiresNewLeaf = false;
+	                    node = _newNode;
+	
+	                    hasOpened = true;
+	                }
+	
+	                if (i !== text.length && hasClosed && !hasOpened) {
+	                    // A node has been closed, nothing has been opened, and not at
+	                    // end of string, create new text node
+	
+	                    textNode = TreeBuilder.createTextNode(node, i);
+	
+	                    node.childNodes.push(textNode);
 	                }
 	            }
 	        }
-	
-	        /**
-	         * @param   {string}    tag
-	         * @param   {number}    i
-	         * @param   {Node}      parent
-	         * @return  {Node}
-	         */
-	
 	    }, {
-	        key: 'getOpenNode',
-	        value: function getOpenNode(tag, start, parent) {
+	        key: 'createTextNode',
+	        value: function createTextNode(parent, start) {
+	            return TreeBuilder.createNode(_Markups.TEXT, parent, start, -1);
+	        }
+	    }, {
+	        key: 'closeTextNode',
+	        value: function closeTextNode(textNode, text, end) {
+	            textNode.end = end;
+	
+	            textNode.text = text.slice(textNode.start, textNode.end);
+	
+	            return null;
+	        }
+	    }, {
+	        key: 'createNode',
+	        value: function createNode(tag, parent, start, end) {
 	            var node = new _Node2.default();
 	
 	            node.tag = tag;
 	            node.parent = parent;
 	            node.start = start;
+	            node.end = end;
 	            node.path = parent.path.slice();
 	
 	            node.path.push(parent.childNodes.length);
 	
 	            return node;
-	        }
-	
-	        /**
-	         * @param   {Node}      node
-	         * @param   {number}    end
-	         * @param   {string}    [text='']
-	         * @return  {void}
-	         */
-	
-	    }, {
-	        key: 'closeNode',
-	        value: function closeNode(node, end) {
-	            var text = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-	
-	            node.end = end;
-	
-	            if (node.isText) {
-	                node.text = text.slice(node.start, node.end);
-	            }
 	        }
 	    }]);
 	
@@ -1644,7 +1685,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = TreeBuilder;
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1708,7 +1749,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.default = Renderer;
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1725,11 +1766,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Util2 = _interopRequireDefault(_Util);
 	
-	var _Actions = __webpack_require__(13);
+	var _Actions = __webpack_require__(15);
 	
 	var Actions = _interopRequireWildcard(_Actions);
 	
-	var _Editor = __webpack_require__(18);
+	var _Editor = __webpack_require__(20);
 	
 	var _Editor2 = _interopRequireDefault(_Editor);
 	
@@ -1801,7 +1842,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2432,63 +2473,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 	
 	exports.default = Editor;
-
-/***/ }),
-/* 19 */,
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _ConfigCallbacks = __webpack_require__(21);
-	
-	var _ConfigCallbacks2 = _interopRequireDefault(_ConfigCallbacks);
-	
-	var _State = __webpack_require__(10);
-	
-	var _State2 = _interopRequireDefault(_State);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var ConfigRoot = function ConfigRoot() {
-	    _classCallCheck(this, ConfigRoot);
-	
-	    this.callbacks = new _ConfigCallbacks2.default();
-	    this.value = new _State2.default();
-	
-	    Object.seal(this);
-	};
-	
-	exports.default = ConfigRoot;
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var ConfigCallbacks = function ConfigCallbacks() {
-	    _classCallCheck(this, ConfigCallbacks);
-	
-	    this.onStateChange = null;
-	    this.onValueChange = null;
-	
-	    Object.seal(this);
-	};
-	
-	exports.default = ConfigCallbacks;
 
 /***/ })
 /******/ ])

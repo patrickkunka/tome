@@ -1,182 +1,170 @@
 import Node from './models/Node';
+import {TEXT} from './constants/Markups';
 
 class TreeBuilder {
-    /**
-     * @param   {Node}            root
-     * @param   {string}          text
-     * @param   {Array.<Markup>}  markups
-     * @return  {void}
-     */
-
-    static buildTreeFromRoot(root, text, markups) {
-        const openNodes = [];
+    static build(root, text, markups) {
         const openMarkups = [];
 
-        let isAtLeaf = false;
         let node = root;
+        let textNode = null;
 
         node.start = 0;
-        node.end = text.length;
-
-        // Iterate through characters in text string
+        node.end   = text.length;
 
         for (let i = 0; i <= text.length; i++) {
-            let requiresNewLeaf = false;
+            const reOpen = [];
 
-            for (let j = 0, markup; (markup = markups[j]); j++) {
-                let closedMarkup = null;
-                let closedNode = null;
+            let j = -1;
+            let markup = null;
+            let hasOpened = false;
+            let hasClosed = false;
 
-                // If markup does not end at index, or collapsed
-                // markup, continue
+            for (j = 0; (markup = markups[j]); j++) {
+                // Out of range, break
 
-                if (markup[2] !== i || markup[1] === markup[2]) continue;
+                if (markup[1] > i) break;
 
-                // If is at leaf, and last open node is a text node
+                // If markup end is before current index or is currently
+                // open, continue
 
-                if (isAtLeaf && openNodes[openNodes.length - 1].isText) {
-                    // Close leaf node
+                if (markup[2] < i || openMarkups.indexOf(markup) > -1) continue;
 
-                    const textNode = openNodes.pop();
+                // Markup opens at, or is open at index (and not in open
+                // markups array)
 
-                    TreeBuilder.closeNode(textNode, i, text);
+                if (textNode) {
+                    // If open text node, close it before opening sibling
 
-                    isAtLeaf = false;
+                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
                 }
 
-                // Close last open node
+                // Open a new markup at index
 
-                requiresNewLeaf = true;
-
-                while ((closedNode = openNodes.pop())) {
-                    closedMarkup = openMarkups.pop();
-
-                    TreeBuilder.closeNode(closedNode, i);
-
-                    // Go up until node and all child nodes have been closed
-
-                    node = closedNode.parent;
-
-                    if (closedMarkup === markup) break;
-                }
-            }
-
-            for (let j = 0, markup; (markup = markups[j]); j++) {
-                let newNode = null;
-
-                // If markup does not envelop index, is collapsed at index,
-                // or is already open, continue
-
-                if (markup[1] > i || (markup[2] <= i && markup[2] !== markup[1]) || openMarkups.indexOf(markup) > -1) continue;
-
-                if (isAtLeaf) {
-                    // If at leaf, close leaf
-
-                    const textNode = openNodes.pop();
-
-                    TreeBuilder.closeNode(textNode, i, text);
-
-                    isAtLeaf = false;
-                }
-
-                // Open node at index
-
-                newNode = TreeBuilder.getOpenNode(markup[0], i, node);
-
-                // Push into open tracking array
-
-                openNodes.push(newNode);
-                openMarkups.push(markup);
-
-                // Push into parent's children
+                const newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
 
                 node.childNodes.push(newNode);
 
-                // Make new node current node
+                openMarkups.push(markup);
 
                 node = newNode;
 
-                // Flag leaf required
+                hasOpened = true;
+            }
 
-                requiresNewLeaf = true;
+            if (hasOpened) {
+                // A markup has been opened at index
 
-                if (markup[1] === markup[2]) {
-                    // Empty tag, close immediately
+                if (textNode) {
+                    // A text node exists, close it
 
-                    TreeBuilder.closeNode(node, i);
+                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
+                } else {
+                    // A text node does not exist and we are now at a leaf,
+                    // so create one
+
+                    textNode = TreeBuilder.createTextNode(node, node.start);
+
+                    node.childNodes.push(textNode);
                 }
             }
 
-            if (!requiresNewLeaf) continue;
+            for (j = markups.length - 1; (markup = markups[j]); j--) {
+                if (markup[2] !== i) continue;
 
-            if (node.start === node.end) {
-                // Empty leaf in empty node, close immediately
+                // Markup to be closed at index
 
-                const leaf = TreeBuilder.getOpenNode('#text', i, node);
+                if (textNode) {
+                    // A text node is open within the markup, close it and
+                    // nullify ref
 
-                node.childNodes.push(leaf);
+                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
+                }
 
-                TreeBuilder.closeNode(leaf, i);
+                if (markup[1] === markup[2]) {
+                    // The markup is collapsed, and has closed immediately,
+                    // therefore nothing has opened at the index
 
-                while (node.parent && node.start === node.end) {
-                    // While in empty node, go up
+                    hasOpened = false;
+                }
+
+                // For each open markup, close it until the markup to be
+                // closed is found
+
+                while (openMarkups.length > 0) {
+                    const closed = openMarkups.pop();
+
+                    if (closed !== markup) {
+                        // If a child of the markup to be closed, push into
+                        // `reOpen` array
+
+                        reOpen.push(closed);
+                    }
+
+                    node.end = i;
 
                     node = node.parent;
 
-                    openNodes.pop();
-                    openMarkups.pop();
+                    // If at desired markup, break
+
+                    if (closed === markup) break;
                 }
+
+                // Mark that at least one markup has been closed at index
+
+                hasClosed = true;
             }
 
-            if (i < text.length) {
-                // Should open leaf node, but yet not at end of string
+            while (reOpen.length > 0) {
+                // Reopen each markup in the `reOpen` array
 
-                const leaf = TreeBuilder.getOpenNode('#text', i, node);
+                markup = reOpen.pop();
 
-                node.childNodes.push(leaf);
+                const newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
 
-                openNodes.push(leaf);
+                node.childNodes.push(newNode);
 
-                isAtLeaf = true;
+                openMarkups.push(markup);
 
-                requiresNewLeaf = false;
+                node = newNode;
+
+                hasOpened = true;
+            }
+
+            if (i !== text.length && hasClosed && !hasOpened) {
+                // A node has been closed, nothing has been opened, and not at
+                // end of string, create new text node
+
+                textNode = TreeBuilder.createTextNode(node, i);
+
+                node.childNodes.push(textNode);
             }
         }
     }
 
-    /**
-     * @param   {string}    tag
-     * @param   {number}    i
-     * @param   {Node}      parent
-     * @return  {Node}
-     */
+    static createTextNode(parent, start) {
+        return TreeBuilder.createNode(TEXT, parent, start, -1);
+    }
 
-    static getOpenNode(tag, start, parent) {
+    static closeTextNode(textNode, text, end) {
+        textNode.end = end;
+
+        textNode.text = text.slice(textNode.start, textNode.end);
+
+        return null;
+    }
+
+    static createNode(tag, parent, start, end) {
         const node = new Node();
 
         node.tag    = tag;
         node.parent = parent;
         node.start  = start;
+        node.end    = end;
         node.path   = parent.path.slice();
 
         node.path.push(parent.childNodes.length);
 
         return node;
-    }
-
-    /**
-     * @param   {Node}      node
-     * @param   {number}    end
-     * @param   {string}    [text='']
-     * @return  {void}
-     */
-
-    static closeNode(node, end, text='') {
-        node.end = end;
-
-        if (node.isText) {
-            node.text = text.slice(node.start, node.end);
-        }
     }
 }
 
