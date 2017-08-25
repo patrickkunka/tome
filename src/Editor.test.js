@@ -379,6 +379,47 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[3], ['p', 19, 19]);
     });
 
+    it('should split a block markup and maintain a incremental order of existing inline markups', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                ['p', 0, 18],
+                ['strong', 6, 11],
+                ['em', 8, 14]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 6, to: 6}, '\n');
+
+        assert.equal(newState.text, 'Lorem\nipsum dolor.');
+        assert.equal(newState.markups.length, 4);
+        assert.deepEqual(newState.markups[0], ['p', 0, 5]);
+        assert.deepEqual(newState.markups[1], ['p', 6, 18]);
+        assert.deepEqual(newState.markups[2], ['strong', 6, 11]);
+        assert.deepEqual(newState.markups[3], ['em', 8, 14]);
+    });
+
+    it('should split a block markup and any affected inline markups', () => {
+        const state = {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                ['p', 0, 18],
+                ['strong', 6, 11]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 8, to: 8}, '\n');
+
+        console.log(newState.markups);
+
+        assert.equal(newState.text, 'Lorem ip\nsum dolor.');
+        assert.equal(newState.markups.length, 4);
+        assert.deepEqual(newState.markups[0], ['p', 0, 8]);
+        assert.deepEqual(newState.markups[1], ['strong', 6, 8]);
+        assert.deepEqual(newState.markups[2], ['p', 9, 19]);
+        assert.deepEqual(newState.markups[3], ['strong', 9, 12]);
+    });
+
     it('should join two block markups into one block markups on deletion of line break', () => {
         const state = {
             text: 'Lorem ipsum dolor.\nSit amet.',
@@ -625,6 +666,26 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 3);
         assert.deepEqual(newState.markups[1], ['strong', 6, 12]);
         assert.deepEqual(newState.markups[2], ['strong', 14, 17]);
+    });
+
+    it('should insert a line break without affecting the position of inline markups', () => {
+        const state = {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                ['p', 0, 28],
+                ['strong', 6, 11],
+                ['em', 8, 14]
+            ]
+        };
+
+        const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
+
+        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+        assert.equal(newState.markups.length, 4);
+        assert.deepEqual(newState.markups[0], ['p', 0, 18]);
+        assert.deepEqual(newState.markups[1], ['strong', 6, 11]);
+        assert.deepEqual(newState.markups[2], ['em', 8, 14]);
+        assert.deepEqual(newState.markups[3], ['p', 19, 28]);
     });
 
     it('should remove an empty line between two blocks', () => {

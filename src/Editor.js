@@ -283,13 +283,14 @@ class Editor {
     static trimWhitespace(nextState, splitIndex) {
         let totalAllTrimmed = 0;
         let caretAdjustment = 0;
+        let trimmedIndex = -1;
 
         for (let i = 0; i < nextState.markups.length; i++) {
             const markupRaw = nextState.markups[i];
 
-            if (totalAllTrimmed !== 0) {
-                // If previous adjustments have been made, adjust markup
-                // position accordingly
+            if (totalAllTrimmed !== 0 && markupRaw[1] >= trimmedIndex) {
+                // If previous adjustments have been made, adjust
+                // subsequent markups' positions accordingly
 
                 markupRaw[1] += totalAllTrimmed;
                 markupRaw[2] += totalAllTrimmed;
@@ -303,13 +304,23 @@ class Editor {
             const content = nextState.text.slice(markup.start, markup.end);
             const after   = nextState.text.slice(markup.end);
 
+            let trimmed = content;
+
             // Trim whitespace from start and end of blocks
 
-            const trimmed = content.trim();
-            const totalTrimmed = trimmed.length - content.length;
+            if (trimmed.charAt(0) === ' ') {
+                trimmedIndex = markup.start;
 
-            // TODO: seems not to be quite working.. needs further
-            // investigation?
+                trimmed = trimmed.slice(1);
+            }
+
+            if (trimmed.charAt(trimmed.length - 1) === ' ') {
+                trimmedIndex = markup.end - 1;
+
+                trimmed = trimmed.slice(0, -1);
+            }
+
+            const totalTrimmed = trimmed.length - content.length;
 
             if (totalTrimmed === 0) continue;
 
@@ -352,11 +363,12 @@ class Editor {
 
             let newMarkup = null;
 
-            if (markup.start <= index && markup.end >= index) {
+            if (markup.start < index && markup.end > index) {
                 const newStartIndex = index + 1;
                 const newTag = markup.isBlock && markup.end === newStartIndex ? P : markup.tag;
 
                 let j = i + 1;
+                let insertIndex = -1;
 
                 markupRaw[2] = index;
 
@@ -365,14 +377,22 @@ class Editor {
                 for (; j < markups.length; j++) {
                     const markup = new Markup(markups[j]);
 
-                    if (markup.start > newStartIndex) {
+                    if (markup.start === newStartIndex) {
+                        insertIndex = newMarkup.isBlock ? j : j + 1;
+
+                        break;
+                    } else if (markup.start > newStartIndex) {
+                        insertIndex = j;
+
                         break;
                     }
                 }
 
-                markups.splice(j, 0, newMarkup);
+                markups.splice(insertIndex, 0, newMarkup);
 
-                i = j;
+                if (insertIndex === j) {
+                    i = insertIndex;
+                }
             }
         }
 

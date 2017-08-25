@@ -52,7 +52,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -72,9 +72,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	module.exports = factory;
 
-/***/ }),
+/***/ },
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -491,9 +491,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = RichTextEditor;
 
-/***/ }),
+/***/ },
 /* 2 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -513,9 +513,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Dom;
 
-/***/ }),
+/***/ },
 /* 3 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -855,9 +855,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Util;
 
-/***/ }),
+/***/ },
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -938,9 +938,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Markup;
 
-/***/ }),
+/***/ },
 /* 5 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -966,9 +966,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var MARKUP_TYPE_INLINE = exports.MARKUP_TYPE_INLINE = Symbol('MARKUP_TYPE_INLINE');
 	var MARKUP_TYPE_BLOCK = exports.MARKUP_TYPE_BLOCK = Symbol('MARKUP_TYPE_BLOCK');
 
-/***/ }),
+/***/ },
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1019,9 +1019,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Node;
 
-/***/ }),
+/***/ },
 /* 7 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -1043,9 +1043,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Caret;
 
-/***/ }),
+/***/ },
 /* 8 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1114,9 +1114,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Range;
 
-/***/ }),
+/***/ },
 /* 9 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1126,9 +1126,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DIRECTION_LTR = exports.DIRECTION_LTR = Symbol('DIRECTION_LTR');
 	var DIRECTION_RTL = exports.DIRECTION_RTL = Symbol('DIRECTION_RTL');
 
-/***/ }),
+/***/ },
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1181,9 +1181,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = State;
 
-/***/ }),
+/***/ },
 /* 11 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1206,9 +1206,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Action;
 
-/***/ }),
+/***/ },
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1239,9 +1239,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = ConfigRoot;
 
-/***/ }),
+/***/ },
 /* 13 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -1262,9 +1262,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = ConfigCallbacks;
 
-/***/ }),
+/***/ },
 /* 14 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1436,9 +1436,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = EventHandler;
 
-/***/ }),
+/***/ },
 /* 15 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1456,9 +1456,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var REDO = exports.REDO = Symbol('ACTION_TYPE_REDO');
 	var NONE = exports.NONE = Symbol('ACTION_TYPE_NONE');
 
-/***/ }),
+/***/ },
 /* 16 */
-/***/ (function(module, exports) {
+/***/ function(module, exports) {
 
 	'use strict';
 	
@@ -1481,9 +1481,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var B = exports.B = 'b';
 	var I = exports.I = 'i';
 
-/***/ }),
+/***/ },
 /* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1683,9 +1683,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = TreeBuilder;
 
-/***/ }),
+/***/ },
 /* 18 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1747,9 +1747,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Renderer;
 
-/***/ }),
+/***/ },
 /* 19 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1840,9 +1840,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-/***/ }),
+/***/ },
 /* 20 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1851,6 +1851,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -1937,20 +1939,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var insertIndex = -1;
 	
 	            if (enveloped.length > 1) {
-	                var formattedState = nextState;
+	                var _ret = function () {
+	                    var formattedState = nextState;
 	
-	                // Split and delegate the command
+	                    // Split and delegate the command
 	
-	                formattedState.envelopedBlockMarkups.length = 0;
+	                    formattedState.envelopedBlockMarkups.length = 0;
 	
-	                enveloped.forEach(function (markup, i) {
-	                    var formatFrom = i === 0 ? from : markup[1];
-	                    var formatTo = i === enveloped.length - 1 ? to : markup[2];
+	                    enveloped.forEach(function (markup, i) {
+	                        var formatFrom = i === 0 ? from : markup[1];
+	                        var formatTo = i === enveloped.length - 1 ? to : markup[2];
 	
-	                    formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo, markup);
-	                });
+	                        formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo, markup);
+	                    });
 	
-	                return formattedState;
+	                    return {
+	                        v: formattedState
+	                    };
+	                }();
+	
+	                if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	            }
 	
 	            // Single block markup
@@ -2004,20 +2012,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var enveloped = prevState.envelopedBlockMarkups || [];
 	
 	            if (enveloped.length > 1) {
-	                var formattedState = nextState;
+	                var _ret2 = function () {
+	                    var formattedState = nextState;
 	
-	                // Split and delegate the command
+	                    // Split and delegate the command
 	
-	                formattedState.envelopedBlockMarkups.length = 0;
+	                    formattedState.envelopedBlockMarkups.length = 0;
 	
-	                enveloped.forEach(function (markup, i) {
-	                    var formatFrom = i === 0 ? from : markup.start;
-	                    var formatTo = i === enveloped.length - 1 ? to : markup.end;
+	                    enveloped.forEach(function (markup, i) {
+	                        var formatFrom = i === 0 ? from : markup.start;
+	                        var formatTo = i === enveloped.length - 1 ? to : markup.end;
 	
-	                    formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
-	                });
+	                        formattedState = Editor.removeInlineMarkup(formattedState, tag, formatFrom, formatTo);
+	                    });
 	
-	                return formattedState;
+	                    return {
+	                        v: formattedState
+	                    };
+	                }();
+	
+	                if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
 	            }
 	
 	            Editor.ingestMarkups(nextState.markups, tag, from, to);
@@ -2165,13 +2179,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function trimWhitespace(nextState, splitIndex) {
 	            var totalAllTrimmed = 0;
 	            var caretAdjustment = 0;
+	            var trimmedIndex = -1;
 	
 	            for (var i = 0; i < nextState.markups.length; i++) {
 	                var markupRaw = nextState.markups[i];
 	
-	                if (totalAllTrimmed !== 0) {
-	                    // If previous adjustments have been made, adjust markup
-	                    // position accordingly
+	                if (totalAllTrimmed !== 0 && markupRaw[1] >= trimmedIndex) {
+	                    // If previous adjustments have been made, adjust
+	                    // subsequent markups' positions accordingly
 	
 	                    markupRaw[1] += totalAllTrimmed;
 	                    markupRaw[2] += totalAllTrimmed;
@@ -2185,13 +2200,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var content = nextState.text.slice(markup.start, markup.end);
 	                var after = nextState.text.slice(markup.end);
 	
+	                var trimmed = content;
+	
 	                // Trim whitespace from start and end of blocks
 	
-	                var trimmed = content.trim();
-	                var totalTrimmed = trimmed.length - content.length;
+	                if (trimmed.charAt(0) === ' ') {
+	                    trimmedIndex = markup.start;
 	
-	                // TODO: seems not to be quite working.. needs further
-	                // investigation?
+	                    trimmed = trimmed.slice(1);
+	                }
+	
+	                if (trimmed.charAt(trimmed.length - 1) === ' ') {
+	                    trimmedIndex = markup.end - 1;
+	
+	                    trimmed = trimmed.slice(0, -1);
+	                }
+	
+	                var totalTrimmed = trimmed.length - content.length;
 	
 	                if (totalTrimmed === 0) continue;
 	
@@ -2236,11 +2261,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                var newMarkup = null;
 	
-	                if (markup.start <= index && markup.end >= index) {
+	                if (markup.start < index && markup.end > index) {
 	                    var newStartIndex = index + 1;
 	                    var newTag = markup.isBlock && markup.end === newStartIndex ? _Markups.P : markup.tag;
 	
 	                    var j = i + 1;
+	                    var insertIndex = -1;
 	
 	                    markupRaw[2] = index;
 	
@@ -2249,14 +2275,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    for (; j < markups.length; j++) {
 	                        var _markup4 = new _Markup2.default(markups[j]);
 	
-	                        if (_markup4.start > newStartIndex) {
+	                        if (_markup4.start === newStartIndex) {
+	                            insertIndex = newMarkup.isBlock ? j : j + 1;
+	
+	                            break;
+	                        } else if (_markup4.start > newStartIndex) {
+	                            insertIndex = j;
+	
 	                            break;
 	                        }
 	                    }
 	
-	                    markups.splice(j, 0, newMarkup);
+	                    markups.splice(insertIndex, 0, newMarkup);
 	
-	                    i = j;
+	                    if (insertIndex === j) {
+	                        i = insertIndex;
+	                    }
 	                }
 	            }
 	
@@ -2473,7 +2507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = Editor;
 
-/***/ })
+/***/ }
 /******/ ])
 });
 ;
