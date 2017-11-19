@@ -1,9 +1,9 @@
-import ActionType from '../constants/ActionType';
-import Range      from '../models/Range';
+import ActionType  from '../constants/ActionType';
+import EditorRange from '../models/EditorRange';
 
 interface IAction {
     type?:    ActionType;
-    range?:   Range;
+    range?:   EditorRange;
     content?: string;
     tag?:     string;
 }

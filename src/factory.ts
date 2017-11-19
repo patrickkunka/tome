@@ -1,9 +1,9 @@
-import RichTextEditor from './RichTextEditor';
+import Tome from './Tome';
 
-function factory(el: HTMLElement, config: any={}): RichTextEditor {
-    const richTextEditor = new RichTextEditor(el, config);
+function factory(el: HTMLElement, config: any={}): Tome {
+    const tome = new Tome(el, config);
 
-    return richTextEditor;
+    return tome;
 }
 
 export default factory;

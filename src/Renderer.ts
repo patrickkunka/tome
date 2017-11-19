@@ -1,12 +1,13 @@
 import MarkupTag from './constants/MarkupTag';
+import TomeNode  from './models/TomeNode';
 
 class Renderer {
-    static renderNodes(nodes, parent=null) {
+    static renderNodes(nodes: Array<TomeNode>, parent: TomeNode=null): string {
         return nodes.map(node => Renderer.renderNode(node, parent)).join('');
     }
 
-    static renderNode(node, parent) {
-        let html = '';
+    private static renderNode(node: TomeNode, parent: TomeNode): string {
+        let html: string;
 
         if (node.tag !== MarkupTag.TEXT) {
             html += '<' + node.tag + '>';

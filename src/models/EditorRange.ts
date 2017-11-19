@@ -1,6 +1,7 @@
 import SelectionDirection from '../constants/SelectionDirection';
+import ISelection         from '../interfaces/ISelection';
 
-class Range {
+class EditorRange implements ISelection {
     from: number;
     to:   number;
     direction: SelectionDirection;
@@ -40,4 +41,4 @@ class Range {
     }
 }
 
-export default Range;
+export default EditorRange;

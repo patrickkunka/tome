@@ -1,6 +1,8 @@
+import TomeNode from './TomeNode';
+
 class Caret {
     path:   Array<number> = null;
-    node:   Node          = null;
+    node:   TomeNode      = null;
     offset: number        = null;
 }
 

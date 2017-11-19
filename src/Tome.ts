@@ -1,44 +1,45 @@
 import Dom          from './Dom';
 import Util         from './Util';
 import Markup       from './models/Markup';
-import Node         from './models/Node';
+import TomeNode     from './models/TomeNode';
 import Caret        from './models/Caret';
-import Range        from './models/Range';
+import EditorRange  from './models/EditorRange';
 import State        from './models/State';
 import Action       from './models/Action';
+import IAction      from './interfaces/IAction';
+import ISelection   from './interfaces/ISelection';
 import ConfigRoot   from './config/ConfigRoot';
 import EventHandler from './EventHandler';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
 import reducer      from './reducer';
 import ActionType   from './constants/ActionType';
+import MarkupTag    from './constants/MarkupTag';
 import SelectionDirection from './constants/SelectionDirection';
+import INodeLike    from './interfaces/INodeLike';
+import ITome        from './interfaces/ITome';
 
-class RichTextEditor {
-    constructor(el, config) {
-        this.dom            = new Dom();
-        this.eventHandler   = new EventHandler(this);
-        this.config         = new ConfigRoot();
-        this.root           = null;
-        this.history        = [];
-        this.historyIndex   = -1;
+class Tome implements ITome {
+    dom:          Dom          = new Dom();
+    eventHandler: EventHandler = new EventHandler(this);
+    config:       ConfigRoot   = new ConfigRoot();
+    root:         TomeNode     = null;
+    history:      Array<State> = [];
+    historyIndex: number       = -1;
 
-        Object.defineProperties(this, {
-            state: {
-                get() {
-                    return this.history[this.historyIndex];
-                }
-            }
-        });
-
+    constructor(el: HTMLElement, config: any) {
         this.init(el, config);
     }
 
-    init(el, config) {
+    get state() {
+        return this.history[this.historyIndex];
+    }
+
+    init(el: HTMLElement, config: any): void {
         Util.extend(this.config, config, true);
 
         if (!el.contentEditable) {
-            el.contentEditable = true;
+            el.contentEditable = true.toString();
         }
 
         this.dom.root = el;
@@ -49,19 +50,14 @@ class RichTextEditor {
 
         this.render();
 
-        this.eventHandler.bindEvents(this.dom.root, this);
+        this.eventHandler.bindEvents(this.dom.root);
     }
 
-    /**
-     * @param   {object} initialState
-     * @return  {State}
-     */
-
-    buildInitialState(initialState) {
-        const state = Util.extend(new State(), initialState);
+    buildInitialState(initialState: any): State {
+        const state: State = Util.extend(new State(), initialState);
 
         if (state.markups.length < 1) {
-            state.markups.push(['p', 0, 0]);
+            state.markups.push(new Markup([MarkupTag.P, 0, 0]));
         }
 
         // TODO: if text but no markups, wrap entire in <p>
@@ -71,13 +67,13 @@ class RichTextEditor {
         return state;
     }
 
-    render() {
-        this.root = RichTextEditor.buildModelFromState(this.state);
+    render(): void {
+        this.root = Tome.buildModelFromState(this.state);
 
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
     }
 
-    undo() {
+    undo(): void {
         if (this.historyIndex === 1) return;
 
         const fn = this.config.callbacks.onStateChange;
@@ -93,7 +89,7 @@ class RichTextEditor {
         }
     }
 
-    redo() {
+    redo(): void {
         if (this.history.length - 1 === this.historyIndex) return;
 
         const fn = this.config.callbacks.onStateChange;
@@ -109,14 +105,8 @@ class RichTextEditor {
         }
     }
 
-    /**
-     * @param {object} actionRaw
-     * @param {string} content
-     * @return {void}
-     */
-
-    applyAction(actionRaw) {
-        const action = Object.assign(new Action(), actionRaw);
+    applyAction(actionRaw: IAction): void {
+        const action: Action = Object.assign(new Action(), actionRaw);
         const fn = this.config.callbacks.onStateChange;
 
         if (action.type === ActionType.SET_SELECTION) {
@@ -136,7 +126,7 @@ class RichTextEditor {
         const nextState = [action].reduce(reducer, this.state);
 
         if (!(nextState instanceof State)) {
-            throw new TypeError(`[RichTextEditor] Action type "${action.type.toString()}" did not return a valid state object`);
+            throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
         }
 
         if (nextState === this.state) return;
@@ -170,20 +160,22 @@ class RichTextEditor {
         }
     }
 
-    getPathFromNode(node) {
+    getPathFromDomNode(domNode: Node): Array<number> {
         const path = [];
 
-        while (node && node !== this.dom.root) {
-            path.unshift(Util.index(node, true));
+        while (domNode) {
+            if (domNode instanceof HTMLElement && domNode === this.dom.root) break;
 
-            node = node.parentElement;
+            path.unshift(Util.index(domNode, true));
+
+            domNode = domNode.parentElement;
         }
 
         return path;
     }
 
-    getNodeByPath(path, root) {
-        let node = root;
+    getNodeByPath<T extends INodeLike>(path: Array<number>, root: T): T {
+        let node: T = root;
         let index = -1;
         let i = 0;
 
@@ -198,25 +190,23 @@ class RichTextEditor {
 
     /**
      * @param   {Selection} selection
-     * @return  {Range}
+     * @return  {EditorRange}
      */
 
-    // TODO: consolodate range/selection models, no need for both
-
-    getRangeFromSelection(selection) {
-        const anchorPath = this.getPathFromNode(selection.anchorNode);
+    getRangeFromSelection(selection: Selection) {
+        const anchorPath = this.getPathFromDomNode(selection.anchorNode);
         const virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
         const from = new Caret();
         const to = new Caret();
 
         let extentPath = anchorPath;
-        let virtualExtentNode = virtualAnchorNode;
+        let virtualExtentNode: TomeNode = virtualAnchorNode;
         let isRtl = false;
         let rangeFrom = -1;
         let rangeTo = -1;
 
         if (!selection.isCollapsed) {
-            extentPath = this.getPathFromNode(selection.extentNode);
+            extentPath = this.getPathFromDomNode(selection.extentNode);
             virtualExtentNode = this.getNodeByPath(extentPath, this.root);
         }
 
@@ -241,19 +231,19 @@ class RichTextEditor {
         rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
         rangeTo = Math.min(to.node.start + to.offset, to.node.end);
 
-        return new Range(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
+        return new EditorRange(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
     }
 
-    positionCaret({from, to, isRtl}) {
+    positionCaret({from, to, direction}: ISelection): void {
         const range = document.createRange();
         const selection = window.getSelection();
 
-        let childNodes  = this.root.childNodes;
-        let virtualNode = null;
-        let nodeLeft    = null;
-        let nodeRight   = null;
-        let offsetStart = -1;
-        let offsetEnd   = -1;
+        let childNodes:  Array<TomeNode> = this.root.childNodes;
+        let virtualNode: TomeNode;
+        let nodeLeft:    Node;
+        let nodeRight:   Node;
+        let offsetStart: number;
+        let offsetEnd:   number;
 
         for (let i = 0; (virtualNode = childNodes[i]); i++) {
             // Node ends before caret
@@ -319,15 +309,15 @@ class RichTextEditor {
 
         selection.removeAllRanges();
 
-        if (isRtl) {
+        if (direction === SelectionDirection.LTR) {
             selection.setBaseAndExtent(nodeRight, offsetEnd, nodeLeft, offsetStart);
         } else {
             selection.setBaseAndExtent(nodeLeft, offsetStart, nodeRight, offsetEnd);
         }
     }
 
-    static buildModelFromState(state) {
-        const root = new Node();
+    static buildModelFromState(state: State): TomeNode {
+        const root = new TomeNode();
 
         TreeBuilder.build(root, state.text, state.markups);
 
@@ -335,4 +325,4 @@ class RichTextEditor {
     }
 }
 
-export default RichTextEditor;
+export default Tome;

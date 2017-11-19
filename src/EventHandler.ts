@@ -1,18 +1,18 @@
 import Util         from './Util';
 import IAction      from './interfaces/IAction';
+import ITome        from './interfaces/ITome';
 import ActionType   from './constants/ActionType';
 import Keypress     from './constants/Keypress';
 import MarkupTag    from './constants/MarkupTag';
-import RichTextEditor from './RichTextEditor';
 
 const SELECTION_DELAY = 10;
 
 class EventHandler {
-    editor: RichTextEditor=null;
+    tome: ITome=null;
     boundDelegator: EventListenerObject=null;
 
-    constructor(richTextEditor: RichTextEditor) {
-        this.editor = richTextEditor;
+    constructor(tome: ITome) {
+        this.tome = tome;
         this.boundDelegator = this.delegator.bind(this);
     }
 
@@ -42,23 +42,23 @@ class EventHandler {
         fn(e);
     }
 
-    handleKeypress(e) {
+    handleKeypress(e: KeyboardEvent): void {
         e.preventDefault();
 
-        this.editor.applyAction({type: ActionType.INSERT, content: e.key});
+        this.tome.applyAction({type: ActionType.INSERT, content: e.key});
     }
 
-    handleMouseup(e) {
-        if (this.editor.dom.root !== document.activeElement) return;
+    handleMouseup(e: MouseEvent): void {
+        if (this.tome.dom.root !== document.activeElement) return;
 
-        this.editor.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
 
-    handleMousedown(e) {
-        this.editor.applyAction({type: ActionType.SET_SELECTION});
+    handleMousedown(e: MouseEvent): void {
+        this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
 
-    handleKeydown(e) {
+    handleKeydown(e: KeyboardEvent): void {
         const key = e.key.toLowerCase();
 
         let action: IAction = {};
@@ -96,7 +96,7 @@ class EventHandler {
                 case Keypress.Z:
                     e.preventDefault();
 
-                    return e.shiftKey ? this.editor.redo() : this.editor.undo();
+                    return e.shiftKey ? this.tome.redo() : this.tome.undo();
             }
         }
 
@@ -130,7 +130,7 @@ class EventHandler {
 
         if (!action || action.type === ActionType.NONE) return;
 
-        setTimeout(() => this.editor.applyAction(action), SELECTION_DELAY);
+        setTimeout(() => this.tome.applyAction(action), SELECTION_DELAY);
     }
 }
 

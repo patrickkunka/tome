@@ -16,9 +16,9 @@ class Editor {
      * insertion.
      *
      * @static
-     * @param {State}  prevState
-     * @param {Range}  range
-     * @param {string} content
+     * @param {State}      prevState
+     * @param {ISelection} range
+     * @param {string}     content
      */
 
     static insert(prevState, range, content) {
@@ -513,7 +513,7 @@ class Editor {
      *
      * @static
      * @param  {State} state
-     * @param  {Range} range
+     * @param  {EditorRange} range
      * @return {void}
      */
 

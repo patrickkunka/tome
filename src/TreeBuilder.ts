@@ -1,21 +1,22 @@
-import Node      from './models/Node';
+import TomeNode  from './models/TomeNode';
+import Markup    from './models/Markup';
 import MarkupTag from './constants/MarkupTag';
 
 class TreeBuilder {
-    static build(root, text, markups) {
-        const openMarkups = [];
+    static build(root: TomeNode, text: string, markups: Array<Markup>): void {
+        const openMarkups: Array<Markup> = [];
 
-        let node = root;
-        let textNode = null;
+        let node:     TomeNode = root;
+        let textNode: TomeNode = null;
 
         node.start = 0;
         node.end   = text.length;
 
         for (let i = 0; i <= text.length; i++) {
-            const reOpen = [];
+            const reOpen: Array<Markup> = [];
 
-            let j = -1;
-            let markup = null;
+            let j: number;
+            let markup: Markup;
             let hasOpened = false;
             let hasClosed = false;
 
@@ -140,11 +141,11 @@ class TreeBuilder {
         }
     }
 
-    static createTextNode(parent, start) {
+    private static createTextNode(parent: TomeNode, start: number): TomeNode {
         return TreeBuilder.createNode(MarkupTag.TEXT, parent, start, -1);
     }
 
-    static closeTextNode(textNode, text, end) {
+    private static closeTextNode(textNode: TomeNode, text: string, end: number): null {
         textNode.end = end;
 
         textNode.text = text.slice(textNode.start, textNode.end);
@@ -152,8 +153,8 @@ class TreeBuilder {
         return null;
     }
 
-    static createNode(tag, parent, start, end) {
-        const node = new Node();
+    private static createNode(tag: MarkupTag, parent: TomeNode, start: number, end: number): TomeNode {
+        const node = new TomeNode();
 
         node.tag    = tag;
         node.parent = parent;

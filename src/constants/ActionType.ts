@@ -1,5 +1,5 @@
 enum ActionType {
-    SET_SELECTION   = 'SET_SELETION',
+    SET_SELECTION   = 'SET_SELECTION',
     INSERT          = 'INSERT',
     BACKSPACE       = 'BACKSPACE',
     DELETE          = 'DELETE',

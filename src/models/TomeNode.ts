@@ -1,13 +1,13 @@
 import MarkupTag from '../constants/MarkupTag';
 
-class Node {
-    childNodes: Array<Node>   = [];
-    parent:     Node          = null;
-    start:      number        = -1;
-    end:        number        = -1;
-    tag:        MarkupTag     = null;
-    text:       string        = '';
-    path:       Array<number> = [];
+class TomeNode {
+    childNodes: Array<TomeNode> = [];
+    parent:     TomeNode        = null;
+    start:      number          = -1;
+    end:        number          = -1;
+    tag:        MarkupTag       = null;
+    text:       string          = '';
+    path:       Array<number>   = [];
 
     get isText() {
         return this.tag === MarkupTag.TEXT;
@@ -30,4 +30,4 @@ class Node {
     }
 }
 
-export default Node;
+export default TomeNode;

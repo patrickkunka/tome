@@ -2,8 +2,9 @@ import State        from './models/State';
 import Util         from './Util';
 import ActionType   from './constants/ActionType';
 import Editor       from './Editor';
+import Action       from './models/Action';
 
-export default (prevState, action) => {
+export default (prevState: State, action: Action): State => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
             const nextState = Util.extend(new State(), prevState, true);
@@ -41,7 +42,7 @@ export default (prevState, action) => {
 
             break;
         case ActionType.TOGGLE_INLINE: {
-            let nextState = null;
+            let nextState: State;
 
             // TODO: if collapsed, simply change state to disable/enable active
             // markup, any further set selections will reset it as appropriate
