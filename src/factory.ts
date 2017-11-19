@@ -1,9 +1,9 @@
 import RichTextEditor from './RichTextEditor';
 
-function factory(el, config={}) {
+function factory(el: HTMLElement, config: any={}): RichTextEditor {
     const richTextEditor = new RichTextEditor(el, config);
 
     return richTextEditor;
 }
 
-module.exports = factory;
+export default factory;

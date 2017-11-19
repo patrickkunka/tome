@@ -36,12 +36,12 @@
         <textarea class="plaintext"></textarea>
         <pre class="pre"></pre>
     </body>
-    <script src="../dist/rte.js"></script>
+    <script src="../dist/tome.js"></script>
     <script>
         const plainText = document.querySelector('textarea');
         const pre       = document.querySelector('pre');
 
-        const editor = rte(document.querySelector('.editor'), {
+        const editor = tome(document.querySelector('.editor'), {
             value: {
                 text: 'Lorem ipsum dolor.',
                 markups: [

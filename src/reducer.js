@@ -1,11 +1,11 @@
-import State        from '../models/State';
-import Util         from '../Util';
-import * as Actions from '../constants/Actions';
-import Editor       from '../Editor';
+import State        from './models/State';
+import Util         from './Util';
+import ActionType   from './constants/ActionType';
+import Editor       from './Editor';
 
 export default (prevState, action) => {
     switch (action.type) {
-        case Actions.SET_SELECTION: {
+        case ActionType.SET_SELECTION: {
             const nextState = Util.extend(new State(), prevState, true);
 
             Object.assign(nextState.selection, action.range);
@@ -14,10 +14,10 @@ export default (prevState, action) => {
 
             return nextState;
         }
-        case Actions.INSERT: {
+        case ActionType.INSERT: {
             return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
         }
-        case Actions.BACKSPACE: {
+        case ActionType.BACKSPACE: {
             const fromIndex = action.range.isCollapsed ? action.range.from - 1 : action.range.from;
 
             // If at start, ignore
@@ -26,7 +26,7 @@ export default (prevState, action) => {
 
             return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
         }
-        case Actions.DELETE: {
+        case ActionType.DELETE: {
             const toIndex = action.range.isCollapsed ? action.range.from + 1 :  action.range.to;
 
             // If at end, ignore
@@ -35,12 +35,12 @@ export default (prevState, action) => {
 
             return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
-        case Actions.RETURN:
+        case ActionType.RETURN:
             return Editor.insert(prevState, action.range, '\n');
-        case Actions.SHIFT_RETURN:
+        case ActionType.SHIFT_RETURN:
 
             break;
-        case Actions.TOGGLE_INLINE: {
+        case ActionType.TOGGLE_INLINE: {
             let nextState = null;
 
             // TODO: if collapsed, simply change state to disable/enable active

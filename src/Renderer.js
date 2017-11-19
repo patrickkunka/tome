@@ -1,4 +1,4 @@
-import {TEXT} from './constants/Markups';
+import MarkupTag from './constants/MarkupTag';
 
 class Renderer {
     static renderNodes(nodes, parent=null) {
@@ -8,7 +8,7 @@ class Renderer {
     static renderNode(node, parent) {
         let html = '';
 
-        if (node.tag !== TEXT) {
+        if (node.tag !== MarkupTag.TEXT) {
             html += '<' + node.tag + '>';
         }
 
@@ -24,7 +24,7 @@ class Renderer {
             html += '&#8203;';
         }
 
-        if (node.tag !== TEXT) {
+        if (node.tag !== MarkupTag.TEXT) {
             html += '</' + node.tag + '>';
         }
 

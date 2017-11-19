@@ -2,7 +2,7 @@ import State        from './models/State';
 import Markup       from './models/Markup';
 import Util         from './Util';
 
-import {LINE_BREAK, P} from './constants/Markups';
+import MarkupTag from './constants/MarkupTag';
 
 /**
  * A static class of utility functions for performing edits to
@@ -42,7 +42,7 @@ class Editor {
             adjustment
         );
 
-        if (content === LINE_BREAK) {
+        if (content === MarkupTag.LINE_BREAK) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 
             totalTrimmed = Editor.trimWhitespace(nextState, range.from);
@@ -174,7 +174,7 @@ class Editor {
         const newMarkups = [];
 
         for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [tag, markupStart, markupEnd] = markup;
+            const [, markupStart, markupEnd] = markup;
             const newMarkup = new Markup(markup);
 
             let removeMarkup = false;
@@ -365,7 +365,7 @@ class Editor {
 
             if (markup.start < index && markup.end > index) {
                 const newStartIndex = index + 1;
-                const newTag = markup.isBlock && markup.end === newStartIndex ? P : markup.tag;
+                const newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag.P : markup.tag;
 
                 let j = i + 1;
                 let insertIndex = -1;

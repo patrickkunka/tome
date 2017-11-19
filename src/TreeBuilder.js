@@ -1,5 +1,5 @@
-import Node from './models/Node';
-import {TEXT} from './constants/Markups';
+import Node      from './models/Node';
+import MarkupTag from './constants/MarkupTag';
 
 class TreeBuilder {
     static build(root, text, markups) {
@@ -141,7 +141,7 @@ class TreeBuilder {
     }
 
     static createTextNode(parent, start) {
-        return TreeBuilder.createNode(TEXT, parent, start, -1);
+        return TreeBuilder.createNode(MarkupTag.TEXT, parent, start, -1);
     }
 
     static closeTextNode(textNode, text, end) {

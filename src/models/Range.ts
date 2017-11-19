@@ -1,15 +1,14 @@
-import {
-    DIRECTION_LTR,
-    DIRECTION_RTL
-} from '../constants/Common';
+import SelectionDirection from '../constants/SelectionDirection';
 
 class Range {
-    constructor(from=-1, to=-1, direction=DIRECTION_LTR) {
+    from: number;
+    to:   number;
+    direction: SelectionDirection;
+
+    constructor(from: number=-1, to:number=-1, direction:SelectionDirection=SelectionDirection.LTR) {
         this.from       = from;
         this.to         = to;
         this.direction  = direction;
-
-        Object.seal(this);
     }
 
     get isCollapsed() {
@@ -17,11 +16,11 @@ class Range {
     }
 
     get isLtr() {
-        return this.direction === DIRECTION_LTR;
+        return this.direction === SelectionDirection.LTR;
     }
 
     get isRtl() {
-        return this.direction === DIRECTION_RTL;
+        return this.direction === SelectionDirection.RTL;
     }
 
     get anchor() {

@@ -1,30 +1,31 @@
-const path = require('path');
+const path    = require('path');
+const webpack = require('webpack');
 
-const config = {
-    entry: './src/factory.js',
-    plugins: [],
-    devtool: 'source-map',
+module.exports = {
+    entry: './src/factory.ts',
     output: {
-        path: path.join(__dirname, 'dist'),
-        filename: 'rte.js',
-        sourceMapFilename: '[file].map',
-        library: 'rte',
+        filename: 'tome.js',
+        path: path.resolve(__dirname, 'dist'),
+        library: 'tome',
         libraryTarget: 'umd'
     },
+    devtool: 'source-map',
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin()
+    ],
+    resolve: {
+        extensions: ['.ts', '.js']
+    },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.json/,
                 loader: 'json'
             },
             {
-                test: /\.js$/,
-                exclude: [/(node_modules)/],
-                loader: 'babel'
+                test: /\.(ts|js)/,
+                loader: 'ts-loader'
             }
         ]
-    },
-    watch: true
+    }
 };
-
-module.exports = config;

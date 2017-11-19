@@ -2,10 +2,10 @@ import ConfigCallbacks from './ConfigCallbacks';
 import State           from '../models/State';
 
 class ConfigRoot {
-    constructor() {
-        this.callbacks = new ConfigCallbacks();
-        this.value     = new State();
+    callbacks: ConfigCallbacks=new ConfigCallbacks();
+    value: State=new State();
 
+    constructor() {
         Object.seal(this);
     }
 }

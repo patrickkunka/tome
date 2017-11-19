@@ -10,23 +10,14 @@ import ConfigRoot   from './config/ConfigRoot';
 import EventHandler from './EventHandler';
 import TreeBuilder  from './TreeBuilder';
 import Renderer     from './Renderer';
-import reducer      from './actions/reducer';
-
-import {
-    SET_SELECTION,
-    UNDO,
-    REDO
-} from './constants/Actions';
-
-import {
-    DIRECTION_LTR,
-    DIRECTION_RTL
-} from './constants/Common';
+import reducer      from './reducer';
+import ActionType   from './constants/ActionType';
+import SelectionDirection from './constants/SelectionDirection';
 
 class RichTextEditor {
     constructor(el, config) {
         this.dom            = new Dom();
-        this.eventHandler   = new EventHandler();
+        this.eventHandler   = new EventHandler(this);
         this.config         = new ConfigRoot();
         this.root           = null;
         this.history        = [];
@@ -98,7 +89,7 @@ class RichTextEditor {
         this.positionCaret(this.state.selection);
 
         if (typeof fn === 'function') {
-            fn(this.state, UNDO);
+            fn(this.state, ActionType.UNDO);
         }
     }
 
@@ -114,7 +105,7 @@ class RichTextEditor {
         this.positionCaret(this.state.selection);
 
         if (typeof fn === 'function') {
-            fn(this.state, REDO);
+            fn(this.state, ActionType.REDO);
         }
     }
 
@@ -128,7 +119,7 @@ class RichTextEditor {
         const action = Object.assign(new Action(), actionRaw);
         const fn = this.config.callbacks.onStateChange;
 
-        if (action.type === SET_SELECTION) {
+        if (action.type === ActionType.SET_SELECTION) {
             // Detect new selection from browser API
 
             const selection = window.getSelection();
@@ -168,7 +159,7 @@ class RichTextEditor {
 
         this.historyIndex++;
 
-        if (action.type !== SET_SELECTION) {
+        if (action.type !== ActionType.SET_SELECTION) {
             this.render();
 
             this.positionCaret(this.state.selection);
@@ -250,7 +241,7 @@ class RichTextEditor {
         rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
         rangeTo = Math.min(to.node.start + to.offset, to.node.end);
 
-        return new Range(rangeFrom, rangeTo, isRtl ? DIRECTION_RTL : DIRECTION_LTR);
+        return new Range(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
     }
 
     positionCaret({from, to, isRtl}) {

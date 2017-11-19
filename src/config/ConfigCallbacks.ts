@@ -1,8 +1,8 @@
 class ConfigCallbacks {
-    constructor() {
-        this.onStateChange = null;
-        this.onValueChange = null;
+    onStateChange: Function=null;
+    onValueChange: Function=null;
 
+    constructor() {
         Object.seal(this);
     }
 }
