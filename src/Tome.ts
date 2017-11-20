@@ -9,7 +9,7 @@ import Action             from './models/Action';
 import IAction            from './interfaces/IAction';
 import ISelection         from './interfaces/ISelection';
 import ConfigRoot         from './config/ConfigRoot';
-import EventHandler       from './EventHandler';
+import EventManager       from './EventManager';
 import TreeBuilder        from './TreeBuilder';
 import Renderer           from './Renderer';
 import reducer            from './reducer';
@@ -22,7 +22,7 @@ import DiffPatch          from './DiffPatch';
 
 class Tome implements ITome {
     dom:          Dom          = new Dom();
-    eventHandler: EventHandler = new EventHandler(this);
+    eventManager: EventManager = new EventManager(this);
     config:       ConfigRoot   = new ConfigRoot();
     root:         TomeNode     = null;
     history:      Array<State> = [];
@@ -52,7 +52,7 @@ class Tome implements ITome {
 
         this.render();
 
-        this.eventHandler.bindEvents(this.dom.root);
+        this.eventManager.bindEvents(this.dom.root);
     }
 
     buildInitialState(initialState: any): State {
