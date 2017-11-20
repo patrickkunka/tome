@@ -7,6 +7,7 @@ import SelectionDirection from './constants/SelectionDirection';
 import MarkupTag          from './constants/MarkupTag';
 import State              from './models/State';
 import Markup             from './models/Markup';
+import TomeSelection      from './models/TomeSelection';
 
 chai.use(deepEqual);
 
@@ -523,7 +524,7 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[3], new Markup([MarkupTag.EM, 19, 19]));
         assert.deepEqual(newState.markups[4], new Markup([MarkupTag.P, 20, 29]));
         assert.deepEqual(newState.markups[5], new Markup([MarkupTag.EM, 20, 29]));
-        assert.deepEqual(newState.selection, {from: 0, to: 29, direction: SelectionDirection.LTR});
+        assert.deepEqual(newState.selection, Object.assign(new TomeSelection(), {from: 0, to: 29, direction: SelectionDirection.LTR}));
     });
 
     it('should not add inline markups over breaks between block markups', () => {
