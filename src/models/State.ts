@@ -5,7 +5,7 @@ import MarkupTag     from '../constants/MarkupTag';
 class State {
     text:                  string        = '';
     markups:               Array<Markup> = [];
-    selection:             TomeSelection = new TomeSelection();
+    selection:             TomeSelection = null;
     activeBlockMarkup:     Markup        = null
     activeInlineMarkups:   Array<Markup> = [];
     envelopedBlockMarkups: Array<Markup> = [];

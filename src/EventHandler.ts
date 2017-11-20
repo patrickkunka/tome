@@ -39,7 +39,7 @@ class EventHandler {
             throw new Error(`[EventHandler] No handler found for event "${eventType}"`);
         }
 
-        fn(e);
+        fn.call(this, e);
     }
 
     handleKeypress(e: KeyboardEvent): void {

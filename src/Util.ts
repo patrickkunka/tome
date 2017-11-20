@@ -85,7 +85,7 @@ class Util {
     }
 
     static index(node: Node, includeNonElements: boolean=false): number {
-        const previousSiblingType = includeNonElements ? 'previousSiblings' : 'previousElementSibling';
+        const previousSiblingType = includeNonElements ? 'previousSibling' : 'previousElementSibling';
 
         let index = 0;
 

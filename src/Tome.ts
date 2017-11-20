@@ -62,13 +62,17 @@ class Tome implements ITome {
 
         // TODO: if text but no markups, wrap entire in <p>
 
-        state.markups = state.markups.map(markup => new Markup(markup));
+        // Coerce triplets into `Markup` if needed
+
+        state.markups = state.markups.map(markup => Array.isArray(markup) ? new Markup(markup) : markup);
 
         return state;
     }
 
     render(): void {
         this.root = Tome.buildModelFromState(this.state);
+
+        console.log(this.root);
 
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
     }

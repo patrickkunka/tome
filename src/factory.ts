@@ -6,4 +6,4 @@ function factory(el: HTMLElement, config: any={}): Tome {
     return tome;
 }
 
-export default factory;
+module.exports = factory;

@@ -5,11 +5,13 @@
   "main": "./dist/rte.js",
   "scripts": {
     "test": "mocha -r ts-node/register ./test/unit.ts",
-    "webpack": "webpack --watch"
+    "build": "webpack",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
     "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.53",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "chai-shallow-deep-equal": "^1.4.0",

@@ -11,17 +11,13 @@ module.exports = {
     },
     devtool: 'source-map',
     plugins: [
-        new webpack.optimize.UglifyJsPlugin()
+        // new webpack.optimize.UglifyJsPlugin()
     ],
     resolve: {
         extensions: ['.ts', '.js']
     },
     module: {
         rules: [
-            {
-                test: /\.json/,
-                loader: 'json'
-            },
             {
                 test: /\.(ts|js)/,
                 loader: 'ts-loader'
