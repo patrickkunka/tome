@@ -1,6 +1,6 @@
 class Util {
     static extend(target: any, source: any, deep: boolean=false): any {
-        let sourceKeys: Array<string|number>;
+        let sourceKeys: Array<string|number>=[];
 
         if (!target || typeof target !== 'object') {
             throw new TypeError('[Util#extend] Target must be a valid object');

@@ -1,6 +1,6 @@
 enum SelectionDirection {
-    LTR,
-    RTL
+    LTR='LTR',
+    RTL='RTL'
 }
 
 export default SelectionDirection;
