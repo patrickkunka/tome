@@ -331,8 +331,8 @@ class Editor {
 
     static splitMarkups(markups: Array<Markup>, index: number): Array<Markup> {
         for (let i = 0; i < markups.length; i++) {
-            const markupRaw = markups[i];
-            const markup = new Markup(markupRaw.toArray());
+            const markup = markups[i];
+            const originalMarkupEnd = markup.end;
 
             let newMarkup = null;
 
@@ -343,29 +343,39 @@ class Editor {
                 let j = i + 1;
                 let insertIndex = -1;
 
-                markupRaw[2] = index;
+                // Contract markup
 
-                newMarkup = new Markup([newTag, newStartIndex, markup.end]);
+                markup[2] = index;
+
+                newMarkup = new Markup([newTag, newStartIndex, originalMarkupEnd]);
+
+                // Find appropriate insertion index
 
                 for (; j < markups.length; j++) {
-                    const markup = new Markup(markups[j].toArray());
+                    const siblingMarkup = markups[j];
 
-                    if (markup.start === newStartIndex) {
+                    if (siblingMarkup.start === newStartIndex) {
                         insertIndex = newMarkup.isBlock ? j : j + 1;
 
                         break;
-                    } else if (markup.start > newStartIndex) {
+                    } else if (siblingMarkup.start > newStartIndex) {
                         insertIndex = j;
 
                         break;
                     }
                 }
 
+                if (insertIndex < 0) {
+                    // If no insert index found, insert at end
+
+                    insertIndex = j;
+                }
+
                 markups.splice(insertIndex, 0, newMarkup);
 
-                if (insertIndex === j) {
-                    i = insertIndex;
-                }
+                // if (insertIndex === j) {
+                //     i = insertIndex;
+                // }
             }
         }
 

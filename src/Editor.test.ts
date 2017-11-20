@@ -414,8 +414,6 @@ describe('Editor', () => {
 
         const newState = Editor.insert(state, {from: 8, to: 8}, '\n');
 
-        console.log(newState.markups);
-
         assert.equal(newState.text, 'Lorem ip\nsum dolor.');
         assert.equal(newState.markups.length, 4);
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 8]));

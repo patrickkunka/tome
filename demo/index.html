@@ -57,7 +57,7 @@
 
         function handleStateChange(state, action) {
             plainText.value = state.text;
-            pre.innerHTML = JSON.stringify(state.markups) + '\n' + JSON.stringify(state.activeInlineMarkups);
+            pre.innerHTML = JSON.stringify(state.markups.map(markup => markup.toArray())) + '\n' + JSON.stringify(state.activeInlineMarkups);
 
             console.log(action);
         }

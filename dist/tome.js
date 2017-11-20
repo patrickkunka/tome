@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -199,7 +199,7 @@ exports.default = Util;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var TomeSelection_1 = __webpack_require__(12);
+var TomeSelection_1 = __webpack_require__(6);
 var State = /** @class */ (function () {
     function State() {
         this.text = '';
@@ -236,32 +236,8 @@ exports.default = State;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var ActionType;
-(function (ActionType) {
-    ActionType["SET_SELECTION"] = "SET_SELECTION";
-    ActionType["INSERT"] = "INSERT";
-    ActionType["BACKSPACE"] = "BACKSPACE";
-    ActionType["DELETE"] = "DELETE";
-    ActionType["RETURN"] = "RETURN";
-    ActionType["SHIFT_RETURN"] = "SHIFT_RETURN";
-    ActionType["TOGGLE_INLINE"] = "TOGGLE_INLINE";
-    ActionType["UNDO"] = "UNDO";
-    ActionType["REDO"] = "REDO";
-    ActionType["NONE"] = "NONE";
-})(ActionType || (ActionType = {}));
-;
-exports.default = ActionType;
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
 var MarkupTag_1 = __webpack_require__(0);
-var MarkupType_1 = __webpack_require__(10);
+var MarkupType_1 = __webpack_require__(11);
 var Markup = /** @class */ (function () {
     function Markup(_a) {
         var tag = _a[0], start = _a[1], end = _a[2];
@@ -332,6 +308,30 @@ exports.default = Markup;
 
 
 /***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ActionType;
+(function (ActionType) {
+    ActionType["SET_SELECTION"] = "SET_SELECTION";
+    ActionType["INSERT"] = "INSERT";
+    ActionType["BACKSPACE"] = "BACKSPACE";
+    ActionType["DELETE"] = "DELETE";
+    ActionType["RETURN"] = "RETURN";
+    ActionType["SHIFT_RETURN"] = "SHIFT_RETURN";
+    ActionType["TOGGLE_INLINE"] = "TOGGLE_INLINE";
+    ActionType["UNDO"] = "UNDO";
+    ActionType["REDO"] = "REDO";
+    ActionType["NONE"] = "NONE";
+})(ActionType || (ActionType = {}));
+;
+exports.default = ActionType;
+
+
+/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -390,12 +390,60 @@ exports.default = TomeNode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var SelectionDirection;
-(function (SelectionDirection) {
-    SelectionDirection["LTR"] = "LTR";
-    SelectionDirection["RTL"] = "RTL";
-})(SelectionDirection || (SelectionDirection = {}));
-exports.default = SelectionDirection;
+var SelectionDirection_1 = __webpack_require__(7);
+var TomeSelection = /** @class */ (function () {
+    function TomeSelection(from, to, direction) {
+        if (from === void 0) { from = -1; }
+        if (to === void 0) { to = -1; }
+        if (direction === void 0) { direction = SelectionDirection_1.default.LTR; }
+        this.from = from;
+        this.to = to;
+        this.direction = direction;
+    }
+    Object.defineProperty(TomeSelection.prototype, "isCollapsed", {
+        get: function () {
+            return this.from === this.to;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "isLtr", {
+        get: function () {
+            return this.direction === SelectionDirection_1.default.LTR;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "isRtl", {
+        get: function () {
+            return this.direction === SelectionDirection_1.default.RTL;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "anchor", {
+        get: function () {
+            if (this.isLtr) {
+                return this.from;
+            }
+            return this.to;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "extent", {
+        get: function () {
+            if (this.isLtr) {
+                return this.to;
+            }
+            return this.from;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return TomeSelection;
+}());
+exports.default = TomeSelection;
 
 
 /***/ }),
@@ -405,13 +453,12 @@ exports.default = SelectionDirection;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Tome_1 = __webpack_require__(8);
-function factory(el, config) {
-    if (config === void 0) { config = {}; }
-    var tome = new Tome_1.default(el, config);
-    return tome;
-}
-module.exports = factory;
+var SelectionDirection;
+(function (SelectionDirection) {
+    SelectionDirection["LTR"] = "LTR";
+    SelectionDirection["RTL"] = "RTL";
+})(SelectionDirection || (SelectionDirection = {}));
+exports.default = SelectionDirection;
 
 
 /***/ }),
@@ -421,12 +468,28 @@ module.exports = factory;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Dom_1 = __webpack_require__(9);
+var Tome_1 = __webpack_require__(9);
+function factory(el, config) {
+    if (config === void 0) { config = {}; }
+    var tome = new Tome_1.default(el, config);
+    return tome;
+}
+module.exports = factory;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Dom_1 = __webpack_require__(10);
 var Util_1 = __webpack_require__(1);
-var Markup_1 = __webpack_require__(4);
+var Markup_1 = __webpack_require__(3);
 var TomeNode_1 = __webpack_require__(5);
-var Caret_1 = __webpack_require__(11);
-var TomeSelection_1 = __webpack_require__(12);
+var Caret_1 = __webpack_require__(12);
+var TomeSelection_1 = __webpack_require__(6);
 var State_1 = __webpack_require__(2);
 var Action_1 = __webpack_require__(13);
 var ConfigRoot_1 = __webpack_require__(14);
@@ -434,9 +497,9 @@ var EventHandler_1 = __webpack_require__(16);
 var TreeBuilder_1 = __webpack_require__(18);
 var Renderer_1 = __webpack_require__(19);
 var reducer_1 = __webpack_require__(20);
-var ActionType_1 = __webpack_require__(3);
+var ActionType_1 = __webpack_require__(4);
 var MarkupTag_1 = __webpack_require__(0);
-var SelectionDirection_1 = __webpack_require__(6);
+var SelectionDirection_1 = __webpack_require__(7);
 var Tome = /** @class */ (function () {
     function Tome(el, config) {
         this.dom = new Dom_1.default();
@@ -664,7 +727,7 @@ exports.default = Tome;
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -680,7 +743,7 @@ exports.default = Dom;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -695,7 +758,7 @@ exports.default = MarkupType;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -710,69 +773,6 @@ var Caret = /** @class */ (function () {
     return Caret;
 }());
 exports.default = Caret;
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var SelectionDirection_1 = __webpack_require__(6);
-var TomeSelection = /** @class */ (function () {
-    function TomeSelection(from, to, direction) {
-        if (from === void 0) { from = -1; }
-        if (to === void 0) { to = -1; }
-        if (direction === void 0) { direction = SelectionDirection_1.default.LTR; }
-        this.from = from;
-        this.to = to;
-        this.direction = direction;
-    }
-    Object.defineProperty(TomeSelection.prototype, "isCollapsed", {
-        get: function () {
-            return this.from === this.to;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "isLtr", {
-        get: function () {
-            return this.direction === SelectionDirection_1.default.LTR;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "isRtl", {
-        get: function () {
-            return this.direction === SelectionDirection_1.default.RTL;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "anchor", {
-        get: function () {
-            if (this.isLtr) {
-                return this.from;
-            }
-            return this.to;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "extent", {
-        get: function () {
-            if (this.isLtr) {
-                return this.to;
-            }
-            return this.from;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return TomeSelection;
-}());
-exports.default = TomeSelection;
 
 
 /***/ }),
@@ -840,7 +840,7 @@ exports.default = ConfigCallbacks;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Util_1 = __webpack_require__(1);
-var ActionType_1 = __webpack_require__(3);
+var ActionType_1 = __webpack_require__(4);
 var Keypress_1 = __webpack_require__(17);
 var MarkupTag_1 = __webpack_require__(0);
 var SELECTION_DELAY = 10;
@@ -1149,9 +1149,9 @@ exports.default = Renderer;
 Object.defineProperty(exports, "__esModule", { value: true });
 var State_1 = __webpack_require__(2);
 var Util_1 = __webpack_require__(1);
-var ActionType_1 = __webpack_require__(3);
+var ActionType_1 = __webpack_require__(4);
 var Editor_1 = __webpack_require__(21);
-var Markup_1 = __webpack_require__(4);
+var Markup_1 = __webpack_require__(3);
 exports.default = function (prevState, action) {
     switch (action.type) {
         case ActionType_1.default.SET_SELECTION: {
@@ -1209,7 +1209,7 @@ exports.default = function (prevState, action) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var State_1 = __webpack_require__(2);
-var Markup_1 = __webpack_require__(4);
+var Markup_1 = __webpack_require__(3);
 var MarkupTag_1 = __webpack_require__(0);
 var Util_1 = __webpack_require__(1);
 /**
@@ -1450,31 +1450,37 @@ var Editor = /** @class */ (function () {
      */
     Editor.splitMarkups = function (markups, index) {
         for (var i = 0; i < markups.length; i++) {
-            var markupRaw = markups[i];
-            var markup = new Markup_1.default(markupRaw.toArray());
+            var markup = markups[i];
+            var originalMarkupEnd = markup.end;
             var newMarkup = null;
             if (markup.start < index && markup.end > index) {
                 var newStartIndex = index + 1;
                 var newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag_1.default.P : markup.tag;
                 var j = i + 1;
                 var insertIndex = -1;
-                markupRaw[2] = index;
-                newMarkup = new Markup_1.default([newTag, newStartIndex, markup.end]);
+                // Contract markup
+                markup[2] = index;
+                newMarkup = new Markup_1.default([newTag, newStartIndex, originalMarkupEnd]);
+                // Find appropriate insertion index
                 for (; j < markups.length; j++) {
-                    var markup_2 = new Markup_1.default(markups[j].toArray());
-                    if (markup_2.start === newStartIndex) {
+                    var siblingMarkup = markups[j];
+                    if (siblingMarkup.start === newStartIndex) {
                         insertIndex = newMarkup.isBlock ? j : j + 1;
                         break;
                     }
-                    else if (markup_2.start > newStartIndex) {
+                    else if (siblingMarkup.start > newStartIndex) {
                         insertIndex = j;
                         break;
                     }
                 }
-                markups.splice(insertIndex, 0, newMarkup);
-                if (insertIndex === j) {
-                    i = insertIndex;
+                if (insertIndex < 0) {
+                    // If no insert index found, insert at end
+                    insertIndex = j;
                 }
+                markups.splice(insertIndex, 0, newMarkup);
+                // if (insertIndex === j) {
+                //     i = insertIndex;
+                // }
             }
         }
         return markups;
