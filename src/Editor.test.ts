@@ -312,39 +312,41 @@ describe('Editor', () => {
         assert.equal(newState.selection.from, 4);
     });
 
-    it('should split a block markup into two block markups at a whitespace, removing whitespace before the break', () => {
-        const state = Object.assign(new State(), {
-            text: 'Lorem ipsum dolor. Sit amet.',
-            markups: [
-                new Markup([MarkupTag.P, 0, 28])
-            ]
-        });
+    // Reinstate once whitespace trim option is reinstated
 
-        const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
+    // it('should split a block markup into two block markups at a whitespace, removing whitespace before the break', () => {
+    //     const state = Object.assign(new State(), {
+    //         text: 'Lorem ipsum dolor. Sit amet.',
+    //         markups: [
+    //             new Markup([MarkupTag.P, 0, 28])
+    //         ]
+    //     });
 
-        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
-        assert.equal(newState.text.length, 28);
-        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 18]));
-        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 19, 28]));
-        assert.equal(newState.selection.from, 19);
-    });
+    //     const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
 
-    it('should split a block markup into two block markups at a whitespace, removing whitespace after the break', () => {
-        const state = Object.assign(new State(), {
-            text: 'Lorem ipsum dolor. Sit amet.',
-            markups: [
-                new Markup([MarkupTag.P, 0, 28])
-            ]
-        });
+    //     assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+    //     assert.equal(newState.text.length, 28);
+    //     assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 18]));
+    //     assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 19, 28]));
+    //     assert.equal(newState.selection.from, 19);
+    // });
 
-        const newState = Editor.insert(state, {from: 18, to: 18}, '\n');
+    // it('should split a block markup into two block markups at a whitespace, removing whitespace after the break', () => {
+    //     const state = Object.assign(new State(), {
+    //         text: 'Lorem ipsum dolor. Sit amet.',
+    //         markups: [
+    //             new Markup([MarkupTag.P, 0, 28])
+    //         ]
+    //     });
 
-        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
-        assert.equal(newState.text.length, 28);
-        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 18]));
-        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 19, 28]));
-        assert.equal(newState.selection.from, 19);
-    });
+    //     const newState = Editor.insert(state, {from: 18, to: 18}, '\n');
+
+    //     assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+    //     assert.equal(newState.text.length, 28);
+    //     assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 18]));
+    //     assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 19, 28]));
+    //     assert.equal(newState.selection.from, 19);
+    // });
 
     it('should split a subsequent block markup into two block markups at an arbitrary point', () => {
         const state = Object.assign(new State(), {
@@ -357,10 +359,10 @@ describe('Editor', () => {
 
         const newState = Editor.insert(state, {from: 34, to: 34}, '\n');
 
-        assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.\nTest\nHeading');
+        assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.\nTest \nHeading');
         assert.equal(newState.markups.length, 3);
-        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.H2, 34, 41]));
-        assert.equal(newState.selection.from, 34);
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.H2, 35, 42]));
+        assert.equal(newState.selection.from, 35);
     });
 
     it('should create a new empty block markup when a block is split at its end', () => {
@@ -395,12 +397,12 @@ describe('Editor', () => {
 
         const newState = Editor.insert(state, {from: 6, to: 6}, '\n');
 
-        assert.equal(newState.text, 'Lorem\nipsum dolor.');
+        assert.equal(newState.text, 'Lorem \nipsum dolor.');
         assert.equal(newState.markups.length, 4);
-        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 5]));
-        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 6, 18]));
-        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.STRONG, 6, 11]));
-        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.EM, 8, 14]));
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 6]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 7, 19]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.STRONG, 7, 12]));
+        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.EM, 9, 15]));
     });
 
     it('should split a block markup and any affected inline markups', () => {
@@ -420,6 +422,25 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 6, 8]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 9, 19]));
         assert.deepEqual(newState.markups[3], new Markup([MarkupTag.STRONG, 9, 12]));
+    });
+
+    it('should split a block markup and any affected inline markups when broken on a trailing space', () => {
+        const state = Object.assign(new State(), {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 18]),
+                new Markup([MarkupTag.STRONG, 4, 11])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 6, to: 6}, '\n');
+
+        assert.equal(newState.text, 'Lorem \nipsum dolor.');
+        assert.equal(newState.markups.length, 4);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 6]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 4, 6]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 7, 19]));
+        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.STRONG, 7, 12]));
     });
 
     it('should join two block markups into one block markups on deletion of line break', () => {
@@ -682,12 +703,12 @@ describe('Editor', () => {
 
         const newState = Editor.insert(state, {from: 19, to: 19}, '\n');
 
-        assert.equal(newState.text, 'Lorem ipsum dolor.\nSit amet.');
+        assert.equal(newState.text, 'Lorem ipsum dolor. \nSit amet.');
         assert.equal(newState.markups.length, 4);
-        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 18]));
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 19]));
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 6, 11]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.EM, 8, 14]));
-        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.P, 19, 28]));
+        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.P, 20, 29]));
     });
 
     it('should remove an empty line between two blocks', () => {

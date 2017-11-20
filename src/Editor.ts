@@ -41,7 +41,9 @@ class Editor {
         if (content === MarkupTag.LINE_BREAK) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 
-            totalTrimmed = Editor.trimWhitespace(nextState, range.from);
+            // TODO: make whitespace trimming available via config
+
+            // totalTrimmed = Editor.trimWhitespace(nextState, range.from);
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
             nextState.markups = Editor.joinMarkups(nextState.markups, range.to);

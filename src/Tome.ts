@@ -18,6 +18,7 @@ import MarkupTag          from './constants/MarkupTag';
 import SelectionDirection from './constants/SelectionDirection';
 import INodeLike          from './interfaces/INodeLike';
 import ITome              from './interfaces/ITome';
+import DiffPatch          from './DiffPatch';
 
 class Tome implements ITome {
     dom:          Dom          = new Dom();
@@ -26,6 +27,7 @@ class Tome implements ITome {
     root:         TomeNode     = null;
     history:      Array<State> = [];
     historyIndex: number       = -1;
+    lastRender:   string       = '';
 
     constructor(el: HTMLElement, config: any) {
         this.init(el, config);
@@ -72,7 +74,23 @@ class Tome implements ITome {
     render(): void {
         this.root = Tome.buildModelFromState(this.state);
 
-        this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
+        const nextRender = Renderer.renderNodes(this.root.childNodes);
+
+        if (!this.lastRender) {
+            // Initial render
+
+            this.dom.root.innerHTML = this.lastRender = nextRender;
+
+            return;
+        }
+
+        const prevRender = this.lastRender;
+
+        const diffCommand = DiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
+
+        DiffPatch.patch(this.dom.root, diffCommand);
+
+        this.lastRender = nextRender;
     }
 
     undo(): void {

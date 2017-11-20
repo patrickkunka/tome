@@ -16,9 +16,20 @@ class Renderer {
         if (node.childNodes.length) {
             html += Renderer.renderNodes(node.childNodes, node);
         } else {
-            // Text leaf node
+            // At #text leaf node
 
-            html += node.text.length ? node.text : '&#8203;';
+
+            const text = node.text
+                // Replace 2 consecutive spaces with visible pattern of alternating
+                // space/non-breaking space
+
+                .replace(/ {2}/g, ' &nbsp;')
+
+                // Replace leading space or single space with non-breaking space
+
+                .replace(/^ ((?=\S)|$)/g, '&nbsp;');
+
+            html += text.length ? text : '&#8203;';
         }
 
         if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
