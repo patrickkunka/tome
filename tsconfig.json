@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "outDir": "./dist/",
-        "allowJs": true,
         "target": "es5",
         "lib": ["es2015", "es2017", "dom"],
         "sourceMap": true
@@ -10,7 +9,7 @@
         "./src/**/*"
     ],
     "exclude": [
-        "./src/*.test.js",
-        "./src/**/*.test.js"
+        "./src/*.test.ts",
+        "./src/**/*.test.ts"
     ]
 }

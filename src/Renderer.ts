@@ -7,7 +7,7 @@ class Renderer {
     }
 
     private static renderNode(node: TomeNode, parent: TomeNode): string {
-        let html: string;
+        let html: string='';
 
         if (node.tag !== MarkupTag.TEXT) {
             html += '<' + node.tag + '>';

@@ -3,11 +3,14 @@ import Util         from './Util';
 import ActionType   from './constants/ActionType';
 import Editor       from './Editor';
 import Action       from './models/Action';
+import Markup       from './models/Markup';
 
 export default (prevState: State, action: Action): State => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
             const nextState = Util.extend(new State(), prevState, true);
+
+            nextState.markups = prevState.markups.map(markup => new Markup(markup.toArray()));
 
             Object.assign(nextState.selection, action.range);
 

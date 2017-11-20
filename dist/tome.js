@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -199,11 +199,12 @@ exports.default = Util;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var TomeSelection_1 = __webpack_require__(12);
 var State = /** @class */ (function () {
     function State() {
         this.text = '';
         this.markups = [];
-        this.selection = null;
+        this.selection = new TomeSelection_1.default();
         this.activeBlockMarkup = null;
         this.activeInlineMarkups = [];
         this.envelopedBlockMarkups = [];
@@ -260,7 +261,7 @@ exports.default = ActionType;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var MarkupTag_1 = __webpack_require__(0);
-var MarkupType_1 = __webpack_require__(11);
+var MarkupType_1 = __webpack_require__(10);
 var Markup = /** @class */ (function () {
     function Markup(_a) {
         var tag = _a[0], start = _a[1], end = _a[2];
@@ -389,69 +390,6 @@ exports.default = TomeNode;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var SelectionDirection_1 = __webpack_require__(7);
-var TomeSelection = /** @class */ (function () {
-    function TomeSelection(from, to, direction) {
-        if (from === void 0) { from = -1; }
-        if (to === void 0) { to = -1; }
-        if (direction === void 0) { direction = SelectionDirection_1.default.LTR; }
-        this.from = from;
-        this.to = to;
-        this.direction = direction;
-    }
-    Object.defineProperty(TomeSelection.prototype, "isCollapsed", {
-        get: function () {
-            return this.from === this.to;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "isLtr", {
-        get: function () {
-            return this.direction === SelectionDirection_1.default.LTR;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "isRtl", {
-        get: function () {
-            return this.direction === SelectionDirection_1.default.RTL;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "anchor", {
-        get: function () {
-            if (this.isLtr) {
-                return this.from;
-            }
-            return this.to;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(TomeSelection.prototype, "extent", {
-        get: function () {
-            if (this.isLtr) {
-                return this.to;
-            }
-            return this.from;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return TomeSelection;
-}());
-exports.default = TomeSelection;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
 var SelectionDirection;
 (function (SelectionDirection) {
     SelectionDirection["LTR"] = "LTR";
@@ -461,13 +399,13 @@ exports.default = SelectionDirection;
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Tome_1 = __webpack_require__(9);
+var Tome_1 = __webpack_require__(8);
 function factory(el, config) {
     if (config === void 0) { config = {}; }
     var tome = new Tome_1.default(el, config);
@@ -477,18 +415,18 @@ module.exports = factory;
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Dom_1 = __webpack_require__(10);
+var Dom_1 = __webpack_require__(9);
 var Util_1 = __webpack_require__(1);
 var Markup_1 = __webpack_require__(4);
 var TomeNode_1 = __webpack_require__(5);
-var Caret_1 = __webpack_require__(12);
-var TomeSelection_1 = __webpack_require__(6);
+var Caret_1 = __webpack_require__(11);
+var TomeSelection_1 = __webpack_require__(12);
 var State_1 = __webpack_require__(2);
 var Action_1 = __webpack_require__(13);
 var ConfigRoot_1 = __webpack_require__(14);
@@ -498,7 +436,7 @@ var Renderer_1 = __webpack_require__(19);
 var reducer_1 = __webpack_require__(20);
 var ActionType_1 = __webpack_require__(3);
 var MarkupTag_1 = __webpack_require__(0);
-var SelectionDirection_1 = __webpack_require__(7);
+var SelectionDirection_1 = __webpack_require__(6);
 var Tome = /** @class */ (function () {
     function Tome(el, config) {
         this.dom = new Dom_1.default();
@@ -539,7 +477,6 @@ var Tome = /** @class */ (function () {
     };
     Tome.prototype.render = function () {
         this.root = Tome.buildModelFromState(this.state);
-        console.log(this.root);
         this.dom.root.innerHTML = Renderer_1.default.renderNodes(this.root.childNodes);
     };
     Tome.prototype.undo = function () {
@@ -727,7 +664,7 @@ exports.default = Tome;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -743,7 +680,7 @@ exports.default = Dom;
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -758,7 +695,7 @@ exports.default = MarkupType;
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -773,6 +710,69 @@ var Caret = /** @class */ (function () {
     return Caret;
 }());
 exports.default = Caret;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SelectionDirection_1 = __webpack_require__(6);
+var TomeSelection = /** @class */ (function () {
+    function TomeSelection(from, to, direction) {
+        if (from === void 0) { from = -1; }
+        if (to === void 0) { to = -1; }
+        if (direction === void 0) { direction = SelectionDirection_1.default.LTR; }
+        this.from = from;
+        this.to = to;
+        this.direction = direction;
+    }
+    Object.defineProperty(TomeSelection.prototype, "isCollapsed", {
+        get: function () {
+            return this.from === this.to;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "isLtr", {
+        get: function () {
+            return this.direction === SelectionDirection_1.default.LTR;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "isRtl", {
+        get: function () {
+            return this.direction === SelectionDirection_1.default.RTL;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "anchor", {
+        get: function () {
+            if (this.isLtr) {
+                return this.from;
+            }
+            return this.to;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TomeSelection.prototype, "extent", {
+        get: function () {
+            if (this.isLtr) {
+                return this.to;
+            }
+            return this.from;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return TomeSelection;
+}());
+exports.default = TomeSelection;
 
 
 /***/ }),
@@ -1116,7 +1116,7 @@ var Renderer = /** @class */ (function () {
         return nodes.map(function (node) { return Renderer.renderNode(node, parent); }).join('');
     };
     Renderer.renderNode = function (node, parent) {
-        var html;
+        var html = '';
         if (node.tag !== MarkupTag_1.default.TEXT) {
             html += '<' + node.tag + '>';
         }
@@ -1151,10 +1151,12 @@ var State_1 = __webpack_require__(2);
 var Util_1 = __webpack_require__(1);
 var ActionType_1 = __webpack_require__(3);
 var Editor_1 = __webpack_require__(21);
+var Markup_1 = __webpack_require__(4);
 exports.default = function (prevState, action) {
     switch (action.type) {
         case ActionType_1.default.SET_SELECTION: {
             var nextState = Util_1.default.extend(new State_1.default(), prevState, true);
+            nextState.markups = prevState.markups.map(function (markup) { return new Markup_1.default(markup.toArray()); });
             Object.assign(nextState.selection, action.range);
             Editor_1.default.setActiveMarkups(nextState, action.range);
             return nextState;

@@ -72,8 +72,6 @@ class Tome implements ITome {
     render(): void {
         this.root = Tome.buildModelFromState(this.state);
 
-        console.log(this.root);
-
         this.dom.root.innerHTML = Renderer.renderNodes(this.root.childNodes);
     }
 
