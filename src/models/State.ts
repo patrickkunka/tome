@@ -1,11 +1,11 @@
-import EditorRange from './EditorRange';
-import Markup      from './Markup';
-import MarkupTag   from '../constants/MarkupTag';
+import TomeSelection from './TomeSelection';
+import Markup        from './Markup';
+import MarkupTag     from '../constants/MarkupTag';
 
 class State {
     text:                  string        = '';
     markups:               Array<Markup> = [];
-    selection:             EditorRange   = new EditorRange();
+    selection:             TomeSelection = new TomeSelection();
     activeBlockMarkup:     Markup        = null
     activeInlineMarkups:   Array<Markup> = [];
     envelopedBlockMarkups: Array<Markup> = [];

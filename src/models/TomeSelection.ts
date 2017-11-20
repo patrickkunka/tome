@@ -1,12 +1,12 @@
 import SelectionDirection from '../constants/SelectionDirection';
 import ISelection         from '../interfaces/ISelection';
 
-class EditorRange implements ISelection {
+class TomeSelection implements ISelection {
     from: number;
     to:   number;
     direction: SelectionDirection;
 
-    constructor(from: number=-1, to:number=-1, direction:SelectionDirection=SelectionDirection.LTR) {
+    constructor(from: number=-1, to: number=-1, direction: SelectionDirection=SelectionDirection.LTR) {
         this.from       = from;
         this.to         = to;
         this.direction  = direction;
@@ -41,4 +41,4 @@ class EditorRange implements ISelection {
     }
 }
 
-export default EditorRange;
+export default TomeSelection;

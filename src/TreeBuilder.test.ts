@@ -1,9 +1,11 @@
 /* eslint-disable no-magic-numbers */
 
-import chai         from 'chai';
-import deepEqual    from 'chai-shallow-deep-equal';
-import TreeBuilder  from './TreeBuilder';
-import Node         from './models/Node';
+import * as chai      from 'chai';
+import * as deepEqual from 'chai-shallow-deep-equal';
+import TreeBuilder    from './TreeBuilder';
+import TomeNode       from './models/TomeNode';
+import Markup         from './models/Markup';
+import MarkupTag      from './constants/MarkupTag';
 
 chai.use(deepEqual);
 
@@ -13,10 +15,10 @@ describe('TreeBuilder', () => {
     it('should create a tree', () => {
         const text = 'Lorem ipsum dolor sit.';
         const markups = [
-            ['p', 0, 22]
+            new Markup([MarkupTag.P, 0, 22])
         ];
 
-        const root = new Node();
+        const root = new TomeNode();
 
         TreeBuilder.build(root, text, markups);
 
@@ -34,10 +36,10 @@ describe('TreeBuilder', () => {
     it('should create a tree with an empty block', () => {
         const text = '';
         const markups = [
-            ['p', 0, 0]
+            new Markup([MarkupTag.P, 0, 0])
         ];
 
-        const root = new Node();
+        const root = new TomeNode();
 
         TreeBuilder.build(root, text, markups);
 
@@ -54,15 +56,15 @@ describe('TreeBuilder', () => {
     it('should allow inline markups to be applied to an empty block', () => {
         const text = 'Lorem ipsum dolor.\n\nSit amet.';
         const markups = [
-            ['p', 0, 18],
-            ['em', 0, 18],
-            ['p', 19, 19],
-            ['em', 19, 19],
-            ['p', 20, 29],
-            ['em', 20, 29]
+            new Markup([MarkupTag.P, 0, 18]),
+            new Markup([MarkupTag.EM, 0, 18]),
+            new Markup([MarkupTag.P, 19, 19]),
+            new Markup([MarkupTag.EM, 19, 19]),
+            new Markup([MarkupTag.P, 20, 29]),
+            new Markup([MarkupTag.EM, 20, 29])
         ];
 
-        const root = new Node();
+        const root = new TomeNode();
 
         TreeBuilder.build(root, text, markups);
 
@@ -102,14 +104,14 @@ describe('TreeBuilder', () => {
     it('should correctly split overlapping inline markups', () => {
         const text = 'Lorem ipsum dolor.';
         const markups = [
-            ['p', 0, 18],
-            ['strong', 6, 11],
-            ['em', 8, 14]
+            new Markup([MarkupTag.P, 0, 18]),
+            new Markup([MarkupTag.STRONG, 6, 11]),
+            new Markup([MarkupTag.EM, 8, 14])
         ];
 
         // <p>Lorem <strong>ip<em>sum</em></strong><em> do</em>lor</p>
 
-        const root = new Node();
+        const root = new TomeNode();
 
         TreeBuilder.build(root, text, markups);
 

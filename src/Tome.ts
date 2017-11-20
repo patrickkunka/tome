@@ -1,23 +1,23 @@
-import Dom          from './Dom';
-import Util         from './Util';
-import Markup       from './models/Markup';
-import TomeNode     from './models/TomeNode';
-import Caret        from './models/Caret';
-import EditorRange  from './models/EditorRange';
-import State        from './models/State';
-import Action       from './models/Action';
-import IAction      from './interfaces/IAction';
-import ISelection   from './interfaces/ISelection';
-import ConfigRoot   from './config/ConfigRoot';
-import EventHandler from './EventHandler';
-import TreeBuilder  from './TreeBuilder';
-import Renderer     from './Renderer';
-import reducer      from './reducer';
-import ActionType   from './constants/ActionType';
-import MarkupTag    from './constants/MarkupTag';
+import Dom                from './Dom';
+import Util               from './Util';
+import Markup             from './models/Markup';
+import TomeNode           from './models/TomeNode';
+import Caret              from './models/Caret';
+import TomeSelection      from './models/TomeSelection';
+import State              from './models/State';
+import Action             from './models/Action';
+import IAction            from './interfaces/IAction';
+import ISelection         from './interfaces/ISelection';
+import ConfigRoot         from './config/ConfigRoot';
+import EventHandler       from './EventHandler';
+import TreeBuilder        from './TreeBuilder';
+import Renderer           from './Renderer';
+import reducer            from './reducer';
+import ActionType         from './constants/ActionType';
+import MarkupTag          from './constants/MarkupTag';
 import SelectionDirection from './constants/SelectionDirection';
-import INodeLike    from './interfaces/INodeLike';
-import ITome        from './interfaces/ITome';
+import INodeLike          from './interfaces/INodeLike';
+import ITome              from './interfaces/ITome';
 
 class Tome implements ITome {
     dom:          Dom          = new Dom();
@@ -190,7 +190,7 @@ class Tome implements ITome {
 
     /**
      * @param   {Selection} selection
-     * @return  {EditorRange}
+     * @return  {TomeSelection;}
      */
 
     getRangeFromSelection(selection: Selection) {
@@ -231,7 +231,7 @@ class Tome implements ITome {
         rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
         rangeTo = Math.min(to.node.start + to.offset, to.node.end);
 
-        return new EditorRange(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
+        return new TomeSelection(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
     }
 
     positionCaret({from, to, direction}: ISelection): void {

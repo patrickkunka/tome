@@ -1,7 +1,7 @@
 /* eslint-disable no-magic-numbers */
 
-import chai         from 'chai';
-import Util         from './Util';
+import * as chai from 'chai';
+import Util      from './Util';
 
 const assert = chai.assert;
 

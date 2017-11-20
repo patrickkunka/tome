@@ -4,10 +4,12 @@
   "private": true,
   "main": "./dist/rte.js",
   "scripts": {
-    "test": "mocha ./tests/unit.js",
+    "test": "mocha -r ts-node/register ./test/unit.ts",
     "webpack": "webpack --watch"
   },
   "devDependencies": {
+    "@types/chai": "^4.0.5",
+    "@types/mocha": "^2.2.44",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "chai-shallow-deep-equal": "^1.4.0",
