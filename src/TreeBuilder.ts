@@ -12,7 +12,7 @@ class TreeBuilder {
         node.start = 0;
         node.end   = text.length;
 
-        for (let i = 0; i <= text.length; i++) {
+        for (let characterIndex = 0; characterIndex <= text.length; characterIndex++) {
             const reOpen: Markup[] = [];
 
             let j: number;
@@ -21,14 +21,14 @@ class TreeBuilder {
             let hasClosed = false;
 
             for (j = 0; (markup = markups[j]); j++) {
-                // Out of range, break
+                // If markup starts after current index, break iteration at this index
 
-                if (markup[1] > i) break;
+                if (markup.start > characterIndex) break;
 
                 // If markup end is before current index or is currently
                 // open, continue
 
-                if (markup[2] < i || openMarkups.indexOf(markup) > -1) continue;
+                if (markup.end < characterIndex || openMarkups.indexOf(markup) > -1) continue;
 
                 // Markup opens at, or is open at index (and not in open
                 // markups array)
@@ -36,12 +36,12 @@ class TreeBuilder {
                 if (textNode) {
                     // If open text node, close it before opening sibling
 
-                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
+                    textNode = TreeBuilder.closeTextNode(textNode, text, characterIndex);
                 }
 
                 // Open a new markup at index
 
-                const newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
+                const newNode = TreeBuilder.createNode(markup.tag, node, characterIndex, markup.end);
 
                 node.childNodes.push(newNode);
 
@@ -58,7 +58,7 @@ class TreeBuilder {
                 if (textNode) {
                     // A text node exists, close it
 
-                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
+                    textNode = TreeBuilder.closeTextNode(textNode, text, characterIndex);
                 } else {
                     // A text node does not exist and we are now at a leaf,
                     // so create one
@@ -70,7 +70,7 @@ class TreeBuilder {
             }
 
             for (j = markups.length - 1; (markup = markups[j]); j--) {
-                if (markup[2] !== i) continue;
+                if (markup.end !== characterIndex) continue;
 
                 // Markup to be closed at index
 
@@ -78,10 +78,10 @@ class TreeBuilder {
                     // A text node is open within the markup, close it and
                     // nullify ref
 
-                    textNode = TreeBuilder.closeTextNode(textNode, text, i);
+                    textNode = TreeBuilder.closeTextNode(textNode, text, characterIndex);
                 }
 
-                if (markup[1] === markup[2]) {
+                if (markup.start === markup.end) {
                     // The markup is collapsed, and has closed immediately,
                     // therefore nothing has opened at the index
 
@@ -101,7 +101,7 @@ class TreeBuilder {
                         reOpen.push(closed);
                     }
 
-                    node.end = i;
+                    node.end = characterIndex;
 
                     node = node.parent;
 
@@ -120,7 +120,7 @@ class TreeBuilder {
 
                 markup = reOpen.pop();
 
-                const newNode = TreeBuilder.createNode(markup[0], node, i, markup[2]);
+                const newNode = TreeBuilder.createNode(markup.tag, node, characterIndex, markup.end);
 
                 node.childNodes.push(newNode);
 
@@ -131,10 +131,10 @@ class TreeBuilder {
                 hasOpened = true;
             }
 
-            if ((i !== text.length && hasClosed && !hasOpened) || (hasOpened && !textNode)) {
+            if ((characterIndex !== text.length && hasClosed && !hasOpened) || (hasOpened && !textNode)) {
                 // Node closed and nothing to be opened, or node (re)opened
 
-                textNode = TreeBuilder.createTextNode(node, i);
+                textNode = TreeBuilder.createTextNode(node, characterIndex);
 
                 node.childNodes.push(textNode);
             }

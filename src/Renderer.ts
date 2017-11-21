@@ -19,14 +19,14 @@ class Renderer {
             // At #text leaf node
 
             const text = node.text
-                // Replace 2 consecutive spaces with visible pattern of alternating
-                // space/non-breaking space
+            // Replace 2 consecutive spaces with visible pattern of alternating
+            // space/non-breaking space
 
-                .replace(/ {2}/g, ' &nbsp;')
+            .replace(/ {2}/g, ' &nbsp;')
 
-                // Replace leading space or single space with non-breaking space
+            // Replace leading space or single space with non-breaking space
 
-                .replace(/^ ((?=\S)|$)/g, '&nbsp;');
+            .replace(/^ ((?=\S)|$)/g, '&nbsp;');
 
             html += text.length ? text : '&#8203;';
         }
@@ -38,6 +38,8 @@ class Renderer {
         if (node.tag !== MarkupTag.TEXT) {
             html += '</' + node.tag + '>';
         }
+
+        console.log('render', node, `got"${html}"`);
 
         return html;
     }

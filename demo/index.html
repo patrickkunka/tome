@@ -43,11 +43,10 @@
 
         const editor = tome(document.querySelector('.editor'), {
             value: {
-                text: 'Lorem ipsum dolor.',
+                text: 'Line one.\nLine two.',
                 markups: [
-                    ['p', 0, 18],
-                    ['strong', 6, 11],
-                    ['em', 8, 14]
+                    ['p', 0, 9],
+                    ['p', 10, 19]
                 ]
             },
             callbacks: {
@@ -55,11 +54,11 @@
             }
         });
 
-        function handleStateChange(state, action) {
+        function handleStateChange(state, actionType) {
             plainText.value = state.text;
             pre.innerHTML = JSON.stringify(state.markups.map(markup => markup.toArray())) + '\n' + JSON.stringify(state.activeInlineMarkups);
 
-            console.log(action);
+            console.log(actionType);
         }
     </script>
 </html>

@@ -767,4 +767,40 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 1);
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 0]));
     });
+
+    it('should create an empty paragraph between two block breaks when breaking at the end of first block', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 10, 19])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 9, to: 9}, '\n');
+
+        assert.equal(newState.text, 'Line one.\n\nLine two.');
+        assert.equal(newState.markups.length, 3);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 9]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 10, 10]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 11, 20]));
+    });
+
+    it('should create an empty paragraph between two block breaks when breaking at the start of second block', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 10, 19])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 10, to: 10}, '\n');
+
+        assert.equal(newState.text, 'Line one.\n\nLine two.');
+        assert.equal(newState.markups.length, 3);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 9]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 10, 10]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 11, 20]));
+    });
 });

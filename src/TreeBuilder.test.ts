@@ -127,4 +127,52 @@ describe('TreeBuilder', () => {
         assert.equal(pNode.childNodes[2].childNodes[0].text, ' do');
         assert.equal(pNode.childNodes[3].text, 'lor.');
     });
+
+    it('should correctly wrap two consecutive blocks', () => {
+        const text = 'Line one.\nLine two.';
+        const markups = [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.P, 10, 19])
+        ];
+
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, text, markups);
+
+        assert.equal(root.childNodes.length, 3);
+
+        const pNode1 = root.childNodes[0];
+
+        assert.equal(pNode1.tag, MarkupTag.P);
+        assert.equal(pNode1.childNodes.length, 1);
+        assert.equal(pNode1.start, 0);
+        assert.equal(pNode1.end, 9);
+
+        const pText1 = pNode1.childNodes[0];
+
+        assert.equal(pText1.start, 0);
+        assert.equal(pText1.end, 9);
+        assert.equal(pText1.text, 'Line one.');
+
+        const breakNode = root.childNodes[1];
+
+        assert.equal(breakNode.tag, MarkupTag.TEXT);
+        assert.equal(breakNode.childNodes.length, 0);
+        assert.equal(breakNode.text, MarkupTag.LINE_BREAK);
+        assert.equal(breakNode.start, 9);
+        assert.equal(breakNode.end, 10);
+
+        const pNode2 = root.childNodes[2];
+
+        assert.equal(pNode2.tag, MarkupTag.P);
+        assert.equal(pNode2.childNodes.length, 1);
+        assert.equal(pNode2.start, 10);
+        assert.equal(pNode2.end, 19);
+
+        const pText2 = pNode2.childNodes[0];
+
+        assert.equal(pText2.start, 10);
+        assert.equal(pText2.end, 19);
+        assert.equal(pText2.text, 'Line two.');
+    });
 });
