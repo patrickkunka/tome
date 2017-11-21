@@ -6,8 +6,8 @@
   "scripts": {
     "lint": "tslint -c tslint.json './src/**/*.ts'",
     "test": "mocha -r ts-node/register ./test/unit.ts",
-    "build": "lint && webpack",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "build": "npm run lint && npm run test && webpack"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
