@@ -1,9 +1,5 @@
-import DiffCommand from './models/DiffCommand';
 import ChangeType  from './constants/ChangeType';
-
-type PartialDiffCommand = {
-    type: ChangeType
-};
+import DiffCommand from './models/DiffCommand';
 
 class HtmlDiffPatch {
     /**
@@ -11,7 +7,7 @@ class HtmlDiffPatch {
      * returns a `DiffCommand` object representing a tree of any differences.
      */
 
-    static diff(prev: string|Node, next: string|Node): DiffCommand {
+    public static diff(prev: string|Node, next: string|Node): DiffCommand {
         const ERROR_MSG = '[HTMLDiffPatch] Element must be a valid DOM string';
         const tempTag = 'div';
 
@@ -45,7 +41,7 @@ class HtmlDiffPatch {
             throw new TypeError(ERROR_MSG);
         }
 
-        let command = new DiffCommand();
+        const command = new DiffCommand();
 
         if (el1 instanceof Text) {
             // Text nodes
@@ -104,7 +100,7 @@ class HtmlDiffPatch {
      * or replaced node.
      */
 
-    static patch(node: Node, command: DiffCommand): Node {
+    public static patch(node: Node, command: DiffCommand): Node {
         if (!(node instanceof Node)) throw new TypeError('[HtmlDiffPatch] No valid DOM node provided');
         if (!(command instanceof DiffCommand)) throw new TypeError('[HtmlDiffPatch] No valid `DiffCommand` provided');
 
@@ -133,7 +129,9 @@ class HtmlDiffPatch {
                     // Node is an HTML element and command has childCommands,
                     // recursively apply each child patch
 
-                    command.childCommands.forEach((childCommand, i) => HtmlDiffPatch.patch(node.childNodes[i], childCommand));
+                    command.childCommands.forEach((childCommand, i) => {
+                        return HtmlDiffPatch.patch(node.childNodes[i], childCommand);
+                    });
                 } else if (node instanceof HTMLElement) {
                     // No child commands present, replace the element's
                     // `innerHTML` value

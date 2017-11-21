@@ -15,4 +15,3 @@ enum MarkupTag {
 }
 
 export default MarkupTag;
-

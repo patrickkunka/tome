@@ -4,10 +4,10 @@ import IAction       from '../interfaces/IAction';
 import TomeSelection from './TomeSelection';
 
 class Action implements IAction {
-    type:    ActionType    = null;
-    range:   TomeSelection = null;
-    tag:     MarkupTag     = null;
-    content: string        = '';
+    public type:    ActionType    = null;
+    public range:   TomeSelection = null;
+    public tag:     MarkupTag     = null;
+    public content: string        = '';
 }
 
 export default Action;

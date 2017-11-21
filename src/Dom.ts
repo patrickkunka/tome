@@ -1,5 +1,5 @@
 class Dom {
-    root: HTMLElement=null;
+    public root: HTMLElement = null;
 }
 
 export default Dom;

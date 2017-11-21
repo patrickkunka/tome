@@ -2,12 +2,12 @@ import MarkupTag from './constants/MarkupTag';
 import TomeNode  from './models/TomeNode';
 
 class Renderer {
-    static renderNodes(nodes: Array<TomeNode>, parent: TomeNode=null): string {
+    public static renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
         return nodes.map(node => Renderer.renderNode(node, parent)).join('');
     }
 
     private static renderNode(node: TomeNode, parent: TomeNode): string {
-        let html: string='';
+        let html: string = '';
 
         if (node.tag !== MarkupTag.TEXT) {
             html += '<' + node.tag + '>';
@@ -17,7 +17,6 @@ class Renderer {
             html += Renderer.renderNodes(node.childNodes, node);
         } else {
             // At #text leaf node
-
 
             const text = node.text
                 // Replace 2 consecutive spaces with visible pattern of alternating

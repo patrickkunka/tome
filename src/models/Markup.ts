@@ -3,9 +3,9 @@ import MarkupType from '../constants/MarkupType';
 import IMarkup from '../interfaces/IMarkup';
 
 class Markup {
-    0:MarkupTag=null;
-    1:number=null;
-    2:number=null;
+    public 0: MarkupTag = null;
+    public 1: number    = null;
+    public 2: number    = null;
 
     constructor([tag, start, end]: IMarkup) {
         this[0] = tag;
@@ -24,7 +24,7 @@ class Markup {
     }
 
     get end() {
-        return this[2]
+        return this[2];
     }
 
     get type() {
@@ -47,7 +47,7 @@ class Markup {
         return this.type === MarkupType.INLINE;
     }
 
-    toArray(): IMarkup {
+    public toArray(): IMarkup {
         return [this[0], this[1], this[2]];
     }
 }

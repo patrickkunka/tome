@@ -1,29 +1,29 @@
-import Util         from './Util';
-import IAction      from './interfaces/IAction';
-import ITome        from './interfaces/ITome';
 import ActionType   from './constants/ActionType';
 import Keypress     from './constants/Keypress';
 import MarkupTag    from './constants/MarkupTag';
+import IAction      from './interfaces/IAction';
+import ITome        from './interfaces/ITome';
+import Util         from './Util';
 
 const SELECTION_DELAY = 10;
 
-class EventHandler {
-    tome: ITome=null;
-    boundDelegator: EventListenerObject=null;
+class EventManager {
+    private tome: ITome = null;
+    private boundDelegator: EventListenerObject = null;
 
     constructor(tome: ITome) {
         this.tome = tome;
         this.boundDelegator = this.delegator.bind(this);
     }
 
-    bindEvents(root: HTMLElement): void {
+    public bindEvents(root: HTMLElement): void {
         root.addEventListener('keypress', this.boundDelegator);
         root.addEventListener('keydown', this.boundDelegator);
         root.addEventListener('mousedown', this.boundDelegator);
         window.addEventListener('mouseup', this.boundDelegator);
     }
 
-    unbindEvents(root: HTMLElement): void {
+    public unbindEvents(root: HTMLElement): void {
         root.removeEventListener('keypress', this.boundDelegator);
         root.removeEventListener('keydown', this.boundDelegator);
         root.removeEventListener('click', this.boundDelegator);
@@ -31,34 +31,34 @@ class EventHandler {
         window.addEventListener('mouseup', this.boundDelegator);
     }
 
-    delegator(e: Event): void {
+    public delegator(e: Event): void {
         const eventType = e.type;
         const fn = this['handle' + Util.pascalCase(eventType)];
 
         if (typeof fn !== 'function') {
-            throw new Error(`[EventHandler] No handler found for event "${eventType}"`);
+            throw new Error(`[EventManager] No handler found for event "${eventType}"`);
         }
 
         fn.call(this, e);
     }
 
-    handleKeypress(e: KeyboardEvent): void {
+    public handleKeypress(e: KeyboardEvent): void {
         e.preventDefault();
 
         this.tome.applyAction({type: ActionType.INSERT, content: e.key});
     }
 
-    handleMouseup(e: MouseEvent): void {
+    public handleMouseup(): void {
         if (this.tome.dom.root !== document.activeElement) return;
 
         this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
 
-    handleMousedown(e: MouseEvent): void {
+    public handleMousedown(): void {
         this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
 
-    handleKeydown(e: KeyboardEvent): void {
+    public handleKeydown(e: KeyboardEvent): void {
         const key = e.key.toLowerCase();
 
         let action: IAction = {};
@@ -134,4 +134,4 @@ class EventHandler {
     }
 }
 
-export default EventHandler;
+export default EventManager;

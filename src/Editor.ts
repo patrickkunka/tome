@@ -1,8 +1,8 @@
-import State         from './models/State';
-import Markup        from './models/Markup';
-import TomeSelection from './models/TomeSelection';
-import ISelection    from './interfaces/ISelection';
 import MarkupTag     from './constants/MarkupTag';
+import ISelection    from './interfaces/ISelection';
+import Markup        from './models/Markup';
+import State         from './models/State';
+import TomeSelection from './models/TomeSelection';
 import Util          from './Util';
 
 /**
@@ -17,16 +17,16 @@ class Editor {
      * insertion.
      */
 
-    static insert(prevState: State, range: ISelection, content: string): State {
+    public static insert(prevState: State, range: ISelection, content: string): State {
         const nextState = new State();
 
         const totalDeleted = range.to - range.from;
 
-        let before       = prevState.text.slice(0, range.from);
-        let after        = prevState.text.slice(range.to);
-        let totalAdded   = content.length;
-        let adjustment   = totalAdded - totalDeleted;
-        let totalTrimmed = 0;
+        const before       = prevState.text.slice(0, range.from);
+        const after        = prevState.text.slice(range.to);
+        const totalAdded   = content.length;
+        const adjustment   = totalAdded - totalDeleted;
+        const totalTrimmed = 0;
 
         nextState.text = before + content + after;
 
@@ -57,11 +57,17 @@ class Editor {
         return nextState;
     }
 
-    static addInlineMarkup(prevState: State, tag: MarkupTag, from: number, to: number, markup: Markup=null): State {
+    public static addInlineMarkup(
+        prevState: State,
+        tag: MarkupTag,
+        from: number,
+        to: number,
+        markup: Markup = null
+    ): State {
         const nextState: State = Util.extend(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
-        nextState.markups = prevState.markups.map(markup => new Markup(markup.toArray()));
+        nextState.markups = prevState.markups.map(prevMarkup => new Markup(prevMarkup.toArray()));
 
         let insertIndex = -1;
 
@@ -72,11 +78,17 @@ class Editor {
 
             formattedState.envelopedBlockMarkups.length = 0;
 
-            enveloped.forEach((markup, i) => {
-                const formatFrom = i === 0 ? from : markup[1];
-                const formatTo   = i === enveloped.length - 1 ? to : markup[2];
+            enveloped.forEach((envelopedBlockMarkup, i) => {
+                const formatFrom = i === 0 ? from : envelopedBlockMarkup.start;
+                const formatTo   = i === enveloped.length - 1 ? to : envelopedBlockMarkup.end;
 
-                formattedState = Editor.addInlineMarkup(formattedState, tag, formatFrom, formatTo, markup);
+                formattedState = Editor.addInlineMarkup(
+                    formattedState,
+                    tag,
+                    formatFrom,
+                    formatTo,
+                    envelopedBlockMarkup
+                );
             });
 
             return formattedState;
@@ -99,14 +111,14 @@ class Editor {
         Editor.ingestMarkups(nextState.markups, tag, from, to);
 
         for (let i = 0, len = nextState.markups.length; i < len; i++) {
-            const markup = new Markup(nextState.markups[i].toArray());
+            const nextMarkup = nextState.markups[i];
 
             // NB: When inserting an inline markup there should always be at
             // least one block markup in the array
 
             insertIndex = i;
 
-            if (markup.start > from) {
+            if (nextMarkup.start > from) {
                 // Markup starts after markup to insert, insert at index
 
                 break;
@@ -127,7 +139,7 @@ class Editor {
         return nextState;
     }
 
-    static removeInlineMarkup(prevState: State, tag: MarkupTag, from: number, to: number): State {
+    public static removeInlineMarkup(prevState: State, tag: MarkupTag, from: number, to: number): State {
         const nextState = Util.extend(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
@@ -155,17 +167,21 @@ class Editor {
         return nextState;
     }
 
-    static replaceBlockMarkup() {
-
-    }
+    public static replaceBlockMarkup() {/* */}
 
     /**
      * Adjusts the position/length of existing markups in
      * response to characters being added/removed.
      */
 
-    static adjustMarkups(markups: Array<Markup>, fromIndex: number, toIndex: number, totalAdded: number, adjustment: number): Array<Markup> {
-        const newMarkups: Array<Markup> = [];
+    public static adjustMarkups(
+        markups:    Markup[],
+        fromIndex:  number,
+        toIndex:    number,
+        totalAdded: number,
+        adjustment: number
+    ): Markup[] {
+        const newMarkups: Markup[] = [];
 
         for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
             const newMarkup = new Markup(markup.toArray());
@@ -238,7 +254,7 @@ class Editor {
      * provided index.
      */
 
-    static getClosingBlockMarkup(markups: Array<Markup>, markupIndex: number, toIndex: number): Markup {
+    public static getClosingBlockMarkup(markups: Markup[], markupIndex: number, toIndex: number): Markup {
         for (let i = markupIndex + 1, markup; (markup = markups[i]); i++) {
             if (!(markup instanceof Markup)) {
                 markup = new Markup(markup);
@@ -259,14 +275,12 @@ class Editor {
      * Returns the total adjustment made to the text before the split.
      */
 
-    static trimWhitespace(nextState: State, splitIndex: number): number {
+    public static trimWhitespace(nextState: State, splitIndex: number): number {
         let totalAllTrimmed = 0;
         let caretAdjustment = 0;
         let trimmedIndex    = -1;
 
-        for (let i = 0; i < nextState.markups.length; i++) {
-            const markupRaw = nextState.markups[i];
-
+        for (const markupRaw of nextState.markups) {
             if (totalAllTrimmed !== 0 && markupRaw[1] >= trimmedIndex) {
                 // If previous adjustments have been made, adjust
                 // subsequent markups' positions accordingly
@@ -331,7 +345,7 @@ class Editor {
      * further flexibility.
      */
 
-    static splitMarkups(markups: Array<Markup>, index: number): Array<Markup> {
+    public static splitMarkups(markups: Markup[], index: number): Markup[] {
         for (let i = 0; i < markups.length; i++) {
             const markup = markups[i];
             const originalMarkupEnd = markup.end;
@@ -388,7 +402,7 @@ class Editor {
      * Joins two adjacent markups at a provided (known) index.
      */
 
-    static joinMarkups(markups: Array<Markup>, index: number): Array<Markup> {
+    public static joinMarkups(markups: Markup[], index: number): Markup[] {
         const closingInlines = {};
 
         // TODO: use quick search to find start index
@@ -442,7 +456,7 @@ class Editor {
      * provided range.
      */
 
-    static ingestMarkups(markups: Array<Markup>, tag: MarkupTag, from: number, to: number): void {
+    public static ingestMarkups(markups: Markup[], tag: MarkupTag, from: number, to: number): void {
         for (let i = 0, markup; (markup = markups[i]); i++) {
             const [markupTag, markupStart, markupEnd] = markup;
 
@@ -487,7 +501,7 @@ class Editor {
      * or "enveloped" for particular selection.
      */
 
-    static setActiveMarkups(state: State, range: TomeSelection): void {
+    public static setActiveMarkups(state: State, range: TomeSelection): void {
         state.activeBlockMarkup = null;
 
         state.activeInlineMarkups.length   =
@@ -497,8 +511,7 @@ class Editor {
 
         let parentBlock: Markup = null;
 
-        for (let i = 0; i < state.markups.length; i++) {
-            const markup = new Markup(state.markups[i].toArray());
+        for (const markup of state.markups) {
             const lastAdjacent = adjacentInlineMarkups[adjacentInlineMarkups.length - 1];
 
             // Active markups are those that surround the start of the

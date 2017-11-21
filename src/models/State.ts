@@ -1,14 +1,14 @@
-import TomeSelection from './TomeSelection';
-import Markup        from './Markup';
 import MarkupTag     from '../constants/MarkupTag';
+import Markup        from './Markup';
+import TomeSelection from './TomeSelection';
 
 class State {
-    text:                  string        = '';
-    markups:               Array<Markup> = [];
-    selection:             TomeSelection = new TomeSelection();
-    activeBlockMarkup:     Markup        = null
-    activeInlineMarkups:   Array<Markup> = [];
-    envelopedBlockMarkups: Array<Markup> = [];
+    public text:                  string        = '';
+    public markups:               Markup[]      = [];
+    public selection:             TomeSelection = new TomeSelection();
+    public activeBlockMarkup:     Markup        = null;
+    public activeInlineMarkups:   Markup[]      = [];
+    public envelopedBlockMarkups: Markup[]      = [];
 
     constructor() {
         Object.seal(this);
@@ -18,8 +18,8 @@ class State {
         return this.text.length;
     }
 
-    isTagActive(tag: MarkupTag) {
-        for (let i = 0, markup: Markup; (markup = this.activeInlineMarkups[i]); i++) {
+    public isTagActive(tag: MarkupTag) {
+        for (const markup of this.activeInlineMarkups) {
             if (markup[0] === tag) return true;
         }
 

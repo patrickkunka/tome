@@ -1,11 +1,11 @@
 import ChangeType from '../constants/ChangeType';
 
 class DiffCommand {
-    type: ChangeType;
-    newEl: HTMLElement=null;
-    newInnerHtml: string='';
-    newTextContent: string='';
-    childCommands: Array<DiffCommand>=[];
+    public type:           ChangeType;
+    public newEl:          HTMLElement   = null;
+    public newInnerHtml:   string        = '';
+    public newTextContent: string        = '';
+    public childCommands:  DiffCommand[] = [];
 }
 
 export default DiffCommand;

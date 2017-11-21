@@ -1,9 +1,13 @@
+import ActionType from '../constants/ActionType';
+import State      from '../models/State';
+
 class ConfigCallbacks {
-    onStateChange: Function=null;
-    onValueChange: Function=null;
+    public onStateChange: (state: State, actionType: ActionType) => void = null;
+    public onValueChange: () => void = null;
 
     constructor() {
         Object.seal(this);
     }
 }
+
 export default ConfigCallbacks;

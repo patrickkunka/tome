@@ -1,99 +1,52 @@
-import Dom                from './Dom';
-import Util               from './Util';
-import Markup             from './models/Markup';
-import TomeNode           from './models/TomeNode';
-import Caret              from './models/Caret';
-import TomeSelection      from './models/TomeSelection';
-import State              from './models/State';
-import Action             from './models/Action';
-import IAction            from './interfaces/IAction';
-import ISelection         from './interfaces/ISelection';
 import ConfigRoot         from './config/ConfigRoot';
-import EventManager       from './EventManager';
-import TreeBuilder        from './TreeBuilder';
-import Renderer           from './Renderer';
-import reducer            from './reducer';
 import ActionType         from './constants/ActionType';
 import MarkupTag          from './constants/MarkupTag';
 import SelectionDirection from './constants/SelectionDirection';
-import INodeLike          from './interfaces/INodeLike';
-import ITome              from './interfaces/ITome';
 import DiffPatch          from './DiffPatch';
+import Dom                from './Dom';
+import EventManager       from './EventManager';
+import IAction            from './interfaces/IAction';
+import INodeLike          from './interfaces/INodeLike';
+import ISelection         from './interfaces/ISelection';
+import ITome              from './interfaces/ITome';
+import Action             from './models/Action';
+import Caret              from './models/Caret';
+import Markup             from './models/Markup';
+import State              from './models/State';
+import TomeNode           from './models/TomeNode';
+import TomeSelection      from './models/TomeSelection';
+import reducer            from './reducer';
+import Renderer           from './Renderer';
+import TreeBuilder        from './TreeBuilder';
+import Util               from './Util';
 
 class Tome implements ITome {
-    dom:          Dom          = new Dom();
-    eventManager: EventManager = new EventManager(this);
-    config:       ConfigRoot   = new ConfigRoot();
-    root:         TomeNode     = null;
-    history:      Array<State> = [];
-    historyIndex: number       = -1;
-    lastRender:   string       = '';
+    private static buildModelFromState(state: State): TomeNode {
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, state.text, state.markups);
+
+        return root;
+    }
+
+    public dom: Dom = new Dom();
+
+    private eventManager: EventManager = new EventManager(this);
+    private config:       ConfigRoot   = new ConfigRoot();
+    private root:         TomeNode     = null;
+    private history:      State[]      = [];
+    private historyIndex: number       = -1;
+    private lastRender:   string       = '';
 
     constructor(el: HTMLElement, config: any) {
         this.init(el, config);
     }
 
-    get state() {
+    private get state() {
         return this.history[this.historyIndex];
     }
 
-    init(el: HTMLElement, config: any): void {
-        Util.extend(this.config, config, true);
-
-        if (!el.contentEditable) {
-            el.contentEditable = true.toString();
-        }
-
-        this.dom.root = el;
-
-        this.history.push(this.buildInitialState(this.config.value));
-
-        this.historyIndex++;
-
-        this.render();
-
-        this.eventManager.bindEvents(this.dom.root);
-    }
-
-    buildInitialState(initialState: any): State {
-        const state: State = Util.extend(new State(), initialState);
-
-        if (state.markups.length < 1) {
-            state.markups.push(new Markup([MarkupTag.P, 0, 0]));
-        }
-
-        // TODO: if text but no markups, wrap entire in <p>
-
-        // Coerce triplets into `Markup` if needed
-
-        state.markups = state.markups.map(markup => Array.isArray(markup) ? new Markup(markup) : markup);
-
-        return state;
-    }
-
-    render(): void {
-        this.root = Tome.buildModelFromState(this.state);
-
-        const nextRender = Renderer.renderNodes(this.root.childNodes);
-
-        if (!this.lastRender) {
-            // Initial render
-
-            this.dom.root.innerHTML = this.lastRender = nextRender;
-
-            return;
-        }
-
-        const prevRender = this.lastRender;
-
-        const diffCommand = DiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
-
-        DiffPatch.patch(this.dom.root, diffCommand);
-
-        this.lastRender = nextRender;
-    }
-
-    undo(): void {
+    public undo(): void {
         if (this.historyIndex === 1) return;
 
         const fn = this.config.callbacks.onStateChange;
@@ -109,7 +62,7 @@ class Tome implements ITome {
         }
     }
 
-    redo(): void {
+    public redo(): void {
         if (this.history.length - 1 === this.historyIndex) return;
 
         const fn = this.config.callbacks.onStateChange;
@@ -125,7 +78,7 @@ class Tome implements ITome {
         }
     }
 
-    applyAction(actionRaw: IAction): void {
+    public applyAction(actionRaw: IAction): void {
         const action: Action = Object.assign(new Action(), actionRaw);
         const fn = this.config.callbacks.onStateChange;
 
@@ -180,7 +133,63 @@ class Tome implements ITome {
         }
     }
 
-    getPathFromDomNode(domNode: Node): Array<number> {
+    private init(el: HTMLElement, config: any): void {
+        Util.extend(this.config, config, true);
+
+        if (!el.contentEditable) {
+            el.contentEditable = true.toString();
+        }
+
+        this.dom.root = el;
+
+        this.history.push(this.buildInitialState(this.config.value));
+
+        this.historyIndex++;
+
+        this.render();
+
+        this.eventManager.bindEvents(this.dom.root);
+    }
+
+    private buildInitialState(initialState: any): State {
+        const state: State = Util.extend(new State(), initialState);
+
+        if (state.markups.length < 1) {
+            state.markups.push(new Markup([MarkupTag.P, 0, 0]));
+        }
+
+        // TODO: if text but no markups, wrap entire in <p>
+
+        // Coerce triplets into `Markup` if needed
+
+        state.markups = state.markups.map(markup => Array.isArray(markup) ? new Markup(markup) : markup);
+
+        return state;
+    }
+
+    private render(): void {
+        this.root = Tome.buildModelFromState(this.state);
+
+        const nextRender = Renderer.renderNodes(this.root.childNodes);
+
+        if (!this.lastRender) {
+            // Initial render
+
+            this.dom.root.innerHTML = this.lastRender = nextRender;
+
+            return;
+        }
+
+        const prevRender = this.lastRender;
+
+        const diffCommand = DiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
+
+        DiffPatch.patch(this.dom.root, diffCommand);
+
+        this.lastRender = nextRender;
+    }
+
+    private getPathFromDomNode(domNode: Node): number[] {
         const path = [];
 
         while (domNode) {
@@ -194,7 +203,7 @@ class Tome implements ITome {
         return path;
     }
 
-    getNodeByPath<T extends INodeLike>(path: Array<number>, root: T): T {
+    private getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
         let node: T = root;
         let index = -1;
         let i = 0;
@@ -208,12 +217,7 @@ class Tome implements ITome {
         return node || null;
     }
 
-    /**
-     * @param   {Selection} selection
-     * @return  {TomeSelection;}
-     */
-
-    getRangeFromSelection(selection: Selection) {
+    private getRangeFromSelection(selection: Selection) {
         const anchorPath = this.getPathFromDomNode(selection.anchorNode);
         const virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
         const from = new Caret();
@@ -254,11 +258,11 @@ class Tome implements ITome {
         return new TomeSelection(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
     }
 
-    positionCaret({from, to, direction}: ISelection): void {
+    private positionCaret({from, to, direction}: ISelection): void {
         const range = document.createRange();
         const selection = window.getSelection();
 
-        let childNodes:  Array<TomeNode> = this.root.childNodes;
+        let childNodes:  TomeNode[] = this.root.childNodes;
         let virtualNode: TomeNode;
         let nodeLeft:    Node;
         let nodeRight:   Node;
@@ -334,14 +338,6 @@ class Tome implements ITome {
         } else {
             selection.setBaseAndExtent(nodeLeft, offsetStart, nodeRight, offsetEnd);
         }
-    }
-
-    static buildModelFromState(state: State): TomeNode {
-        const root = new TomeNode();
-
-        TreeBuilder.build(root, state.text, state.markups);
-
-        return root;
     }
 }
 

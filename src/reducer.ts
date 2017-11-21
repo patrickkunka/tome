@@ -1,9 +1,9 @@
-import State        from './models/State';
-import Util         from './Util';
-import ActionType   from './constants/ActionType';
-import Editor       from './Editor';
-import Action       from './models/Action';
-import Markup       from './models/Markup';
+import ActionType from './constants/ActionType';
+import Editor     from './Editor';
+import Action     from './models/Action';
+import Markup     from './models/Markup';
+import State      from './models/State';
+import Util       from './Util';
 
 export default (prevState: State, action: Action): State => {
     switch (action.type) {

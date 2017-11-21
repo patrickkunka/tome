@@ -1,5 +1,5 @@
 interface INodeLike {
-    childNodes
+    childNodes;
 }
 
 export default INodeLike;

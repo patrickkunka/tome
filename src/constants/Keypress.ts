@@ -15,5 +15,4 @@ enum Keypress {
     I           = 'i'
 }
 
-export default Keypress
-
+export default Keypress;

@@ -2,11 +2,11 @@
 
 import * as chai          from 'chai';
 import * as deepEqual     from 'chai-shallow-deep-equal';
-import Editor             from './Editor';
-import SelectionDirection from './constants/SelectionDirection';
 import MarkupTag          from './constants/MarkupTag';
-import State              from './models/State';
+import SelectionDirection from './constants/SelectionDirection';
+import Editor             from './Editor';
 import Markup             from './models/Markup';
+import State              from './models/State';
 import TomeSelection      from './models/TomeSelection';
 
 chai.use(deepEqual);
@@ -314,7 +314,8 @@ describe('Editor', () => {
 
     // Reinstate once whitespace trim option is reinstated
 
-    // it('should split a block markup into two block markups at a whitespace, removing whitespace before the break', () => {
+    // it('should split a block markup into two block markups at a whitespace,
+    // removing whitespace before the break', () => {
     //     const state = Object.assign(new State(), {
     //         text: 'Lorem ipsum dolor. Sit amet.',
     //         markups: [
@@ -331,7 +332,8 @@ describe('Editor', () => {
     //     assert.equal(newState.selection.from, 19);
     // });
 
-    // it('should split a block markup into two block markups at a whitespace, removing whitespace after the break', () => {
+    // it('should split a block markup into two block markups at a whitespace,
+    // removing whitespace after the break', () => {
     //     const state = Object.assign(new State(), {
     //         text: 'Lorem ipsum dolor. Sit amet.',
     //         markups: [
@@ -543,7 +545,10 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[3], new Markup([MarkupTag.EM, 19, 19]));
         assert.deepEqual(newState.markups[4], new Markup([MarkupTag.P, 20, 29]));
         assert.deepEqual(newState.markups[5], new Markup([MarkupTag.EM, 20, 29]));
-        assert.deepEqual(newState.selection, Object.assign(new TomeSelection(), {from: 0, to: 29, direction: SelectionDirection.LTR}));
+        assert.deepEqual(
+            newState.selection,
+            Object.assign(new TomeSelection(), {from: 0, to: 29, direction: SelectionDirection.LTR})
+        );
     });
 
     it('should not add inline markups over breaks between block markups', () => {

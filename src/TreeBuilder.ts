@@ -1,10 +1,10 @@
-import TomeNode  from './models/TomeNode';
-import Markup    from './models/Markup';
 import MarkupTag from './constants/MarkupTag';
+import Markup    from './models/Markup';
+import TomeNode  from './models/TomeNode';
 
 class TreeBuilder {
-    static build(root: TomeNode, text: string, markups: Array<Markup>): void {
-        const openMarkups: Array<Markup> = [];
+    public static build(root: TomeNode, text: string, markups: Markup[]): void {
+        const openMarkups: Markup[] = [];
 
         let node:     TomeNode = root;
         let textNode: TomeNode = null;
@@ -13,7 +13,7 @@ class TreeBuilder {
         node.end   = text.length;
 
         for (let i = 0; i <= text.length; i++) {
-            const reOpen: Array<Markup> = [];
+            const reOpen: Markup[] = [];
 
             let j: number;
             let markup: Markup;

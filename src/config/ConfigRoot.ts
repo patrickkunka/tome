@@ -1,9 +1,9 @@
-import ConfigCallbacks from './ConfigCallbacks';
 import State           from '../models/State';
+import ConfigCallbacks from './ConfigCallbacks';
 
 class ConfigRoot {
-    callbacks: ConfigCallbacks = new ConfigCallbacks();
-    value:     State           = new State();
+    public callbacks: ConfigCallbacks = new ConfigCallbacks();
+    public value:     State           = new State();
 
     constructor() {
         Object.seal(this);

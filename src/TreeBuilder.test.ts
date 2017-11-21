@@ -1,11 +1,10 @@
-/* eslint-disable no-magic-numbers */
-
 import * as chai      from 'chai';
 import * as deepEqual from 'chai-shallow-deep-equal';
-import TreeBuilder    from './TreeBuilder';
-import TomeNode       from './models/TomeNode';
-import Markup         from './models/Markup';
+
 import MarkupTag      from './constants/MarkupTag';
+import Markup         from './models/Markup';
+import TomeNode       from './models/TomeNode';
+import TreeBuilder    from './TreeBuilder';
 
 chai.use(deepEqual);
 

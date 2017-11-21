@@ -9,6 +9,6 @@ enum ActionType {
     UNDO            = 'UNDO',
     REDO            = 'REDO',
     NONE            = 'NONE'
-};
+}
 
 export default ActionType;
