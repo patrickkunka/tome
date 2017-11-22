@@ -39,8 +39,6 @@ class Renderer {
             html += '</' + node.tag + '>';
         }
 
-        console.log('render', node, `got"${html}"`);
-
         return html;
     }
 }

@@ -345,15 +345,15 @@ class Editor {
      * further flexibility.
      */
 
-    public static splitMarkups(markups: Markup[], index: number): Markup[] {
+    public static splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
         for (let i = 0; i < markups.length; i++) {
             const markup = markups[i];
             const originalMarkupEnd = markup.end;
 
             let newMarkup = null;
 
-            if (markup.start < index && markup.end > index) {
-                const newStartIndex = index + 1;
+            if (markup.start <= splitIndex && markup.end > splitIndex) {
+                const newStartIndex = splitIndex + 1;
                 const newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag.P : markup.tag;
 
                 let j = i + 1;
@@ -361,7 +361,7 @@ class Editor {
 
                 // Contract markup
 
-                markup[2] = index;
+                markup[2] = splitIndex;
 
                 newMarkup = new Markup([newTag, newStartIndex, originalMarkupEnd]);
 
