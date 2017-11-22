@@ -206,4 +206,36 @@ describe('TreeBuilder', () => {
         assert.equal(pNode2.childNodes[0].tag, MarkupTag.STRONG);
         assert.equal(pNode2.childNodes[0].childNodes[0].tag, MarkupTag.TEXT);
     });
+
+    it('should correctly map multiple nested inline markups over multiple blocks', () => {
+        const text = 'Line one.\nLine two.';
+        const markups = [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.STRONG, 5, 9]),
+            new Markup([MarkupTag.EM, 8, 9]),
+            new Markup([MarkupTag.P, 10, 19]),
+            new Markup([MarkupTag.STRONG, 10, 14]),
+            new Markup([MarkupTag.EM, 10, 11])
+        ];
+
+        // <p>Line <b>one<i>.</i></b></p> <p><b><i>L</i>ine <b>two.</p>
+
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, text, markups);
+
+        assert.equal(root.childNodes.length, 3);
+
+        const pNode1 = root.childNodes[0];
+        const breakNode = root.childNodes[1];
+        const pNode2 = root.childNodes[2];
+
+        assert.equal(pNode1.tag, MarkupTag.P);
+        assert.equal(pNode1.childNodes[1].tag, MarkupTag.STRONG);
+        assert.equal(pNode1.childNodes[1].childNodes[1].tag, MarkupTag.EM);
+        assert.equal(breakNode.tag, MarkupTag.TEXT);
+        assert.equal(pNode2.tag, MarkupTag.P);
+        assert.equal(pNode2.childNodes[0].tag, MarkupTag.STRONG);
+        assert.equal(pNode2.childNodes[0].childNodes[0].tag, MarkupTag.EM);
+    });
 });

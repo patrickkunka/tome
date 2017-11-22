@@ -13,7 +13,8 @@
         "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
         "object-literal-sort-keys": false,
         "arrow-parens": false,
-        "typedef-whitespace": false
+        "typedef-whitespace": false,
+        "no-unused-variable": true
     },
     "rulesDirectory": []
 }

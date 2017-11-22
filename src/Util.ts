@@ -72,6 +72,8 @@ class Util {
         while (typeof valueOne === 'number' && typeof valueTwo === 'number') {
             if (valueOne > valueTwo) {
                 return true;
+            } else if (valueOne < valueTwo) {
+                return false;
             }
 
             index++;

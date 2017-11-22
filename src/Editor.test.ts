@@ -1,5 +1,3 @@
-/* eslint-disable no-magic-numbers */
-
 import * as chai          from 'chai';
 import * as deepEqual     from 'chai-shallow-deep-equal';
 import MarkupTag          from './constants/MarkupTag';
@@ -630,6 +628,32 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 3);
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 6, 17]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.EM, 8, 11]));
+    });
+
+    it('should insert a multiblock inline markup within an existing one', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.P, 10, 19]),
+                new Markup([MarkupTag.STRONG, 10, 14])
+            ]
+        });
+
+        state.envelopedBlockMarkups = [state.markups[0], state.markups[2]];
+
+        const newState = Editor.addInlineMarkup(state, MarkupTag.EM, 8, 11);
+
+        assert.equal(newState.text, 'Line one.\nLine two.');
+        assert.equal(newState.markups.length, 6);
+
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 9]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 5, 9]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.EM, 8, 9]));
+        assert.deepEqual(newState.markups[3], new Markup([MarkupTag.P, 10, 19]));
+        assert.deepEqual(newState.markups[4], new Markup([MarkupTag.STRONG, 10, 14]));
+        assert.deepEqual(newState.markups[5], new Markup([MarkupTag.EM, 10, 11]));
     });
 
     it('should remove an inline markup', () => {
