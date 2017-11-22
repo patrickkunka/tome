@@ -43,7 +43,7 @@ class HtmlDiffPatch {
 
         const command = new DiffCommand();
 
-        if (el1 instanceof Text) {
+        if (el1 instanceof Text && el2 instanceof Text) {
             // Text nodes
 
             if (el1.textContent === el2.textContent) {
@@ -53,7 +53,7 @@ class HtmlDiffPatch {
                 command.newTextContent = el2.textContent;
             }
         } else if (el1 instanceof HTMLElement && el2 instanceof HTMLElement) {
-            // HTML Elements
+            // HTML elements
 
             if (el1.tagName !== el2.tagName) {
                 // The tag has changed between versions, so assume a
@@ -61,7 +61,7 @@ class HtmlDiffPatch {
                 // diffing would be redundant)
 
                 command.type = ChangeType.REPLACE;
-                command.newEl = el2;
+                command.newNode = el2;
             } else if (el1.outerHTML === el2.outerHTML) {
                 // `outerHTML` is equal, therefore both elements identical
                 // and no change
@@ -89,6 +89,11 @@ class HtmlDiffPatch {
                     command.newInnerHtml = el2.innerHTML;
                 }
             }
+        } else {
+            // Change from HTML element to text node or vice versa
+
+            command.type = ChangeType.REPLACE;
+            command.newNode = el2;
         }
 
         return command;
@@ -114,9 +119,9 @@ class HtmlDiffPatch {
 
                 if (node.parentElement === null) throw new TypeError('[HtmlDiffPatch] Cannot replace detached node');
 
-                node.parentElement.replaceChild(command.newEl, node);
+                node.parentElement.replaceChild(command.newNode, node);
 
-                return command.newEl;
+                return command.newNode;
             case ChangeType.INNER:
                 // Change to contents of node
 

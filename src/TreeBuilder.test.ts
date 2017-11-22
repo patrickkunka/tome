@@ -175,4 +175,35 @@ describe('TreeBuilder', () => {
         assert.equal(pText2.end, 19);
         assert.equal(pText2.text, 'Line two.');
     });
+
+    it('should correctly map an inline markup spanning several blocks', () => {
+        const text = 'Line one.\nLine two.\nLine three.';
+        const markups = [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.STRONG, 4, 9]),
+            new Markup([MarkupTag.P, 10, 19]),
+            new Markup([MarkupTag.STRONG, 10, 19]),
+            new Markup([MarkupTag.P, 20, 31]),
+            new Markup([MarkupTag.STRONG, 20, 24])
+        ];
+
+        // <p>Line <b>one.</b></p> <p><b>Line two.</b></p> <p><b>Line</b> three.</p>
+
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, text, markups);
+
+        assert.equal(root.childNodes.length, 5);
+
+        const pNode1 = root.childNodes[0];
+        const pNode2 = root.childNodes[2];
+        const pNode3 = root.childNodes[4];
+
+        assert.equal(pNode1.childNodes.length, 2);
+        assert.equal(pNode2.childNodes.length, 1);
+        assert.equal(pNode3.childNodes.length, 2);
+
+        assert.equal(pNode2.childNodes[0].tag, MarkupTag.STRONG);
+        assert.equal(pNode2.childNodes[0].childNodes[0].tag, MarkupTag.TEXT);
+    });
 });
