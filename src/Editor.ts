@@ -1,6 +1,7 @@
 import MarkupTag     from './constants/MarkupTag';
 import ISelection    from './interfaces/ISelection';
 import Markup        from './models/Markup';
+import MarkupsMap    from './models/MarkupsMap';
 import State         from './models/State';
 import TomeSelection from './models/TomeSelection';
 import Util          from './Util';
@@ -241,6 +242,8 @@ class Editor {
                 }
             }
 
+            if (newMarkup[1] === newMarkup[2] && newMarkup.isInline) removeMarkup = true;
+
             if (!removeMarkup) {
                 newMarkups.push(newMarkup);
             }
@@ -363,6 +366,16 @@ class Editor {
 
                 markup[2] = splitIndex;
 
+                if (markup.isInline && markup[1] === markup[2]) {
+                    // Markup has contracted into non-existence
+
+                    markups.splice(i, 1);
+
+                    i--;
+
+                    continue;
+                }
+
                 newMarkup = new Markup([newTag, newStartIndex, originalMarkupEnd]);
 
                 // Find appropriate insertion index
@@ -388,10 +401,6 @@ class Editor {
                 }
 
                 markups.splice(insertIndex, 0, newMarkup);
-
-                // if (insertIndex === j) {
-                //     i = insertIndex;
-                // }
             }
         }
 
@@ -498,64 +507,65 @@ class Editor {
 
     /**
      * Determines which block and inline markups should be "active"
-     * or "enveloped" for particular selection.
+     * or "enveloped" for a particular selection.
      */
 
-    public static setActiveMarkups(state: State, range: TomeSelection): void {
-        state.activeBlockMarkup = null;
-
-        state.activeInlineMarkups.length   =
-        state.envelopedBlockMarkups.length = 0;
-
-        const adjacentInlineMarkups = [];
+    public static setActiveMarkups(state: State, selection: TomeSelection): void {
+        const consecutiveInlineMarkups = new MarkupsMap();
 
         let parentBlock: Markup = null;
 
+        state.activeBlockMarkup = null;
+
+        state.activeInlineMarkups.length = state.envelopedBlockMarkups.length = 0;
+
         for (const markup of state.markups) {
-            const lastAdjacent = adjacentInlineMarkups[adjacentInlineMarkups.length - 1];
+            const lastConsecutive = consecutiveInlineMarkups.lastOfTag(markup.tag);
 
-            // Active markups are those that surround the start of the
-            // selection and should be highlighted in any UI
+            // An active block markup is one that surrounds the start of the selection.
 
-            if (markup.start <= range.from && markup.end >= range.from) {
+            // Active inline markups are those that surround or match the the
+            // selection and should therefore be activated in any UI
+
+            if (markup.start <= selection.from && markup.end >= selection.from) {
                 if (markup.isBlock) {
                     // Only one block markup may be active at a time
                     // (the first one)
 
                     state.activeBlockMarkup = markup;
-                } else if (markup.end >= range.to) {
+                } else if (markup.end >= selection.to) {
                     // Simple enveloped inline markup
 
                     state.activeInlineMarkups.push(markup);
                 } else if (markup.end === parentBlock.end) {
-                    // Potential first adjacent inline markup
+                    // Potential first consectutive inline markup
 
-                    adjacentInlineMarkups.push(markup);
+                    consecutiveInlineMarkups.add(markup);
 
                     continue;
                 }
             }
 
             if (
-                lastAdjacent && lastAdjacent.tag === markup.tag &&
+                lastConsecutive &&
                 (
-                    markup.start === parentBlock.start && markup.end >= range.to ||
+                    markup.start === parentBlock.start && markup.end >= selection.to ||
                     markup.start === parentBlock.start && markup.end === parentBlock.end
                 )
             ) {
                 // Continuation or end of an adjacent inline markup
 
-                adjacentInlineMarkups.push(markup);
+                consecutiveInlineMarkups.add(markup);
 
-                if (range.to <= markup.end) {
+                if (selection.to <= markup.end) {
                     // Final adjacent inline markup, move all to state
 
-                    state.activeInlineMarkups.push(...adjacentInlineMarkups);
+                    state.activeInlineMarkups.push(...consecutiveInlineMarkups.allOfTag(markup.tag));
                 }
             } else if (markup.isInline) {
                 // Doesn't match tag, or not a continuation, reset
 
-                adjacentInlineMarkups.length = 0;
+                consecutiveInlineMarkups.clearTag(markup.tag);
             }
 
             if (!markup.isBlock) continue;
@@ -568,15 +578,15 @@ class Editor {
             if (
                 // overlapping end
 
-                (range.from >= markup.start && range.from < markup.end) ||
+                (selection.from >= markup.start && selection.from < markup.end) ||
 
                 // overlapping start
 
-                (range.to > markup.start && range.to <= markup.end) ||
+                (selection.to > markup.start && selection.to <= markup.end) ||
 
                 // enveloped
 
-                (range.from <= markup.start && range.to >= markup.end)
+                (selection.from <= markup.start && selection.to >= markup.end)
             ) {
                 state.envelopedBlockMarkups.push(markup);
             }

@@ -424,6 +424,23 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[3], new Markup([MarkupTag.STRONG, 9, 12]));
     });
 
+    it('should remove inline markups when split over', () => {
+        const state = Object.assign(new State(), {
+            text: 'Lorem ipsum dolor.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 18]),
+                new Markup([MarkupTag.STRONG, 6, 11])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 6, to: 11}, '\n');
+
+        assert.equal(newState.text, 'Lorem \n dolor.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 6]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 7, 14]));
+    });
+
     it('should split a block markup and any affected inline markups when broken on a trailing space', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor.',
@@ -826,5 +843,80 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 9]));
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 10, 10]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 11, 20]));
+    });
+
+    it('should detect an active inline markup', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9])
+            ]
+        });
+
+        Editor.setActiveMarkups(
+            state,
+            Object.assign(new TomeSelection(), {from: 5, to: 9, direction: SelectionDirection.LTR})
+        );
+
+        assert.equal(state.activeInlineMarkups.length, 1);
+    });
+
+    it('should detect an multiple active inline markups', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.EM, 5, 9])
+            ]
+        });
+
+        Editor.setActiveMarkups(
+            state,
+            Object.assign(new TomeSelection(), {from: 5, to: 9, direction: SelectionDirection.LTR})
+        );
+
+        assert.equal(state.activeInlineMarkups.length, 2);
+    });
+
+    it('should detect an active inline markup across multiple blocks', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.P, 10, 19]),
+                new Markup([MarkupTag.STRONG, 10, 14])
+            ]
+        });
+
+        Editor.setActiveMarkups(
+            state,
+            Object.assign(new TomeSelection(), {from: 5, to: 14, direction: SelectionDirection.LTR})
+        );
+
+        assert.equal(state.activeInlineMarkups.length, 2);
+    });
+
+    it('should detect multiple active inline markups across multiple blocks', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.EM, 5, 9]),
+                new Markup([MarkupTag.P, 10, 19]),
+                new Markup([MarkupTag.STRONG, 10, 14]),
+                new Markup([MarkupTag.EM, 10, 14])
+            ]
+        });
+
+        Editor.setActiveMarkups(
+            state,
+            Object.assign(new TomeSelection(), {from: 5, to: 14, direction: SelectionDirection.LTR})
+        );
+
+        assert.equal(state.activeInlineMarkups.length, 4);
     });
 });
