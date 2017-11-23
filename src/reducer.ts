@@ -60,6 +60,14 @@ export default (prevState: State, action: Action): State => {
 
             return nextState;
         }
+        case ActionType.CUT:
+            return prevState;
+        case ActionType.COPY:
+            return prevState;
+        case ActionType.PASTE:
+            return prevState;
+        case ActionType.SAVE:
+            return prevState;
         default:
             return prevState;
     }

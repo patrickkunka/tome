@@ -81,18 +81,28 @@ class EventManager {
                     e.preventDefault();
 
                     break;
-                // case Keypress.C:
-                //    command = 'copy';
+                case Keypress.X:
+                    action = {type: ActionType.CUT, tag: MarkupTag.EM};
 
-                //     break;
-                // case Keypress.V:
-                //     command = 'paste';
+                    e.preventDefault();
 
-                //     break;
-                // case Keypress.S:
-                //     command = 'save';
+                    break;
+                case Keypress.C:
+                    action = {type: ActionType.COPY, tag: MarkupTag.EM};
 
-                //     break;
+                    break;
+                case Keypress.V:
+                    action = {type: ActionType.PASTE, tag: MarkupTag.EM};
+
+                    e.preventDefault();
+
+                    break;
+                case Keypress.S:
+                    action = {type: ActionType.SAVE, tag: MarkupTag.EM};
+
+                    e.preventDefault();
+
+                    break;
                 case Keypress.Z:
                     e.preventDefault();
 

@@ -8,6 +8,7 @@ enum Keypress {
     ARROW_RIGHT = 'arrowright',
     A           = 'a',
     C           = 'c',
+    X           = 'x',
     V           = 'v',
     S           = 's',
     Z           = 'z',
