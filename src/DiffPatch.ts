@@ -22,7 +22,7 @@ class HtmlDiffPatch {
 
             temp1.innerHTML = prev;
 
-            el1 = temp1.firstElementChild;
+            el1 = temp1.firstChild;
         } else if (prev instanceof Node) {
             el1 = prev;
         } else {
@@ -34,7 +34,7 @@ class HtmlDiffPatch {
 
             temp2.innerHTML = next;
 
-            el2 = temp2.firstElementChild;
+            el2 = temp2.firstChild;
         } else if (next instanceof Node) {
             el2 = next;
         } else {
