@@ -7,13 +7,15 @@ enum Keypress {
     ARROW_LEFT  = 'arrowleft',
     ARROW_RIGHT = 'arrowright',
     A           = 'a',
-    C           = 'c',
-    X           = 'x',
-    V           = 'v',
-    S           = 's',
-    Z           = 'z',
     B           = 'b',
-    I           = 'i'
+    C           = 'c',
+    H           = 'h',
+    I           = 'i',
+    K           = 'k',
+    S           = 's',
+    V           = 'v',
+    X           = 'x',
+    Z           = 'z'
 }
 
 export default Keypress;

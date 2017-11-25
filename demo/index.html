@@ -54,7 +54,15 @@
                 ]
             },
             callbacks: {
-                onStateChange: handleStateChange
+                onStateChange: handleStateChange,
+                onAddAnchor: done => {
+                    console.log('adding anchor');
+
+                    done({
+                        href: 'https://www.kunkalabs.com',
+                        target: '_blank'
+                    });
+                }
             }
         });
 

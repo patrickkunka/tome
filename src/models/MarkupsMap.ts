@@ -6,10 +6,12 @@ class MarkupsMap {
         [tag: string]: Markup[];
     } = {};
 
-    public add(markup: Markup) {
-        if (typeof this.map[markup.tag] === 'undefined') this.map[markup.tag] = [];
+    public add(...markups: Markup[]) {
+        for (const markup of markups) {
+            if (typeof this.map[markup.tag] === 'undefined') this.map[markup.tag] = [];
 
-        this.map[markup.tag].push(markup);
+            this.map[markup.tag].push(markup);
+        }
     }
 
     public lastOfTag(tag: MarkupTag): Markup {
@@ -20,18 +22,22 @@ class MarkupsMap {
         return null;
     }
 
-    public clearTag(tag: MarkupTag): void {
-        let list: Markup[];
-
-        if ((list = this.map[tag]) && list.length > 0) list.length = 0;
-    }
-
     public allOfTag(tag: MarkupTag): Markup[] {
         let list: Markup[];
 
         if ((list = this.map[tag]) && list.length > 0) return list;
 
         return [];
+    }
+
+    public clearTag(tag: MarkupTag): void {
+        let list: Markup[];
+
+        if ((list = this.map[tag]) && list.length > 0) list.length = 0;
+    }
+
+    public clearAll(): void {
+        this.map = {};
     }
 }
 

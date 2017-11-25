@@ -10,7 +10,7 @@ class Renderer {
         let html: string = '';
 
         if (node.tag !== MarkupTag.TEXT) {
-            html += '<' + node.tag + '>';
+            html += `<${node.tag}${node.tag === MarkupTag.A ? ' href=\"javascript:void(0)\"' : ''}>`;
         }
 
         if (node.childNodes.length) {

@@ -29,10 +29,10 @@ class Tome implements ITome {
         return root;
     }
 
-    public dom: Dom = new Dom();
+    public dom:    Dom          = new Dom();
+    public config: ConfigRoot   = new ConfigRoot();
 
     private eventManager: EventManager = new EventManager(this);
-    private config:       ConfigRoot   = new ConfigRoot();
     private root:         TomeNode     = null;
     private history:      State[]      = [];
     private historyIndex: number       = -1;
@@ -96,7 +96,7 @@ class Tome implements ITome {
             action.range = this.state.selection;
         }
 
-        const nextState = [action].reduce(reducer, this.state);
+        const nextState = reducer(this.state, action, this);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);

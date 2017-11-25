@@ -1,33 +1,42 @@
-import MarkupTag from '../constants/MarkupTag';
-import MarkupType from '../constants/MarkupType';
-import IMarkup from '../interfaces/IMarkup';
+import MarkupTag       from '../constants/MarkupTag';
+import MarkupType      from '../constants/MarkupType';
+import IMarkup         from '../interfaces/IMarkup';
 
 class Markup {
     public 0: MarkupTag = null;
     public 1: number    = null;
     public 2: number    = null;
+    public 3?: any;
 
-    constructor([tag, start, end]: IMarkup) {
-        this[0] = tag;
-        this[1] = start;
-        this[2] = end;
+    constructor(arr: IMarkup) {
+        this[0] = arr[0];
+        this[1] = arr[1];
+        this[2] = arr[2];
+
+        if (typeof arr[3] !== 'undefined') {
+            this[3] = arr[3];
+        }
 
         Object.seal(this);
     }
 
-    get tag() {
+    get tag(): MarkupTag {
         return this[0];
     }
 
-    get start() {
+    get start(): number {
         return this[1];
     }
 
-    get end() {
+    get end(): number {
         return this[2];
     }
 
-    get type() {
+    get data(): any {
+        return typeof this[3] === 'undefined' ? null : this[3];
+    }
+
+    get type(): MarkupType {
         return [
             MarkupTag.H1,
             MarkupTag.H2,
@@ -39,15 +48,19 @@ class Markup {
         ].indexOf(this[0]) > -1 ? MarkupType.BLOCK : MarkupType.INLINE;
     }
 
-    get isBlock() {
+    get isBlock(): boolean {
         return this.type === MarkupType.BLOCK;
     }
 
-    get isInline() {
+    get isInline(): boolean {
         return this.type === MarkupType.INLINE;
     }
 
     public toArray(): IMarkup {
+        if (typeof this[3] !== 'undefined') {
+            return [this[0], this[1], this[2], this[3]];
+        }
+
         return [this[0], this[1], this[2]];
     }
 }

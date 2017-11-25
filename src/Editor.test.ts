@@ -859,7 +859,7 @@ describe('Editor', () => {
             Object.assign(new TomeSelection(), {from: 5, to: 9, direction: SelectionDirection.LTR})
         );
 
-        assert.equal(state.activeInlineMarkups.length, 1);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 1);
     });
 
     it('should detect an multiple active inline markups', () => {
@@ -877,7 +877,8 @@ describe('Editor', () => {
             Object.assign(new TomeSelection(), {from: 5, to: 9, direction: SelectionDirection.LTR})
         );
 
-        assert.equal(state.activeInlineMarkups.length, 2);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 1);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.EM).length, 1);
     });
 
     it('should detect an active inline markup across multiple blocks', () => {
@@ -896,7 +897,7 @@ describe('Editor', () => {
             Object.assign(new TomeSelection(), {from: 5, to: 14, direction: SelectionDirection.LTR})
         );
 
-        assert.equal(state.activeInlineMarkups.length, 2);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 2);
     });
 
     it('should detect multiple active inline markups across multiple blocks', () => {
@@ -917,6 +918,28 @@ describe('Editor', () => {
             Object.assign(new TomeSelection(), {from: 5, to: 14, direction: SelectionDirection.LTR})
         );
 
-        assert.equal(state.activeInlineMarkups.length, 4);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 2);
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.EM).length, 2);
+    });
+
+    it('should detect only the appropriate active inline markups even if multiple exist', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\nLine two.\nLine three.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 0, 9]),
+                new Markup([MarkupTag.P, 10, 19]),
+                new Markup([MarkupTag.STRONG, 10, 19]),
+                new Markup([MarkupTag.P, 20, 31]),
+                new Markup([MarkupTag.STRONG, 20, 31])
+            ]
+        });
+
+        Editor.setActiveMarkups(
+            state,
+            Object.assign(new TomeSelection(), {from: 0, to: 14, direction: SelectionDirection.LTR})
+        );
+
+        assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 2);
     });
 });

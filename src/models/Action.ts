@@ -8,6 +8,7 @@ class Action implements IAction {
     public range:   TomeSelection = null;
     public tag:     MarkupTag     = null;
     public content: string        = '';
+    public data:    any           = null;
 }
 
 export default Action;

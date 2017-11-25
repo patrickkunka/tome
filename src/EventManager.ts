@@ -2,6 +2,7 @@ import ActionType   from './constants/ActionType';
 import Keypress     from './constants/Keypress';
 import MarkupTag    from './constants/MarkupTag';
 import IAction      from './interfaces/IAction';
+import IAnchorData  from './interfaces/IAnchorData';
 import ITome        from './interfaces/ITome';
 import Util         from './Util';
 
@@ -107,6 +108,31 @@ class EventManager {
                     e.preventDefault();
 
                     return e.shiftKey ? this.tome.redo() : this.tome.undo();
+                case Keypress.H:
+                    action = {type: ActionType.CHANGE_BLOCK_TYPE, tag: MarkupTag.H1};
+
+                    e.preventDefault();
+
+                    break;
+                case Keypress.K: {
+                    const callback = this.tome.config.callbacks.onAddAnchor;
+
+                    e.preventDefault();
+
+                    if (typeof callback !== 'function') {
+                        throw new TypeError('[Tome] No `onAddAnchor` callback function provided');
+                    }
+
+                    const handlerAccept = (data: IAnchorData) => {
+                        action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A, data};
+
+                        this.tome.applyAction(action);
+                    };
+
+                    callback(handlerAccept);
+
+                    return;
+                }
             }
         }
 

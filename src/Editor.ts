@@ -63,6 +63,7 @@ class Editor {
         tag: MarkupTag,
         from: number,
         to: number,
+        data: any = null,
         markup: Markup = null
     ): State {
         const nextState: State = Util.extend(new State(), prevState, true);
@@ -88,6 +89,7 @@ class Editor {
                     tag,
                     formatFrom,
                     formatTo,
+                    data,
                     envelopedBlockMarkup
                 );
             });
@@ -132,7 +134,15 @@ class Editor {
             }
         }
 
-        nextState.markups.splice(insertIndex, 0, new Markup([tag, from, to]));
+        let newMarkup: Markup;
+
+        if (data) {
+            newMarkup = new Markup([tag, from, to, data]);
+        } else {
+            newMarkup = new Markup([tag, from, to]);
+        }
+
+        nextState.markups.splice(insertIndex, 0, newMarkup);
 
         Editor.joinMarkups(nextState.markups, from);
         Editor.joinMarkups(nextState.markups, to);
@@ -168,7 +178,28 @@ class Editor {
         return nextState;
     }
 
-    public static replaceBlockMarkup() {/* */}
+    /**
+     * Changes the currently active block markup to the provided tag.
+     */
+
+    public static changeBlockType(prevState: State, tag: MarkupTag): State {
+        const nextState = Util.extend(new State(), prevState, true);
+
+        // TODO: add configuration option to strip inline markups from non
+        // paragraph blocks
+
+        nextState.markups = prevState.markups.map(prevMarkup => {
+            const nextMarkup = new Markup(prevMarkup.toArray());
+
+            if (prevState.envelopedBlockMarkups.indexOf(prevMarkup) > -1) {
+                nextMarkup[0] = tag;
+            }
+
+            return nextMarkup;
+        });
+
+        return nextState;
+    }
 
     /**
      * Adjusts the position/length of existing markups in
@@ -511,16 +542,18 @@ class Editor {
      */
 
     public static setActiveMarkups(state: State, selection: TomeSelection): void {
-        const consecutiveInlineMarkups = new MarkupsMap();
+        const activeInlineMarkups = new MarkupsMap();
+
+        state.activeInlineMarkups.clearAll();
 
         let parentBlock: Markup = null;
 
         state.activeBlockMarkup = null;
 
-        state.activeInlineMarkups.length = state.envelopedBlockMarkups.length = 0;
+        state.envelopedBlockMarkups.length = 0;
 
         for (const markup of state.markups) {
-            const lastConsecutive = consecutiveInlineMarkups.lastOfTag(markup.tag);
+            const lastConsecutive = activeInlineMarkups.lastOfTag(markup.tag);
 
             // An active block markup is one that surrounds the start of the selection.
 
@@ -536,11 +569,11 @@ class Editor {
                 } else if (markup.end >= selection.to) {
                     // Simple enveloped inline markup
 
-                    state.activeInlineMarkups.push(markup);
+                    state.activeInlineMarkups.add(markup);
                 } else if (markup.end === parentBlock.end) {
                     // Potential first consectutive inline markup
 
-                    consecutiveInlineMarkups.add(markup);
+                    activeInlineMarkups.add(markup);
 
                     continue;
                 }
@@ -555,17 +588,19 @@ class Editor {
             ) {
                 // Continuation or end of an adjacent inline markup
 
-                consecutiveInlineMarkups.add(markup);
+                activeInlineMarkups.add(markup);
 
                 if (selection.to <= markup.end) {
-                    // Final adjacent inline markup, move all to state
+                    // Final adjacent inline markup, move all to state then clear
 
-                    state.activeInlineMarkups.push(...consecutiveInlineMarkups.allOfTag(markup.tag));
+                    state.activeInlineMarkups.add(...activeInlineMarkups.allOfTag(markup.tag));
+
+                    activeInlineMarkups.clearTag(markup.tag);
                 }
             } else if (markup.isInline) {
                 // Doesn't match tag, or not a continuation, reset
 
-                consecutiveInlineMarkups.clearTag(markup.tag);
+                activeInlineMarkups.clearTag(markup.tag);
             }
 
             if (!markup.isBlock) continue;

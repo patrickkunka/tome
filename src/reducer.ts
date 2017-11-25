@@ -1,11 +1,14 @@
-import ActionType from './constants/ActionType';
-import Editor     from './Editor';
-import Action     from './models/Action';
-import Markup     from './models/Markup';
-import State      from './models/State';
-import Util       from './Util';
+import ActionType  from './constants/ActionType';
+import MarkupTag   from './constants/MarkupTag';
+import Editor      from './Editor';
+import IAnchorData from './interfaces/IAnchorData';
+import Action      from './models/Action';
+import Markup      from './models/Markup';
+import State       from './models/State';
+import Tome        from './Tome';
+import Util        from './Util';
 
-export default (prevState: State, action: Action): State => {
+export default (prevState: State, action: Action, tome: Tome): State|Promise<State> => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
             const nextState = Util.extend(new State(), prevState, true);
@@ -53,12 +56,21 @@ export default (prevState: State, action: Action): State => {
             if (prevState.isTagActive(action.tag)) {
                 nextState = Editor.removeInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
             } else {
-                nextState = Editor.addInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
+                nextState = Editor.addInlineMarkup(
+                    prevState,
+                    action.tag,
+                    action.range.from,
+                    action.range.to,
+                    action.data
+                );
             }
 
             Editor.setActiveMarkups(nextState, action.range);
 
             return nextState;
+        }
+        case ActionType.CHANGE_BLOCK_TYPE: {
+            return Editor.changeBlockType(prevState, action.tag);
         }
         case ActionType.CUT:
             return prevState;

@@ -1,5 +1,10 @@
 import MarkupTag from '../constants/MarkupTag';
 
-type IMarkup = [MarkupTag, number, number];
+interface IMarkup {
+    0: MarkupTag;
+    1: number;
+    2: number;
+    3?: any;
+}
 
 export default IMarkup;

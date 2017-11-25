@@ -6,6 +6,7 @@ interface IAction {
     range?:   TomeSelection;
     content?: string;
     tag?:     string;
+    data?:    any;
 }
 
 export default IAction;
