@@ -498,7 +498,7 @@ class Editor {
 
     public static ingestMarkups(markups: Markup[], tag: MarkupTag, from: number, to: number): void {
         for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [markupTag, markupStart, markupEnd] = markup;
+            const [markupTag, markupStart, markupEnd, markupData] = markup;
 
             if (markupTag !== tag) continue;
 
@@ -513,9 +513,15 @@ class Editor {
                 // start of selection
 
                 if (markupEnd > to) {
+                    let newMarkup: Markup;
+
                     // Split markup into two
 
-                    const newMarkup = new Markup([markupTag, to, markupEnd]);
+                    if (markupData) {
+                        newMarkup = new Markup([markupTag, to, markupEnd, markupData]);
+                    } else {
+                        newMarkup = new Markup([markupTag, to, markupEnd]);
+                    }
 
                     markups.splice(i + 1, 0, newMarkup);
 

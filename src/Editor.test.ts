@@ -673,6 +673,48 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[5], new Markup([MarkupTag.EM, 10, 11]));
     });
 
+    it('should add an inline link with data', () => {
+        const anchorData = {
+            href: 'https://www.kunkalabs.com',
+            target: '_blank'
+        };
+
+        const state = Object.assign(new State(), {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 28])
+            ]
+        });
+
+        const newState = Editor.addInlineMarkup(state, MarkupTag.A, 6, 11, anchorData);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.A, 6, 11, anchorData]));
+    });
+
+    it('should remove a portion of an inline link, creating two equal copies of it', () => {
+        const anchorData = {
+            href: 'https://www.kunkalabs.com',
+            target: '_blank'
+        };
+
+        const state = Object.assign(new State(), {
+            text: 'Lorem ipsum dolor. Sit amet.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 28]),
+                new Markup([MarkupTag.A, 6, 17, anchorData])
+            ]
+        });
+
+        const newState = Editor.removeInlineMarkup(state, MarkupTag.A, 11, 12);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 3);
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.A, 6, 11, anchorData]));
+        assert.deepEqual(newState.markups[2], new Markup([MarkupTag.A, 12, 17, anchorData]));
+    });
+
     it('should remove an inline markup', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',
