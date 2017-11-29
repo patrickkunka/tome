@@ -331,14 +331,24 @@ class Tome implements ITome {
 
         nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
 
-        range.setEnd(nodeRight, offsetEnd);
+        range.setEnd(nodeRight, Math.min(offsetEnd, nodeRight.textContent.length));
 
         selection.removeAllRanges();
 
         if (direction === SelectionDirection.LTR) {
-            selection.setBaseAndExtent(nodeRight, offsetEnd, nodeLeft, offsetStart);
+            selection.setBaseAndExtent(
+                nodeRight,
+                Math.min(offsetEnd, nodeRight.textContent.length),
+                nodeLeft,
+                Math.min(offsetStart, nodeLeft.textContent.length)
+            );
         } else {
-            selection.setBaseAndExtent(nodeLeft, offsetStart, nodeRight, offsetEnd);
+            selection.setBaseAndExtent(
+                nodeLeft,
+                Math.min(offsetStart, nodeLeft.textContent.length),
+                nodeRight,
+                Math.min(offsetEnd, nodeRight.textContent.length)
+            );
         }
     }
 }

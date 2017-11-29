@@ -310,6 +310,44 @@ describe('Editor', () => {
         assert.equal(newState.selection.from, 5);
     });
 
+    it('should ingest a block break if inserted over', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 20])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 9, to: 11}, 'a');
+
+        assert.equal(newState.text, 'Line one.aLine two.');
+        assert.deepEqual(newState.markups.length, 1);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 19]));
+
+        assert.equal(newState.selection.from, 10);
+    });
+
+    it('should ingest a block break if enveloped', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 20])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 1, to: 11}, 'a');
+
+        console.log(newState.markups);
+
+        assert.equal(newState.text, 'LaLine two.');
+        assert.deepEqual(newState.markups.length, 1);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 11]));
+
+        assert.equal(newState.selection.from, 10);
+    });
+
     // Reinstate once whitespace trim option is reinstated
 
     // it('should split a block markup into two block markups at a whitespace,

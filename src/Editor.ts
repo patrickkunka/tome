@@ -218,6 +218,8 @@ class Editor {
     ): Markup[] {
         const newMarkups: Markup[] = [];
 
+        let possibleJoin = -1;
+
         for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
             const newMarkup = new Markup(markup.toArray());
 
@@ -270,10 +272,17 @@ class Editor {
                     const closingBlockMarkup = Editor.getClosingBlockMarkup(markups, i, toIndex);
 
                     // Extend block markup to end of closing block +/-
-                    // adjustment
+                    // adjustment, closing markup will be removed in
+                    // subsequent iteration
 
-                    newMarkup[2] = closingBlockMarkup[2] + adjustment;
+                    newMarkup[2] = closingBlockMarkup.end + adjustment;
                 }
+            } else if (fromIndex === markup.end && totalAdded > 0) {
+                // Inserting characters at the end of a block, before next block, extend block
+
+                newMarkup[2] = fromIndex + totalAdded;
+
+                possibleJoin = newMarkup.end;
             }
 
             if (newMarkup[1] === newMarkup[2] && newMarkup.isInline) removeMarkup = true;
@@ -281,6 +290,10 @@ class Editor {
             if (!removeMarkup) {
                 newMarkups.push(newMarkup);
             }
+        }
+
+        if (possibleJoin > -1) {
+            Editor.joinMarkups(newMarkups, possibleJoin);
         }
 
         return newMarkups;
