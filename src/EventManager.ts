@@ -21,15 +21,16 @@ class EventManager {
         root.addEventListener('keypress', this.boundDelegator);
         root.addEventListener('keydown', this.boundDelegator);
         root.addEventListener('mousedown', this.boundDelegator);
+        root.addEventListener('paste', this.boundDelegator);
         window.addEventListener('mouseup', this.boundDelegator);
     }
 
     public unbindEvents(root: HTMLElement): void {
         root.removeEventListener('keypress', this.boundDelegator);
         root.removeEventListener('keydown', this.boundDelegator);
-        root.removeEventListener('click', this.boundDelegator);
-        root.addEventListener('mousedown', this.boundDelegator);
-        window.addEventListener('mouseup', this.boundDelegator);
+        root.removeEventListener('mousedown', this.boundDelegator);
+        root.removeEventListener('paste', this.boundDelegator);
+        window.removeEventListener('mouseup', this.boundDelegator);
     }
 
     public delegator(e: Event): void {
@@ -57,6 +58,16 @@ class EventManager {
 
     public handleMousedown(): void {
         this.tome.applyAction({type: ActionType.SET_SELECTION});
+    }
+
+    public handlePaste(e: ClipboardEvent): void {
+        const {clipboardData} = e;
+        const text = clipboardData.getData('text/plain');
+        const html = clipboardData.getData('text/html');
+
+        this.tome.applyAction({type: ActionType.PASTE, data: {text, html}});
+
+        e.preventDefault();
     }
 
     public handleKeydown(e: KeyboardEvent): void {
@@ -90,12 +101,6 @@ class EventManager {
                     break;
                 case Keypress.C:
                     action = {type: ActionType.COPY, tag: MarkupTag.EM};
-
-                    break;
-                case Keypress.V:
-                    action = {type: ActionType.PASTE, tag: MarkupTag.EM};
-
-                    e.preventDefault();
 
                     break;
                 case Keypress.S:

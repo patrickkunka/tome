@@ -1,14 +1,11 @@
 import ActionType  from './constants/ActionType';
-import MarkupTag   from './constants/MarkupTag';
 import Editor      from './Editor';
-import IAnchorData from './interfaces/IAnchorData';
 import Action      from './models/Action';
 import Markup      from './models/Markup';
 import State       from './models/State';
-import Tome        from './Tome';
 import Util        from './Util';
 
-export default (prevState: State, action: Action, tome: Tome): State|Promise<State> => {
+export default (prevState: State, action: Action): State|Promise<State> => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
             const nextState = Util.extend(new State(), prevState, true);
@@ -77,7 +74,7 @@ export default (prevState: State, action: Action, tome: Tome): State|Promise<Sta
         case ActionType.COPY:
             return prevState;
         case ActionType.PASTE:
-            return prevState;
+            return  Editor.insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
         case ActionType.SAVE:
             return prevState;
         default:

@@ -96,7 +96,7 @@ class Tome implements ITome {
             action.range = this.state.selection;
         }
 
-        const nextState = reducer(this.state, action, this);
+        const nextState = reducer(this.state, action);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);

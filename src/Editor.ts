@@ -1,10 +1,11 @@
-import MarkupTag     from './constants/MarkupTag';
-import ISelection    from './interfaces/ISelection';
-import Markup        from './models/Markup';
-import MarkupsMap    from './models/MarkupsMap';
-import State         from './models/State';
-import TomeSelection from './models/TomeSelection';
-import Util          from './Util';
+import MarkupTag      from './constants/MarkupTag';
+import IClipboardData from './interfaces/IClipboardData';
+import ISelection     from './interfaces/ISelection';
+import Markup         from './models/Markup';
+import MarkupsMap     from './models/MarkupsMap';
+import State          from './models/State';
+import TomeSelection  from './models/TomeSelection';
+import Util           from './Util';
 
 /**
  * A static class of utility functions for performing edits to
@@ -498,29 +499,27 @@ class Editor {
 
     public static ingestMarkups(markups: Markup[], tag: MarkupTag, from: number, to: number): void {
         for (let i = 0, markup; (markup = markups[i]); i++) {
-            const [markupTag, markupStart, markupEnd, markupData] = markup;
+            if (markup.tag !== tag) continue;
 
-            if (markupTag !== tag) continue;
-
-            if (markupStart >= from && markupEnd <= to) {
+            if (markup.start >= from && markup.end <= to) {
                 // Markup enveloped, remove
 
                 markups.splice(i, 1);
 
                 i--;
-            } else if (markupStart < from && markupEnd >= to) {
+            } else if (markup.start < from && markup.end >= to) {
                 // Markup overlaps start, shorten by moving end to
                 // start of selection
 
-                if (markupEnd > to) {
+                if (markup.end > to) {
                     let newMarkup: Markup;
 
                     // Split markup into two
 
-                    if (markupData) {
-                        newMarkup = new Markup([markupTag, to, markupEnd, markupData]);
+                    if (markup.data !== null) {
+                        newMarkup = new Markup([markup.tag, to, markup.end, markup.data]);
                     } else {
-                        newMarkup = new Markup([markupTag, to, markupEnd]);
+                        newMarkup = new Markup([markup.tag, to, markup.end]);
                     }
 
                     markups.splice(i + 1, 0, newMarkup);
@@ -529,12 +528,12 @@ class Editor {
                 }
 
                 markup[2] = from;
-            } else if (markupStart > from && markupStart < to) {
+            } else if (markup.start > from && markup.start < to) {
                 // Markup overlaps end, shorten by moving start to
                 // end of selection
 
                 markup[1] = to;
-            } else if (markupStart === from && markupEnd > to) {
+            } else if (markup.start === from && markup.end > to) {
                 // Markup envelops range from start
 
                 markup[1] = to;
@@ -632,6 +631,23 @@ class Editor {
                 state.envelopedBlockMarkups.push(markup);
             }
         }
+    }
+
+    public static insertFromClipboard(
+        prevState: State,
+        clipboardData: IClipboardData,
+        from: number,
+        to: number
+    ): State {
+        // 1. identify where single line breaks and block breaks occur
+        // 2. insert text as plain text
+        // 3. split blocks and insert line breaks as appropriate
+
+        console.log(clipboardData.text);
+
+        let output = clipboardData.text.replace(/\n/g, ' ');
+
+        return Editor.insert(prevState, {from, to}, output);
     }
 }
 
