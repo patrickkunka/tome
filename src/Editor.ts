@@ -40,12 +40,14 @@ class Editor {
             adjustment
         );
 
-        if (content === MarkupTag.LINE_BREAK) {
+        if (content === MarkupTag.BLOCK_BREAK) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 
             // TODO: make whitespace trimming available via config
 
             // totalTrimmed = Editor.trimWhitespace(nextState, range.from);
+        } else if (content === MarkupTag.LINE_BREAK) {
+            throw new Error('[Editor] Line break not implemented');
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
             nextState.markups = Editor.joinMarkups(nextState.markups, range.to);
@@ -376,8 +378,7 @@ class Editor {
     /**
      * Splits a markup at the provided index, creating a new markup
      * of the same type starting a character later. Assumes the addition
-     * of a single new line character, but this could be provided for
-     * further flexibility.
+     * of a block break.
      */
 
     public static splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
@@ -388,7 +389,7 @@ class Editor {
             let newMarkup = null;
 
             if (markup.start <= splitIndex && markup.end > splitIndex) {
-                const newStartIndex = splitIndex + 1;
+                const newStartIndex = splitIndex + MarkupTag.BLOCK_BREAK.length;
                 const newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag.P : markup.tag;
 
                 let j = i + 1;

@@ -18,15 +18,19 @@ class Renderer {
         } else {
             // At #text leaf node
 
-            const text = node.text
+            let text = node.text
             // Replace 2 consecutive spaces with visible pattern of alternating
             // space/non-breaking space
 
-            .replace(/ {2}/g, ' &nbsp;')
+                .replace(/ {2}/g, ' &nbsp;')
 
-            // Replace leading space or single space with non-breaking space
+                // Replace leading space or single space with non-breaking space
 
-            .replace(/^ ((?=\S)|$)/g, '&nbsp;');
+                .replace(/^ ((?=\S)|$)/g, '&nbsp;');
+
+            if (text === MarkupTag.BLOCK_BREAK) {
+                text = MarkupTag.LINE_BREAK;
+            }
 
             html += text.length ? text : '&#8203;';
         }

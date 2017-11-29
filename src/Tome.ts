@@ -295,7 +295,9 @@ class Tome implements ITome {
 
         nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
 
-        range.setStart(nodeLeft, offsetStart);
+        // Account for #text nodes representing a block break, but with only 1 character rendered
+
+        range.setStart(nodeLeft, Math.min(offsetStart, nodeLeft.textContent.length));
 
         if (from === to) {
             // Single caret

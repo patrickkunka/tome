@@ -1,4 +1,5 @@
 import ActionType  from './constants/ActionType';
+import MarkupTag   from './constants/MarkupTag';
 import Editor      from './Editor';
 import Action      from './models/Action';
 import Markup      from './models/Markup';
@@ -22,28 +23,43 @@ export default (prevState: State, action: Action): State|Promise<State> => {
             return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
         }
         case ActionType.BACKSPACE: {
-            const fromIndex = action.range.isCollapsed ? action.range.from - 1 : action.range.from;
+            let fromIndex: number = action.range.from;
 
             // If at start, ignore
 
             if (action.range.to === 0) return prevState;
 
+            if (action.range.isCollapsed) {
+                // If previous character is a block break, ingest previous two characters, else one
+
+                const preceedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
+
+                fromIndex = preceedingSample === MarkupTag.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
+            }
+
             return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
         }
         case ActionType.DELETE: {
-            const toIndex = action.range.isCollapsed ? action.range.from + 1 :  action.range.to;
+            let toIndex: number = action.range.to;
 
             // If at end, ignore
 
             if (action.range.from === prevState.text.length) return prevState;
 
+            if (action.range.isCollapsed) {
+                // If subsequent characer is a block break, ingest subsequent two characers, else one
+
+                const subsequentSample = prevState.text.slice(action.range.to, action.range.to + 2);
+
+                toIndex = subsequentSample === MarkupTag.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
+            }
+
             return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
         case ActionType.RETURN:
-            return Editor.insert(prevState, action.range, '\n');
+            return Editor.insert(prevState, action.range, MarkupTag.BLOCK_BREAK);
         case ActionType.SHIFT_RETURN:
-
-            break;
+            return Editor.insert(prevState, action.range, MarkupTag.LINE_BREAK);
         case ActionType.TOGGLE_INLINE: {
             let nextState: State;
 
