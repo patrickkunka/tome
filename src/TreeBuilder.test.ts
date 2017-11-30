@@ -238,4 +238,28 @@ describe('TreeBuilder', () => {
         assert.equal(pNode2.childNodes[0].tag, MarkupTag.STRONG);
         assert.equal(pNode2.childNodes[0].childNodes[0].tag, MarkupTag.EM);
     });
+
+    it('should correctly map a line break at the start of a block', () => {
+        const text = '\nLine one.';
+        const markups = [
+            new Markup([MarkupTag.P, 0, 10]),
+            new Markup([MarkupTag.BR, 0, 0])
+        ];
+
+        // <p><br>
+        // Line one.</p>
+
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, text, markups);
+
+        assert.equal(root.childNodes.length, 1);
+
+        const pNode = root.childNodes[0];
+
+        assert.equal(pNode.tag, MarkupTag.P);
+        assert.equal(pNode.childNodes.length, 2);
+        assert.equal(pNode.childNodes[0].tag, MarkupTag.BR);
+        assert.equal(pNode.childNodes[0].childNodes.length, 0);
+    });
 });

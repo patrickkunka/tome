@@ -59,7 +59,7 @@ class TreeBuilder {
                     // A text node exists, close it
 
                     textNode = TreeBuilder.closeTextNode(textNode, text, characterIndex);
-                } else {
+                } else if (!node.isSelfClosing) {
                     // A text node does not exist and we are now at a leaf,
                     // so create one
 

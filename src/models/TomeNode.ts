@@ -9,11 +9,11 @@ class TomeNode {
     public text:       string     = '';
     public path:       number[]   = [];
 
-    get isText() {
+    get isText(): boolean {
         return this.tag === MarkupTag.TEXT;
     }
 
-    get isBlock() {
+    get isBlock(): boolean {
         return [
             MarkupTag.H1,
             MarkupTag.H2,
@@ -25,8 +25,12 @@ class TomeNode {
         ].indexOf(this.tag) > -1;
     }
 
-    get isInline() {
+    get isInline(): boolean {
         return !this.isText && !this.isBlock;
+    }
+
+    get isSelfClosing(): boolean {
+        return this.tag === MarkupTag.BR;
     }
 }
 

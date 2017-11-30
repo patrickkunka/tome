@@ -496,6 +496,119 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[3], new Markup([MarkupTag.STRONG, 8, 13]));
     });
 
+    it('should insert a line break', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 6, to: 6}, MarkupTag.LINE_BREAK);
+
+        assert.equal(newState.text, 'Line o\nne.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 6, 6]));
+    });
+
+    it('should insert a line break at the start of a block', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 0, to: 0}, MarkupTag.LINE_BREAK);
+
+        assert.equal(newState.text, '\nLine one.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 0, 0]));
+    });
+
+    it('should insert a line break at the start of a block', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 9, to: 9}, MarkupTag.LINE_BREAK);
+
+        assert.equal(newState.text, 'Line one.\n');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 9, 9]));
+    });
+
+    it('should insert characters immediately after a line break', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line one.\n',
+            markups: [
+                new Markup([MarkupTag.P, 0, 10]),
+                new Markup([MarkupTag.BR, 9, 9])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 10, to: 10}, 'a');
+
+        assert.equal(newState.text, 'Line one.\na');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 11]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 9, 9]));
+    });
+
+    it('should insert characters immediately before a line break', () => {
+        const state = Object.assign(new State(), {
+            text: '\nLine one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 10]),
+                new Markup([MarkupTag.BR, 0, 0])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 0, to: 0}, 'a');
+
+        assert.equal(newState.text, 'a\nLine one.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 11]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 1, 1]));
+    });
+
+    it('should delete characters immediately before a line break', () => {
+        const state = Object.assign(new State(), {
+            text: 'awd\nLine one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 13]),
+                new Markup([MarkupTag.BR, 3, 3])
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 2, to: 3}, '');
+
+        assert.equal(newState.text, 'aw\nLine one.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 12]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 2, 2]));
+    });
+
+    it('should coerce consecutive line breaks into a block break', () => {
+        const state = Object.assign(new State(), {
+            text: 'Line o\nne.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 10]),
+                new Markup([MarkupTag.BR, 6, 6]),
+            ]
+        });
+
+        const newState = Editor.insert(state, {from: 7, to: 7}, MarkupTag.LINE_BREAK);
+
+        assert.equal(newState.text, 'Line o\n\nne.');
+        assert.equal(newState.markups.length, 2);
+        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 6]));
+        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 8, 11]));
+    });
+
     it('should join two block markups into one block markups on deletion of line break', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor.\nSit amet.',

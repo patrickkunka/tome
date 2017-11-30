@@ -56,6 +56,10 @@ class Markup {
         return this.type === MarkupType.INLINE;
     }
 
+    get isSelfClosing(): boolean {
+        return this.tag === MarkupTag.BR;
+    }
+
     public toArray(): IMarkup {
         if (typeof this[3] !== 'undefined') {
             return [this[0], this[1], this[2], this[3]];

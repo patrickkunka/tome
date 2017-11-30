@@ -15,8 +15,8 @@ class Renderer {
 
         if (node.childNodes.length) {
             html += Renderer.renderNodes(node.childNodes, node);
-        } else {
-            // At #text leaf node
+        } else if (!node.isSelfClosing || node.end === parent.end - 1) {
+            // At #text leaf node, or at line break node at end of parent block
 
             let text = node.text
             // Replace 2 consecutive spaces with visible pattern of alternating
@@ -39,7 +39,7 @@ class Renderer {
             html += '&#8203;';
         }
 
-        if (node.tag !== MarkupTag.TEXT) {
+        if (node.tag !== MarkupTag.TEXT && !node.isSelfClosing) {
             html += '</' + node.tag + '>';
         }
 

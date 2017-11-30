@@ -20,7 +20,6 @@ class Editor {
      */
 
     public static insert(prevState: State, range: ISelection, content: string): State {
-        const nextState = new State();
 
         const totalDeleted = range.to - range.from;
 
@@ -29,6 +28,8 @@ class Editor {
         const totalAdded   = content.length;
         const adjustment   = totalAdded - totalDeleted;
         const totalTrimmed = 0;
+
+        let nextState = new State();
 
         nextState.text = before + content + after;
 
@@ -47,7 +48,7 @@ class Editor {
 
             // totalTrimmed = Editor.trimWhitespace(nextState, range.from);
         } else if (content === MarkupTag.LINE_BREAK) {
-            throw new Error('[Editor] Line break not implemented');
+            nextState = Editor.addInlineMarkup(nextState, MarkupTag.BR, range.from, range.from);
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
             nextState.markups = Editor.joinMarkups(nextState.markups, range.to);
@@ -235,6 +236,10 @@ class Editor {
                     // Markup should be preserved is a) is block element,
                     // b) is inline and inserting
                     newMarkup[2] = markup.start + totalAdded;
+
+                    if (markup.isSelfClosing) newMarkup[1] = newMarkup.end;
+                } else if (markup.isSelfClosing && markup.start === toIndex) {
+                    newMarkup[1] = newMarkup[2] = markup.start + adjustment;
                 } else if (!markup.isBlock || markup.start > fromIndex) {
                     removeMarkup = true;
                 }
@@ -278,7 +283,9 @@ class Editor {
                 }
             }
 
-            if (newMarkup[1] === newMarkup[2] && newMarkup.isInline) removeMarkup = true;
+            // If an inline markup has collapsed, remove it
+
+            if (newMarkup[1] === newMarkup[2] && newMarkup.isInline && !newMarkup.isSelfClosing) removeMarkup = true;
 
             if (!removeMarkup) {
                 newMarkups.push(newMarkup);
