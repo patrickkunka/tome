@@ -217,15 +217,18 @@ class Editor {
         adjustment: number
     ): Markup[] {
         const newMarkups: Markup[] = [];
-
-        let possibleJoin = -1;
+        const toRemove: Markup[] = [];
 
         for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
             const newMarkup = new Markup(markup.toArray());
 
             let removeMarkup = false;
 
-            if (markup.start >= fromIndex && markup.end <= toIndex) {
+            if (toRemove.length > 0 && toRemove.indexOf(markup) > -1) {
+                // Markup to be removed as was consumed by a previous block markup
+
+                removeMarkup = true;
+            } else if (markup.start >= fromIndex && markup.end <= toIndex) {
                 // Selection completely envelopes markup
 
                 if (markup.start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
@@ -250,19 +253,13 @@ class Editor {
 
                 newMarkup[1] += adjustment;
                 newMarkup[2] += adjustment;
-            } else if (fromIndex < markup.start && toIndex > markup.start && toIndex < markup.end) {
-                // Selection partially envelopes markup from start
+            } else if (fromIndex < markup.start && toIndex > markup.start && toIndex < markup.end && markup.isInline) {
+                // Selection partially envelopes inline markup from start
 
-                if (markup.isInline) {
-                    newMarkup[1] += (adjustment + (toIndex - markup.start));
-                    newMarkup[2] += adjustment;
-                } else {
-                    // Previous block markup will consume this one, remove
-
-                    removeMarkup = true;
-                }
-            } else if (fromIndex > markup.start && fromIndex < markup.end && toIndex > markup.end) {
-                // Selection partially envelopes markup from end
+                newMarkup[1] += (adjustment + (toIndex - markup.start));
+                newMarkup[2] += adjustment;
+            } else if (fromIndex > markup.start && fromIndex <= markup.end && toIndex > markup.end) {
+                // Selection partially envelopes markup from end, or is at end
 
                 if (markup.isInline) {
                     // Extend inline markup to end of insertion
@@ -276,13 +273,9 @@ class Editor {
                     // subsequent iteration
 
                     newMarkup[2] = closingBlockMarkup.end + adjustment;
+
+                    toRemove.push(closingBlockMarkup);
                 }
-            } else if (fromIndex === markup.end && totalAdded > 0) {
-                // Inserting characters at the end of a block, before next block, extend block
-
-                newMarkup[2] = fromIndex + totalAdded;
-
-                possibleJoin = newMarkup.end;
             }
 
             if (newMarkup[1] === newMarkup[2] && newMarkup.isInline) removeMarkup = true;
@@ -290,10 +283,6 @@ class Editor {
             if (!removeMarkup) {
                 newMarkups.push(newMarkup);
             }
-        }
-
-        if (possibleJoin > -1) {
-            Editor.joinMarkups(newMarkups, possibleJoin);
         }
 
         return newMarkups;

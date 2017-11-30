@@ -339,13 +339,11 @@ describe('Editor', () => {
 
         const newState = Editor.insert(state, {from: 1, to: 11}, 'a');
 
-        console.log(newState.markups);
-
         assert.equal(newState.text, 'LaLine two.');
         assert.deepEqual(newState.markups.length, 1);
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 11]));
 
-        assert.equal(newState.selection.from, 10);
+        assert.equal(newState.selection.from, 2);
     });
 
     // Reinstate once whitespace trim option is reinstated
