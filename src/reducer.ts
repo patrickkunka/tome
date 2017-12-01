@@ -32,9 +32,9 @@ export default (prevState: State, action: Action): State|Promise<State> => {
             if (action.range.isCollapsed) {
                 // If previous character is a block break, ingest previous two characters, else one
 
-                const preceedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
+                const precedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
 
-                fromIndex = preceedingSample === MarkupTag.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
+                fromIndex = precedingSample === MarkupTag.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
             }
 
             return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
@@ -47,19 +47,48 @@ export default (prevState: State, action: Action): State|Promise<State> => {
             if (action.range.from === prevState.text.length) return prevState;
 
             if (action.range.isCollapsed) {
-                // If subsequent characer is a block break, ingest subsequent two characers, else one
+                // If succeeding characer is a block break, ingest following two characers, else one
 
-                const subsequentSample = prevState.text.slice(action.range.to, action.range.to + 2);
+                const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
 
-                toIndex = subsequentSample === MarkupTag.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
+                toIndex = succeedingSample === MarkupTag.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
             }
 
             return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
         case ActionType.RETURN:
             return Editor.insert(prevState, action.range, MarkupTag.BLOCK_BREAK);
-        case ActionType.SHIFT_RETURN:
+        case ActionType.SHIFT_RETURN: {
+            // detect if inserting a line break directly before or
+            // after a block break
+
+            const precedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
+            const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
+
+            if (precedingSample.match(/(\S|^)\n$/)) {
+                // Matches single preceeding newline
+
+                return Editor.insert(
+                    prevState,
+                    {from: action.range.from - 1, to: action.range.to},
+                    MarkupTag.BLOCK_BREAK
+                );
+
+                // TODO: br tag is not being ingested
+            }
+
+            if (succeedingSample.match(/^\n(\S|$)/)) {
+                // Matches single succeeding newline character
+
+                return Editor.insert(
+                    prevState,
+                    {from: action.range.from, to: action.range.to + 1},
+                    MarkupTag.BLOCK_BREAK
+                );
+            }
+
             return Editor.insert(prevState, action.range, MarkupTag.LINE_BREAK);
+        }
         case ActionType.TOGGLE_INLINE: {
             let nextState: State;
 

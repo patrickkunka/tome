@@ -653,9 +653,9 @@ class Editor {
         // 2. insert text as plain text
         // 3. split blocks and insert line breaks as appropriate
 
-        console.log(clipboardData.text);
+        // console.log(clipboardData.text);
 
-        let output = clipboardData.text.replace(/\n/g, ' ');
+        const output = clipboardData.text.replace(/\n/g, ' ');
 
         return Editor.insert(prevState, {from, to}, output);
     }

@@ -597,7 +597,7 @@ describe('Editor', () => {
             text: 'Line o\nne.',
             markups: [
                 new Markup([MarkupTag.P, 0, 10]),
-                new Markup([MarkupTag.BR, 6, 6]),
+                new Markup([MarkupTag.BR, 6, 6])
             ]
         });
 
