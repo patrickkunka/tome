@@ -654,11 +654,52 @@ class Editor {
         from: number,
         to: number
     ): State {
-        // 1. identify where single line breaks and block breaks occur
-        // 2. insert text as plain text
-        // 3. split blocks and insert line breaks as appropriate
+        const expBlockBreak = /\n\n/g;
+        const expLineBreak  = /(^|[^\n])\n($|[^\n])/g;
 
-        // console.log(clipboardData.text);
+        const blockBreaks: ISelection[] = [];
+        const lineBreaks:  ISelection[] = [];
+        const markups:     Markup[]     = [];
+
+        let match: RegExpExecArray;
+        let plainText = clipboardData.text;
+
+        while (match = expBlockBreak.exec(plainText)) {
+            const from = match.index;
+            const to   = from + match[0].length;
+
+            blockBreaks.push({from, to});
+
+            plainText = plainText.slice(0, from) + '__' + plainText.slice(to);
+        }
+
+        while (match = expLineBreak.exec(plainText)) {
+            const from = match.index + 1;
+            const to   = from + 1;
+
+            lineBreaks.push({from, to});
+        }
+
+
+        if (blockBreaks.length < 1) {
+            markups.push(new Markup([MarkupTag.P, 0, plainText.length]));
+        }
+
+        for (let i = 0; i < blockBreaks.length; i++) {
+            const blockBreak = blockBreaks[i];
+            const lastBlock  = markups.length > 0 ? markups[markups.length - 1] : new Markup([MarkupTag.P, 0, blockBreak.from]);
+            const closeAt    = i === blockBreaks.length - 1 ? plainText.length : NaN;
+
+            if (i === 0) {
+                markups.push(lastBlock);
+            }
+
+            lastBlock[2] = blockBreak.from;
+
+            markups.push(new Markup([MarkupTag.P, blockBreak.to, closeAt]));
+        }
+
+        console.log(clipboardData.text, markups);
 
         const output = clipboardData.text.replace(/\n/g, ' ');
 
