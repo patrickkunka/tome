@@ -1,6 +1,7 @@
 import * as chai      from 'chai';
 import * as deepEqual from 'chai-shallow-deep-equal';
 
+import HtmlEntity     from './constants/HtmlEntity';
 import MarkupTag      from './constants/MarkupTag';
 import Markup         from './models/Markup';
 import TomeNode       from './models/TomeNode';
@@ -158,7 +159,7 @@ describe('TreeBuilder', () => {
 
         assert.equal(breakNode.tag, MarkupTag.TEXT);
         assert.equal(breakNode.childNodes.length, 0);
-        assert.equal(breakNode.text, MarkupTag.LINE_BREAK);
+        assert.equal(breakNode.text, HtmlEntity.LINE_BREAK);
         assert.equal(breakNode.start, 9);
         assert.equal(breakNode.end, 10);
 

@@ -1,5 +1,6 @@
 import * as chai          from 'chai';
 import * as deepEqual     from 'chai-shallow-deep-equal';
+import HtmlEntity         from './constants/HtmlEntity';
 import MarkupTag          from './constants/MarkupTag';
 import SelectionDirection from './constants/SelectionDirection';
 import Editor             from './Editor';
@@ -301,7 +302,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 3, to: 3}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 3, to: 3}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lor\n\nem ipsum dolor. Sit amet.');
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 3]));
@@ -393,7 +394,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 35, to: 35}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 35, to: 35}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem ipsum dolor. Sit amet.\n\nTest \n\nHeading');
         assert.equal(newState.markups.length, 3);
@@ -411,7 +412,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 18, to: 18}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 18, to: 18}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem ipsum dolor.\n\n');
         assert.equal(newState.markups.length, 4);
@@ -431,7 +432,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 6, to: 6}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 6, to: 6}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem \n\nipsum dolor.');
         assert.equal(newState.markups.length, 4);
@@ -450,7 +451,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 8, to: 8}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 8, to: 8}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem ip\n\nsum dolor.');
         assert.equal(newState.markups.length, 4);
@@ -469,7 +470,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 6, to: 11}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 6, to: 11}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem \n\n dolor.');
         assert.equal(newState.markups.length, 2);
@@ -486,7 +487,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 6, to: 6}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 6, to: 6}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem \n\nipsum dolor.');
         assert.equal(newState.markups.length, 4);
@@ -504,7 +505,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 6, to: 6}, MarkupTag.LINE_BREAK);
+        const newState = Editor.insert(state, {from: 6, to: 6}, HtmlEntity.LINE_BREAK);
 
         assert.equal(newState.text, 'Line o\nne.');
         assert.equal(newState.markups.length, 2);
@@ -519,7 +520,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 0, to: 0}, MarkupTag.LINE_BREAK);
+        const newState = Editor.insert(state, {from: 0, to: 0}, HtmlEntity.LINE_BREAK);
 
         assert.equal(newState.text, '\nLine one.');
         assert.equal(newState.markups.length, 2);
@@ -534,7 +535,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 9, to: 9}, MarkupTag.LINE_BREAK);
+        const newState = Editor.insert(state, {from: 9, to: 9}, HtmlEntity.LINE_BREAK);
 
         assert.equal(newState.text, 'Line one.\n');
         assert.equal(newState.markups.length, 2);
@@ -590,23 +591,6 @@ describe('Editor', () => {
         assert.equal(newState.markups.length, 2);
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 12]));
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.BR, 2, 2]));
-    });
-
-    it('should coerce consecutive line breaks into a block break', () => {
-        const state = Object.assign(new State(), {
-            text: 'Line o\nne.',
-            markups: [
-                new Markup([MarkupTag.P, 0, 10]),
-                new Markup([MarkupTag.BR, 6, 6])
-            ]
-        });
-
-        const newState = Editor.insert(state, {from: 7, to: 7}, MarkupTag.LINE_BREAK);
-
-        assert.equal(newState.text, 'Line o\n\nne.');
-        assert.equal(newState.markups.length, 2);
-        assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 6]));
-        assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 8, 11]));
     });
 
     it('should join two block markups into one block markups on deletion of line break', () => {
@@ -938,7 +922,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 19, to: 19}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 19, to: 19}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Lorem ipsum dolor. \n\nSit amet.');
         assert.equal(newState.markups.length, 4);
@@ -1009,7 +993,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 9, to: 9}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 9, to: 9}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Line one.\n\n\n\nLine two.');
         assert.equal(newState.markups.length, 3);
@@ -1027,7 +1011,7 @@ describe('Editor', () => {
             ]
         });
 
-        const newState = Editor.insert(state, {from: 11, to: 11}, MarkupTag.BLOCK_BREAK);
+        const newState = Editor.insert(state, {from: 11, to: 11}, HtmlEntity.BLOCK_BREAK);
 
         assert.equal(newState.text, 'Line one.\n\n\n\nLine two.');
         assert.equal(newState.markups.length, 3);

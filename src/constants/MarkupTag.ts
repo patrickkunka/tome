@@ -8,8 +8,6 @@ enum MarkupTag {
     H6          = 'h6',
     P           = 'p',
     TEXT        = '#text',
-    BLOCK_BREAK = '\n\n',
-    LINE_BREAK  = '\n',
     STRONG      = 'strong',
     EM          = 'em',
     BR          = 'br'

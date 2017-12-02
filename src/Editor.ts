@@ -1,3 +1,4 @@
+import HtmlEntity     from './constants/HtmlEntity';
 import MarkupTag      from './constants/MarkupTag';
 import IClipboardData from './interfaces/IClipboardData';
 import ISelection     from './interfaces/ISelection';
@@ -41,13 +42,13 @@ class Editor {
             adjustment
         );
 
-        if (content === MarkupTag.BLOCK_BREAK) {
+        if (content === HtmlEntity.BLOCK_BREAK) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 
             // TODO: make whitespace trimming available via config
 
             // totalTrimmed = Editor.trimWhitespace(nextState, range.from);
-        } else if (content === MarkupTag.LINE_BREAK) {
+        } else if (content === HtmlEntity.LINE_BREAK) {
             nextState = Editor.addInlineMarkup(nextState, MarkupTag.BR, range.from, range.from);
         } else if (content === '') {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
@@ -219,6 +220,7 @@ class Editor {
     ): Markup[] {
         const newMarkups: Markup[] = [];
         const toRemove: Markup[] = [];
+        const isCollapsedRange = fromIndex === toIndex;
 
         for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
             const newMarkup = new Markup(markup.toArray());
@@ -232,9 +234,12 @@ class Editor {
             } else if (markup.start >= fromIndex && markup.end <= toIndex) {
                 // Selection completely envelopes markup
 
-                if (markup.start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+                if (!isCollapsedRange && markup.isSelfClosing && markup.start === fromIndex) {
+                    removeMarkup = true;
+                } else if (markup.start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
                     // Markup should be preserved is a) is block element,
                     // b) is inline and inserting
+
                     newMarkup[2] = markup.start + totalAdded;
 
                     if (markup.isSelfClosing) newMarkup[1] = newMarkup.end;
@@ -398,7 +403,7 @@ class Editor {
             let newMarkup = null;
 
             if (markup.start <= splitIndex && markup.end > splitIndex) {
-                const newStartIndex = splitIndex + MarkupTag.BLOCK_BREAK.length;
+                const newStartIndex = splitIndex + HtmlEntity.BLOCK_BREAK.length;
                 const newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag.P : markup.tag;
 
                 let j = i + 1;

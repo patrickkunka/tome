@@ -1,5 +1,6 @@
-import MarkupTag from './constants/MarkupTag';
-import TomeNode  from './models/TomeNode';
+import HtmlEntity from './constants/HtmlEntity';
+import MarkupTag  from './constants/MarkupTag';
+import TomeNode   from './models/TomeNode';
 
 class Renderer {
     public static renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
@@ -28,15 +29,15 @@ class Renderer {
 
                 .replace(/^ ((?=\S)|$)/g, '&nbsp;');
 
-            if (text === MarkupTag.BLOCK_BREAK) {
-                text = MarkupTag.LINE_BREAK;
+            if (text === HtmlEntity.BLOCK_BREAK) {
+                text = HtmlEntity.LINE_BREAK;
             }
 
-            html += text.length ? text : '&#8203;';
+            html += text.length ? text : `<${MarkupTag.BR}>`;
         }
 
         if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
-            html += '&#8203;';
+            html += `<${MarkupTag.BR}>`;
         }
 
         if (node.tag !== MarkupTag.TEXT && !node.isSelfClosing) {

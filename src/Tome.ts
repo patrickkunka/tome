@@ -219,9 +219,18 @@ class Tome implements ITome {
 
     private getRangeFromSelection(selection: Selection) {
         const anchorPath = this.getPathFromDomNode(selection.anchorNode);
-        const virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
         const from = new Caret();
         const to = new Caret();
+
+        let virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
+
+        if (virtualAnchorNode.isBlock) {
+            // Is caret is lodged between a final safety <br> and
+            // the end of block, it won't register as within a text
+            // node. TODO: this is not reliable over multiple line breaks
+
+            virtualAnchorNode = virtualAnchorNode.childNodes[virtualAnchorNode.childNodes.length - 1];
+        }
 
         let extentPath = anchorPath;
         let virtualExtentNode: TomeNode = virtualAnchorNode;
@@ -232,6 +241,10 @@ class Tome implements ITome {
         if (!selection.isCollapsed) {
             extentPath = this.getPathFromDomNode(selection.extentNode);
             virtualExtentNode = this.getNodeByPath(extentPath, this.root);
+
+            if (virtualExtentNode.isBlock) {
+                virtualExtentNode = virtualExtentNode.childNodes[virtualExtentNode.childNodes.length - 1];
+            }
         }
 
         // If the anchor is greater than the extent, or both paths are equal

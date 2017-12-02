@@ -1,5 +1,5 @@
 import ActionType  from './constants/ActionType';
-import MarkupTag   from './constants/MarkupTag';
+import HtmlEntity  from './constants/HtmlEntity';
 import Editor      from './Editor';
 import Action      from './models/Action';
 import Markup      from './models/Markup';
@@ -34,7 +34,7 @@ export default (prevState: State, action: Action): State|Promise<State> => {
 
                 const precedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
 
-                fromIndex = precedingSample === MarkupTag.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
+                fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
             }
 
             return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
@@ -51,19 +51,18 @@ export default (prevState: State, action: Action): State|Promise<State> => {
 
                 const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
 
-                toIndex = succeedingSample === MarkupTag.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
+                toIndex = succeedingSample === HtmlEntity.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
             }
 
             return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
         case ActionType.RETURN:
-            return Editor.insert(prevState, action.range, MarkupTag.BLOCK_BREAK);
+            return Editor.insert(prevState, action.range, HtmlEntity.BLOCK_BREAK);
         case ActionType.SHIFT_RETURN: {
             // detect if inserting a line break directly before or
-            // after a block break
+            // after an existing line break
 
             const precedingSample = prevState.text.slice(action.range.from - 2, action.range.from);
-            const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
 
             if (precedingSample.match(/(\S|^)\n$/)) {
                 // Matches single preceeding newline
@@ -71,11 +70,13 @@ export default (prevState: State, action: Action): State|Promise<State> => {
                 return Editor.insert(
                     prevState,
                     {from: action.range.from - 1, to: action.range.to},
-                    MarkupTag.BLOCK_BREAK
+                    HtmlEntity.BLOCK_BREAK
                 );
 
                 // TODO: br tag is not being ingested
             }
+
+            const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
 
             if (succeedingSample.match(/^\n(\S|$)/)) {
                 // Matches single succeeding newline character
@@ -83,11 +84,11 @@ export default (prevState: State, action: Action): State|Promise<State> => {
                 return Editor.insert(
                     prevState,
                     {from: action.range.from, to: action.range.to + 1},
-                    MarkupTag.BLOCK_BREAK
+                    HtmlEntity.BLOCK_BREAK
                 );
             }
 
-            return Editor.insert(prevState, action.range, MarkupTag.LINE_BREAK);
+            return Editor.insert(prevState, action.range, HtmlEntity.LINE_BREAK);
         }
         case ActionType.TOGGLE_INLINE: {
             let nextState: State;
