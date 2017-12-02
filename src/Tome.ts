@@ -223,13 +223,15 @@ class Tome implements ITome {
         const to = new Caret();
 
         let virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
+        let anchorOffset = selection.anchorOffset;
+        let extentOffset = selection.extentOffset;
 
-        if (virtualAnchorNode.isBlock) {
-            // Is caret is lodged between a final safety <br> and
-            // the end of block, it won't register as within a text
-            // node. TODO: this is not reliable over multiple line breaks
+        if (virtualAnchorNode.isBlock && anchorOffset > 0) {
+            // Caret is lodged between a safety <br> and
+            // the end of block
 
-            virtualAnchorNode = virtualAnchorNode.childNodes[virtualAnchorNode.childNodes.length - 1];
+            virtualAnchorNode = virtualAnchorNode.childNodes[anchorOffset];
+            anchorOffset = virtualAnchorNode.text.length;
         }
 
         let extentPath = anchorPath;
@@ -242,8 +244,10 @@ class Tome implements ITome {
             extentPath = this.getPathFromDomNode(selection.extentNode);
             virtualExtentNode = this.getNodeByPath(extentPath, this.root);
 
-            if (virtualExtentNode.isBlock) {
-                virtualExtentNode = virtualExtentNode.childNodes[virtualExtentNode.childNodes.length - 1];
+            if (virtualExtentNode.isBlock && extentOffset > 0) {
+                virtualExtentNode = virtualExtentNode.childNodes[extentOffset];
+
+                extentOffset = virtualExtentNode.text.length;
             }
         }
 
@@ -256,12 +260,12 @@ class Tome implements ITome {
             (!Util.isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
 
         from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
-        from.offset = to.offset = isRtl ? selection.extentOffset : selection.anchorOffset;
+        from.offset = to.offset = isRtl ? extentOffset : anchorOffset;
         from.path   = to.path = isRtl ? extentPath : anchorPath;
 
         if (!selection.isCollapsed) {
             to.node     = isRtl ? virtualAnchorNode : virtualExtentNode;
-            to.offset   = isRtl ? selection.anchorOffset : selection.extentOffset;
+            to.offset   = isRtl ? anchorOffset : extentOffset;
             to.path     = isRtl ? anchorPath : extentPath;
         }
 
