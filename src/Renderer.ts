@@ -23,11 +23,11 @@ class Renderer {
             // Replace 2 consecutive spaces with visible pattern of alternating
             // space/non-breaking space
 
-                .replace(/ {2}/g, ' &nbsp;')
+                .replace(/ {2}/g, ` ${HtmlEntity.NON_BREAKING_SPACE}`)
 
                 // Replace leading space or single space with non-breaking space
 
-                .replace(/^ ((?=\S)|$)/g, '&nbsp;');
+                .replace(/^ ((?=\S)|$)/g, HtmlEntity.NON_BREAKING_SPACE);
 
             if (text === HtmlEntity.BLOCK_BREAK) {
                 text = HtmlEntity.LINE_BREAK;
