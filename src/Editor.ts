@@ -391,8 +391,8 @@ class Editor {
 
     /**
      * Splits a markup at the provided index, creating a new markup
-     * of the same type starting a character later. Assumes the addition
-     * of a block break.
+     * of the same type starting two characters later (\n\n). Assumes the
+     * addition of a block break.
      */
 
     public static splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
@@ -654,6 +654,37 @@ class Editor {
         from: number,
         to: number
     ): State {
+        const clipboardMarkups: Markup[] = Editor.parseClipboardToMarkups(clipboardData.text).map(markup => {
+            // Increment markup indices by `from` offset
+
+            markup[1] += from,
+            markup[2] += from
+
+            return markup;
+        });
+
+        const nextState = Editor.insert(prevState, {from, to}, clipboardData.text);
+
+        // iterate through next state markups, which will have been adjusted for the insertion.
+        // once we arrive at the block markup containing the `from` index, start inserting.
+        // once done, clean up and join any overlapping or adjacent blocks
+
+        // TODO: needs work and tests
+
+        for (let i = 0; i < nextState.markups.length; i++) {
+            const markup = nextState.markups[i];
+
+            if (markup.isBlock && markup.start <= from && markup.end >= from) {
+                nextState.markups.splice(i + 1, 0, ...clipboardMarkups);
+
+                break;
+            }
+        }
+
+        return nextState;
+    }
+
+    public static parseClipboardToMarkups(plainText: string): Markup[] {
         const expBlockBreak = /\n\n/g;
         const expLineBreak  = /(^|[^\n])\n($|[^\n])/g;
 
@@ -662,7 +693,6 @@ class Editor {
         const markups:     Markup[]     = [];
 
         let match: RegExpExecArray;
-        let plainText = clipboardData.text;
 
         while (match = expBlockBreak.exec(plainText)) {
             const from = match.index;
@@ -675,11 +705,10 @@ class Editor {
 
         while (match = expLineBreak.exec(plainText)) {
             const from = match.index + 1;
-            const to   = from + 1;
+            const to   = from;
 
             lineBreaks.push({from, to});
         }
-
 
         if (blockBreaks.length < 1) {
             markups.push(new Markup([MarkupTag.P, 0, plainText.length]));
@@ -699,11 +728,38 @@ class Editor {
             markups.push(new Markup([MarkupTag.P, blockBreak.to, closeAt]));
         }
 
-        console.log(clipboardData.text, markups);
+        let lastInsertionIndex = 0;
 
-        const output = clipboardData.text.replace(/\n/g, ' ');
+        for (let i = 0; i < lineBreaks.length; i++) {
+            const lineBreak = lineBreaks[i];
+            const lineBreakMarkup = new Markup([MarkupTag.BR, lineBreak.from, lineBreak.to]);
 
-        return Editor.insert(prevState, {from, to}, output);
+            // loop through markups from last insertion index until we find one that
+            // starts after line break, insert line break before, and cache insertion
+            // index
+
+            for (let j = lastInsertionIndex; j < markups.length; j++) {
+                const markup = markups[j];
+
+                if (j === markups.length - 1) {
+                    // At end
+
+                    markups.push(lineBreakMarkup);
+
+                    break;
+                } else if (markup.isBlock && markup.start > lineBreak.from) {
+                    // Markup starts after line break
+
+                    markups.splice(j, 0, lineBreakMarkup);
+
+                    lastInsertionIndex = j;
+
+                    break;
+                }
+            }
+        }
+
+        return markups;
     }
 }
 
