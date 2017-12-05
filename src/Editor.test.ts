@@ -1117,4 +1117,75 @@ describe('Editor', () => {
 
         assert.equal(state.activeInlineMarkups.allOfTag(MarkupTag.STRONG).length, 2);
     });
+
+    it('should insert a single unformatted line from the clipboard', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 20])
+            ]
+        });
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: 'Lorem ipsum',
+            html: ''
+        }, 20, 20);
+
+        assert.equal(nextState.text, 'Line one.\n\nLine two.Lorem ipsum');
+        assert.equal(nextState.markups.length, 2);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.P, 11, 31])
+        ]);
+    });
+
+    it('should insert a line with a break from the clipboard', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 20])
+            ]
+        });
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: 'Lorem\nipsum',
+            html: ''
+        }, 20, 20);
+
+        assert.equal(nextState.text, 'Line one.\n\nLine two.Lorem\nipsum');
+        assert.equal(nextState.markups.length, 3);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.P, 11, 31]),
+            new Markup([MarkupTag.BR, 25, 25])
+        ]);
+    });
+
+    it('should insert multiple paragraphs from the clipboard', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 20])
+            ]
+        });
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: 'Line three.\n\nLine four.',
+            html: ''
+        }, 20, 20);
+
+        assert.equal(nextState.text, 'Line one.\n\nLine two.Line three.\n\nLine four.');
+        assert.equal(nextState.markups.length, 3);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.P, 11, 31]),
+            new Markup([MarkupTag.P, 33, 43])
+        ]);
+    });
 });

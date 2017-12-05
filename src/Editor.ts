@@ -657,8 +657,8 @@ class Editor {
         const clipboardMarkups: Markup[] = Editor.parseClipboardToMarkups(clipboardData.text).map(markup => {
             // Increment markup indices by `from` offset
 
-            markup[1] += from,
-            markup[2] += from
+            markup[1] += from;
+            markup[2] += from;
 
             return markup;
         });
@@ -675,7 +675,15 @@ class Editor {
             const markup = nextState.markups[i];
 
             if (markup.isBlock && markup.start <= from && markup.end >= from) {
-                nextState.markups.splice(i + 1, 0, ...clipboardMarkups);
+                const clipboardBlocks = clipboardMarkups.filter(clipboardMarkup => clipboardMarkup.isBlock);
+
+                const firstClipboardBlock = clipboardBlocks[0];
+                const lastClipboardBlock = clipboardBlocks[clipboardBlocks.length - 1];
+
+                firstClipboardBlock[1] = markup.start;
+                lastClipboardBlock[2] = markup.end;
+
+                nextState.markups.splice(i, 1, ...clipboardMarkups);
 
                 break;
             }
@@ -716,8 +724,10 @@ class Editor {
 
         for (let i = 0; i < blockBreaks.length; i++) {
             const blockBreak = blockBreaks[i];
-            const lastBlock  = markups.length > 0 ? markups[markups.length - 1] : new Markup([MarkupTag.P, 0, blockBreak.from]);
-            const closeAt    = i === blockBreaks.length - 1 ? plainText.length : NaN;
+            const closeAt = i === blockBreaks.length - 1 ? plainText.length : NaN;
+
+            const lastBlock = markups.length > 0 ?
+                markups[markups.length - 1] : new Markup([MarkupTag.P, 0, blockBreak.from]);
 
             if (i === 0) {
                 markups.push(lastBlock);
@@ -730,8 +740,7 @@ class Editor {
 
         let lastInsertionIndex = 0;
 
-        for (let i = 0; i < lineBreaks.length; i++) {
-            const lineBreak = lineBreaks[i];
+        for (const lineBreak of lineBreaks) {
             const lineBreakMarkup = new Markup([MarkupTag.BR, lineBreak.from, lineBreak.to]);
 
             // loop through markups from last insertion index until we find one that
