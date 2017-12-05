@@ -96,8 +96,6 @@ class EventManager {
                 case Keypress.X:
                     action = {type: ActionType.CUT, tag: MarkupTag.EM};
 
-                    e.preventDefault();
-
                     break;
                 case Keypress.C:
                     action = {type: ActionType.COPY, tag: MarkupTag.EM};

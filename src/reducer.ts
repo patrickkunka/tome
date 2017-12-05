@@ -116,7 +116,7 @@ export default (prevState: State, action: Action): State|Promise<State> => {
             return Editor.changeBlockType(prevState, action.tag);
         }
         case ActionType.CUT:
-            return prevState;
+            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, '');
         case ActionType.COPY:
             return prevState;
         case ActionType.PASTE:

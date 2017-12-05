@@ -1165,6 +1165,29 @@ describe('Editor', () => {
         ]);
     });
 
+    it('should insert a single line at a line break from the clipboard', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n',
+            markups: [
+                new Markup([MarkupTag.P, 0, 10]),
+                new Markup([MarkupTag.BR, 9, 9])
+            ]
+        });
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: 'Line two.',
+            html: ''
+        }, 10, 10);
+
+        assert.equal(nextState.text, 'Line one.\nLine two.');
+        assert.equal(nextState.markups.length, 2);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 19]),
+            new Markup([MarkupTag.BR, 9, 9])
+        ]);
+    });
+
     it('should insert multiple paragraphs from the clipboard', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.\n\nLine two.',
@@ -1188,4 +1211,6 @@ describe('Editor', () => {
             new Markup([MarkupTag.P, 33, 43])
         ]);
     });
+
+    // TODO: test that inline markups are not extended when pasting multi block content
 });

@@ -663,28 +663,70 @@ class Editor {
             return markup;
         });
 
-        const nextState = Editor.insert(prevState, {from, to}, clipboardData.text);
+        const nextState: State = Editor.insert(prevState, {from, to}, clipboardData.text);
+        const inlineMarkups:   Markup[] = [];
 
         // iterate through next state markups, which will have been adjusted for the insertion.
-        // once we arrive at the block markup containing the `from` index, start inserting.
-        // once done, clean up and join any overlapping or adjacent blocks
-
-        // TODO: needs work and tests
+        // once we arrive at the block markup containing the `from` index, insert new clipboard
+        // markups
 
         for (let i = 0; i < nextState.markups.length; i++) {
             const markup = nextState.markups[i];
 
-            if (markup.isBlock && markup.start <= from && markup.end >= from) {
-                const clipboardBlocks = clipboardMarkups.filter(clipboardMarkup => clipboardMarkup.isBlock);
+            let hasInsertedClipboardMarkups = false;
+
+            if (!markup.isBlock) continue;
+
+            if (markup.start <= from && markup.end >= from) {
+                const clipboardBlocks: Markup[] = clipboardMarkups.filter(clipboardMarkup => clipboardMarkup.isBlock);
+
+                // Extract all inline markups within enveloping markup
+
+                for (let j = i; j < nextState.markups.length; j++) {
+                    let inlineMarkup;
+
+                    if ((inlineMarkup = nextState.markups[j]).isInline && inlineMarkup.end <= markup.end) {
+                        inlineMarkups.push(inlineMarkup);
+
+                        nextState.markups.splice(j, 1);
+
+                        j--;
+                    }
+                }
 
                 const firstClipboardBlock = clipboardBlocks[0];
                 const lastClipboardBlock = clipboardBlocks[clipboardBlocks.length - 1];
 
+                // Extend first clipboard markup back to start of enveloping markup
+                // Extend last clipboard markup up to end of enveloping markup
+
                 firstClipboardBlock[1] = markup.start;
                 lastClipboardBlock[2] = markup.end;
 
+                // Remove enveloping and replace with clipboard markups
+
                 nextState.markups.splice(i, 1, ...clipboardMarkups);
 
+                hasInsertedClipboardMarkups = true;
+            }
+
+             // Re-insert inline markups as appropriate
+
+            let insertionIndex = i + 1;
+
+            while (hasInsertedClipboardMarkups && inlineMarkups.length > 0) {
+                const inlineMarkup = inlineMarkups.shift();
+
+                if (inlineMarkup.start >= markup.start && inlineMarkup.end <= markup.end) {
+                    // inline markup falls within block markup
+
+                    nextState.markups.splice(insertionIndex, 0, inlineMarkup);
+
+                    insertionIndex++;
+                }
+            }
+
+            if (hasInsertedClipboardMarkups && inlineMarkups.length < 1) {
                 break;
             }
         }
