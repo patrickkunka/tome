@@ -21,9 +21,7 @@ class Editor {
      */
 
     public static insert(prevState: State, range: ISelection, content: string): State {
-
         const totalDeleted = range.to - range.from;
-
         const before       = prevState.text.slice(0, range.from);
         const after        = prevState.text.slice(range.to);
         const totalAdded   = content.length;

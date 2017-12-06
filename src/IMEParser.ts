@@ -3,41 +3,94 @@ import IAction    from './interfaces/IAction';
 import ITome      from './interfaces/ITome';
 
 class IMEParser {
-    public static handleBasicCharacterMutation(mutation: MutationRecord, tome: ITome): IAction {
+    public static handleCharacterMutation(mutation: MutationRecord, tome: ITome, isComposing: boolean): IAction {
         const node = mutation.target;
         const path = tome.getPathFromDomNode(node);
         const virtualNode = tome.getNodeByPath(path, tome.root);
         const prevValue = virtualNode.text;
         const nextValue = node.textContent;
+        const action: IAction = {type: ActionType.NONE};
 
-        if (nextValue.length > prevValue.length) return;
+        if (prevValue === nextValue) return action;
 
-        // Deleted a character
+        action.type = ActionType.MUTATE;
 
-        const totalDeleted = prevValue.length - nextValue.length;
+        // TODO: move into easily testable string diff function
 
-        const action: IAction = {type: ActionType.DELETE_VIA_MUTATION};
+        // start from either end of string and work inward to find
+        // determine edit
 
-        let localDeletionStartIndex;
+        if (nextValue.length >= prevValue.length) {
+            // Update with longer or equal string, e.g:
 
-        for (let i = 0; i < prevValue.length; i++) {
-            if (nextValue[i] === prevValue[i]) continue;
+            // prev: "two th|e four"
+            // next: "two th|re|e four"
 
-            localDeletionStartIndex = i;
+            // updateStart: 6
+            // updateEnd: 6 (from end) => 12 - 6 => 6
+            // content: slice through 6 to 6-from-end of next => "re"
+
+            let localUpdateStartIndex: number;
+            let localUpdateEndIndexFromEnd: number;
+
+            // TODO: move into easily testable string diff function
+
+            // start from either end of string and work inward to find
+            // determine edit
+
+            for (let i = 0; i < nextValue.length; i++) {
+                if (nextValue[i] === prevValue[i]) continue;
+
+                localUpdateStartIndex = i;
+
+                break;
+            }
+
+            for (let i = 0; i < prevValue.length; i++) {
+                if (nextValue[nextValue.length - 1 - i] === prevValue[prevValue.length - 1 - i]) continue;
+
+                localUpdateEndIndexFromEnd = i;
+
+                break;
+            }
+
+            action.content = nextValue.slice(localUpdateStartIndex, nextValue.length - localUpdateEndIndexFromEnd);
+
+            action.range = {
+                from: virtualNode.start + localUpdateStartIndex,
+                to: virtualNode.start + prevValue.length - localUpdateEndIndexFromEnd
+            };
+        } else if (isComposing) {
+            // update with shorter string, e.g:
+
+            // prev: "two th|re|e four"
+            // next: "two th|e four"
+
+            // ...
+        } else {
+            // deleting
+
+            const totalDeleted = prevValue.length - nextValue.length;
+
+            let localDeletionStartIndex: number;
+
+            for (let i = 0; i < prevValue.length; i++) {
+                if (nextValue[i] === prevValue[i]) continue;
+
+                localDeletionStartIndex = i;
+
+                break;
+            }
+
+            action.content = '';
+
+            action.range = {
+                from: virtualNode.start + localDeletionStartIndex,
+                to: virtualNode.start + localDeletionStartIndex + totalDeleted
+            };
         }
 
-        action.range = {
-            from: virtualNode.start + localDeletionStartIndex,
-            to: virtualNode.start + localDeletionStartIndex + totalDeleted
-        };
-
         return action;
-    }
-
-    public static handleCompositionMutation(mutation: MutationRecord, tome: ITome): IAction {
-        console.log('composition mutation', mutation, tome);
-
-        return {type: ActionType.NONE};
     }
 }
 

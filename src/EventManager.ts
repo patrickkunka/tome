@@ -9,6 +9,7 @@ import ITome        from './interfaces/ITome';
 import Util         from './Util';
 
 const SELECTION_DELAY = 10;
+const ACTION_DELAY = 100;
 
 interface IInputEvent extends UIEvent {
     data: string;
@@ -90,7 +91,7 @@ class EventManager {
 
         this.tome.applyAction({type: ActionType.INSERT, content: e.key});
 
-        setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
+        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
 
     public handleMouseup(): void {
@@ -120,7 +121,7 @@ class EventManager {
 
         this.tome.applyAction({type: ActionType.INSERT, content: e.data});
 
-        setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
+        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
 
     public handleCompositionstart(): void {
@@ -141,10 +142,8 @@ class EventManager {
         let action: IAction;
 
         mutations.forEach(mutation => {
-            if (!this.isComposing && mutation.type === MutationType.CHARACTER_DATA) {
-                action = IMEParser.handleBasicCharacterMutation(mutation, this.tome);
-            } else if (this.isComposing && mutation.type === MutationType.CHARACTER_DATA) {
-                action = IMEParser.handleCompositionMutation(mutation, this.tome);
+            if (mutation.type === MutationType.CHARACTER_DATA) {
+                action = IMEParser.handleCharacterMutation(mutation, this.tome, this.isComposing);
             }
         });
 
@@ -260,11 +259,9 @@ class EventManager {
 
         this.isActioning = true;
 
-        setTimeout(() => {
-            this.tome.applyAction(action);
+        setTimeout(() => this.tome.applyAction(action), SELECTION_DELAY);
 
-            this.isActioning = false;
-        }, SELECTION_DELAY);
+        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
 }
 

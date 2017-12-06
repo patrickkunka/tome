@@ -126,10 +126,14 @@ class Tome implements ITome {
 
         this.historyIndex++;
 
-        if (action.type !== ActionType.SET_SELECTION) {
+        if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
             this.render();
 
             this.positionCaret(this.state.selection);
+        } else if (action.type === ActionType.MUTATE) {
+            // Update internal tree only, but do not render.
+
+            this.root = Tome.buildModelFromState(this.state);
         }
 
         if (typeof fn === 'function') {
