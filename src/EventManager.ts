@@ -1,6 +1,8 @@
 import ActionType   from './constants/ActionType';
 import Keypress     from './constants/Keypress';
 import MarkupTag    from './constants/MarkupTag';
+import MutationType from './constants/MutationType';
+import IMEParser    from './IMEParser';
 import IAction      from './interfaces/IAction';
 import IAnchorData  from './interfaces/IAnchorData';
 import ITome        from './interfaces/ITome';
@@ -8,29 +10,53 @@ import Util         from './Util';
 
 const SELECTION_DELAY = 10;
 
+interface IInputEvent extends UIEvent {
+    data: string;
+}
+
 class EventManager {
-    private tome: ITome = null;
+    public root: HTMLElement = null;
+
+    private tome:           ITome               = null;
     private boundDelegator: EventListenerObject = null;
+    private observer:       MutationObserver    = null;
+    private isComposing:    boolean             = false;
+    private isActioning:    boolean             = false;
 
     constructor(tome: ITome) {
         this.tome = tome;
         this.boundDelegator = this.delegator.bind(this);
+        this.observer = new MutationObserver(this.handleMutation.bind(this));
     }
 
-    public bindEvents(root: HTMLElement): void {
-        root.addEventListener('keypress', this.boundDelegator);
-        root.addEventListener('keydown', this.boundDelegator);
-        root.addEventListener('mousedown', this.boundDelegator);
-        root.addEventListener('paste', this.boundDelegator);
+    public bindEvents(): void {
+        this.root.addEventListener('keypress', this.boundDelegator);
+        this.root.addEventListener('keydown', this.boundDelegator);
+        this.root.addEventListener('textInput', this.boundDelegator);
+        this.root.addEventListener('compositionstart', this.boundDelegator);
+        this.root.addEventListener('compositionupdate', this.boundDelegator);
+        this.root.addEventListener('compositionend', this.boundDelegator);
+        this.root.addEventListener('mousedown', this.boundDelegator);
+        this.root.addEventListener('paste', this.boundDelegator);
+
         window.addEventListener('mouseup', this.boundDelegator);
+
+        this.connectMutationObserver();
     }
 
-    public unbindEvents(root: HTMLElement): void {
-        root.removeEventListener('keypress', this.boundDelegator);
-        root.removeEventListener('keydown', this.boundDelegator);
-        root.removeEventListener('mousedown', this.boundDelegator);
-        root.removeEventListener('paste', this.boundDelegator);
+    public unbindEvents(): void {
+        this.root.removeEventListener('keypress', this.boundDelegator);
+        this.root.removeEventListener('keydown', this.boundDelegator);
+        this.root.removeEventListener('textInput', this.boundDelegator);
+        this.root.removeEventListener('compositionstart', this.boundDelegator);
+        this.root.removeEventListener('compositionupdate', this.boundDelegator);
+        this.root.removeEventListener('compositionend', this.boundDelegator);
+        this.root.removeEventListener('mousedown', this.boundDelegator);
+        this.root.removeEventListener('paste', this.boundDelegator);
+
         window.removeEventListener('mouseup', this.boundDelegator);
+
+        this.disconnectMutationObserver();
     }
 
     public delegator(e: Event): void {
@@ -44,10 +70,27 @@ class EventManager {
         fn.call(this, e);
     }
 
+    public connectMutationObserver() {
+        this.observer.observe(this.root, {
+            childList: true,
+            characterData: true,
+            characterDataOldValue: true,
+            subtree: true
+        });
+    }
+
+    public disconnectMutationObserver() {
+        this.observer.disconnect();
+    }
+
     public handleKeypress(e: KeyboardEvent): void {
         e.preventDefault();
 
+        this.isActioning = true;
+
         this.tome.applyAction({type: ActionType.INSERT, content: e.key});
+
+        setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
     }
 
     public handleMouseup(): void {
@@ -70,10 +113,56 @@ class EventManager {
         e.preventDefault();
     }
 
+    public handleTextInput(e: IInputEvent): void {
+        e.preventDefault();
+
+        this.isActioning = true;
+
+        this.tome.applyAction({type: ActionType.INSERT, content: e.data});
+
+        setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
+    }
+
+    public handleCompositionstart(): void {
+        this.isComposing = true;
+    }
+
+    public handleCompositionupdate(): void {
+        this.isComposing = true;
+    }
+
+    public handleCompositionend(): void {
+        this.isComposing = false;
+    }
+
+    public handleMutation(mutations) {
+        if (this.isActioning) return;
+
+        let action: IAction;
+
+        mutations.forEach(mutation => {
+            if (!this.isComposing && mutation.type === MutationType.CHARACTER_DATA) {
+                action = IMEParser.handleBasicCharacterMutation(mutation, this.tome);
+            } else if (this.isComposing && mutation.type === MutationType.CHARACTER_DATA) {
+                action = IMEParser.handleCompositionMutation(mutation, this.tome);
+            }
+        });
+
+        this.isActioning = true;
+
+        this.tome.applyAction(action);
+
+        setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
+    }
+
     public handleKeydown(e: KeyboardEvent): void {
         const key = e.key.toLowerCase();
 
-        let action: IAction = {};
+        if (key === Keypress.UNIDENTIFIED) {
+            return;
+        }
+
+        let action: IAction = null;
 
         if (e.metaKey) {
             switch (key) {
@@ -169,7 +258,13 @@ class EventManager {
 
         if (!action || action.type === ActionType.NONE) return;
 
-        setTimeout(() => this.tome.applyAction(action), SELECTION_DELAY);
+        this.isActioning = true;
+
+        setTimeout(() => {
+            this.tome.applyAction(action);
+
+            this.isActioning = false;
+        }, SELECTION_DELAY);
     }
 }
 

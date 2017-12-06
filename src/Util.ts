@@ -1,3 +1,6 @@
+import MarkupTag  from './constants/MarkupTag';
+import MarkupType from './constants/MarkupType';
+
 class Util {
     public static extend(target: any, source: any, deep: boolean = false): any {
         let sourceKeys: Array<string|number> = [];
@@ -48,15 +51,22 @@ class Util {
         return target;
     }
 
+    /**
+     * Converts a dash or snake-case string to camel case.
+     */
+
     public static camelCase(str: string): string {
         return str.toLowerCase()
             .replace(/([_-][a-z0-9])/g, $1 => $1.toUpperCase().replace(/[_-]/, ''));
     }
 
+    /**
+     * Converts a camel, dash or snake-case string to pascal case.
+     */
+
     public static pascalCase(str: string): string {
-        return (str = Util.camelCase(str))
-            .charAt(0)
-            .toUpperCase() + str.slice(1);
+        return (str = (str.match(/[_-]/) ? Util.camelCase(str) : str))
+            .charAt(0).toUpperCase() + str.slice(1);
     }
 
     /**
@@ -95,6 +105,18 @@ class Util {
         }
 
         return index;
+    }
+
+    public static getMarkupType(tag: MarkupTag) {
+        return [
+            MarkupTag.H1,
+            MarkupTag.H2,
+            MarkupTag.H3,
+            MarkupTag.H4,
+            MarkupTag.H5,
+            MarkupTag.H6,
+            MarkupTag.P
+        ].indexOf(tag) > -1 ? MarkupType.BLOCK : MarkupType.INLINE;
     }
 }
 

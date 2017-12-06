@@ -56,6 +56,9 @@ export default (prevState: State, action: Action): State|Promise<State> => {
 
             return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
+        case ActionType.DELETE_VIA_MUTATION: {
+            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, '');
+        }
         case ActionType.RETURN:
             return Editor.insert(prevState, action.range, HtmlEntity.BLOCK_BREAK);
         case ActionType.SHIFT_RETURN: {

@@ -31,9 +31,9 @@ class Tome implements ITome {
 
     public dom:    Dom          = new Dom();
     public config: ConfigRoot   = new ConfigRoot();
+    public root:   TomeNode     = null;
 
     private eventManager: EventManager = new EventManager(this);
-    private root:         TomeNode     = null;
     private history:      State[]      = [];
     private historyIndex: number       = -1;
     private lastRender:   string       = '';
@@ -90,6 +90,10 @@ class Tome implements ITome {
             if (!selection.anchorNode || !this.dom.root.contains(selection.anchorNode)) return;
 
             action.range = this.getRangeFromSelection(selection);
+        } else if (action.range) {
+            // A range has been set, coerce to type
+
+            action.range = Object.assign(new TomeSelection(), action.range);
         } else {
             // Use previous range
 
@@ -133,6 +137,34 @@ class Tome implements ITome {
         }
     }
 
+    public getPathFromDomNode(domNode: Node): number[] {
+        const path = [];
+
+        while (domNode) {
+            if (domNode instanceof HTMLElement && domNode === this.dom.root) break;
+
+            path.unshift(Util.index(domNode, true));
+
+            domNode = domNode.parentElement;
+        }
+
+        return path;
+    }
+
+    public getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
+        let node: T = root;
+        let index = -1;
+        let i = 0;
+
+        while (typeof (index = path[i]) === 'number') {
+            node = node.childNodes[index];
+
+            i++;
+        }
+
+        return node || null;
+    }
+
     private init(el: HTMLElement, config: any): void {
         Util.extend(this.config, config, true);
 
@@ -148,7 +180,9 @@ class Tome implements ITome {
 
         this.render();
 
-        this.eventManager.bindEvents(this.dom.root);
+        this.eventManager.root = this.dom.root;
+
+        this.eventManager.bindEvents();
     }
 
     private buildInitialState(initialState: any): State {
@@ -187,34 +221,6 @@ class Tome implements ITome {
         DiffPatch.patch(this.dom.root, diffCommand);
 
         this.lastRender = nextRender;
-    }
-
-    private getPathFromDomNode(domNode: Node): number[] {
-        const path = [];
-
-        while (domNode) {
-            if (domNode instanceof HTMLElement && domNode === this.dom.root) break;
-
-            path.unshift(Util.index(domNode, true));
-
-            domNode = domNode.parentElement;
-        }
-
-        return path;
-    }
-
-    private getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
-        let node: T = root;
-        let index = -1;
-        let i = 0;
-
-        while (typeof (index = path[i]) === 'number') {
-            node = node.childNodes[index];
-
-            i++;
-        }
-
-        return node || null;
     }
 
     private getRangeFromSelection(selection: Selection) {

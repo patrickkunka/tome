@@ -1,9 +1,9 @@
-import ActionType    from '../constants/ActionType';
-import TomeSelection from '../models/TomeSelection';
+import ActionType from '../constants/ActionType';
+import ISelection from '../interfaces/ISelection';
 
 interface IAction {
     type?:    ActionType;
-    range?:   TomeSelection;
+    range?:   ISelection;
     content?: string;
     tag?:     string;
     data?:    any;
