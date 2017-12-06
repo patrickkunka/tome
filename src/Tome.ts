@@ -18,6 +18,7 @@ import TomeSelection      from './models/TomeSelection';
 import reducer            from './reducer';
 import Renderer           from './Renderer';
 import TreeBuilder        from './TreeBuilder';
+import TreeDiffPatch      from './TreeDiffPatch';
 import Util               from './Util';
 
 class Tome implements ITome {
@@ -53,7 +54,7 @@ class Tome implements ITome {
 
         this.historyIndex--;
 
-        this.render();
+        this.render(true);
 
         this.positionCaret(this.state.selection);
 
@@ -69,7 +70,7 @@ class Tome implements ITome {
 
         this.historyIndex++;
 
-        this.render();
+        this.render(true);
 
         this.positionCaret(this.state.selection);
 
@@ -127,13 +128,13 @@ class Tome implements ITome {
         this.historyIndex++;
 
         if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
-            this.render();
+            this.render(true);
 
             this.positionCaret(this.state.selection);
         } else if (action.type === ActionType.MUTATE) {
             // Update internal tree only, but do not render.
 
-            this.root = Tome.buildModelFromState(this.state);
+            this.render();
         }
 
         if (typeof fn === 'function') {
@@ -182,7 +183,7 @@ class Tome implements ITome {
 
         this.historyIndex++;
 
-        this.render();
+        this.render(true);
 
         this.eventManager.root = this.dom.root;
 
@@ -205,8 +206,16 @@ class Tome implements ITome {
         return state;
     }
 
-    private render(): void {
-        this.root = Tome.buildModelFromState(this.state);
+    private render(shouldUpdateDom: boolean = false): void {
+        const prevRoot = this.root;
+
+        const nextRoot = Tome.buildModelFromState(this.state);
+
+        const treeDiffCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
+
+        this.root = nextRoot;
+
+        if (!shouldUpdateDom) return;
 
         const nextRender = Renderer.renderNodes(this.root.childNodes);
 
