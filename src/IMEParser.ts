@@ -1,22 +1,22 @@
 import ActionType from './constants/ActionType';
 import IAction    from './interfaces/IAction';
 import ITome      from './interfaces/ITome';
+import TomeNode   from './models/TomeNode';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, tome: ITome, isComposing: boolean): IAction {
-        const node = mutation.target;
-        const path = tome.getPathFromDomNode(node);
-        const virtualNode = tome.getNodeByPath(path, tome.root);
-        const prevValue = virtualNode.text;
-        const nextValue = node.textContent;
-
-        const action: IAction = IMEParser.diffStringValues(prevValue, nextValue);
+        const node:        Node     = mutation.target;
+        const path:        number[] = tome.getPathFromDomNode(node);
+        const virtualNode: TomeNode = tome.getNodeByPath(path, tome.root);
+        const prevValue:   string   = virtualNode.text;
+        const nextValue:   string   = node.textContent;
+        const action:      IAction  = IMEParser.diffStringValues(prevValue, nextValue);
 
         isComposing;
 
         if (action.type !== ActionType.NONE) {
             action.range.from += virtualNode.start;
-            action.range.to   += virtualNode.end;
+            action.range.to   += virtualNode.start;
         }
 
         return action;
@@ -24,7 +24,6 @@ class IMEParser {
 
     public static diffStringValues(prevValue, nextValue): IAction {
         const action: IAction = {type: ActionType.NONE};
-        const delta = nextValue.length - prevValue.length;
 
         if (prevValue === nextValue) return action;
 
@@ -44,6 +43,8 @@ class IMEParser {
             break;
         }
 
+        // Strip off any common characters from start to prevent overlap
+
         const condensedNextValue = nextValue.slice(localUpdateStartIndex);
         const condensedPrevValue = prevValue.slice(localUpdateStartIndex);
 
@@ -51,12 +52,6 @@ class IMEParser {
             if (condensedNextValue[condensedNextValue.length - 1 - i] === condensedPrevValue[condensedPrevValue.length - 1 - i]) continue;
 
             localUpdateEndIndexFromEnd = i;
-
-            if (delta < 0 && prevValue.length - localUpdateEndIndexFromEnd === localUpdateStartIndex) {
-                // pointer overlap due to repeated characters
-
-                localUpdateStartIndex += delta;
-            }
 
             break;
         }
