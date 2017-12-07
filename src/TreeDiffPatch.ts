@@ -26,7 +26,7 @@ class TreeDiffPatch {
 
         if (maxChildren === 0) return command;
 
-        TreeDiffPatch.diffChildNodes(prev.childNodes, next.childNodes, command.childCommands);
+        // TreeDiffPatch.diffChildNodes(prev.childNodes, next.childNodes, command.childCommands);
 
         // iterate through prev children
         // for each one, check hash against all of next children and break on first match
@@ -35,17 +35,20 @@ class TreeDiffPatch {
         // for those that are left?
     }
 
-    private static diffPersistantNode(prev: TomeNode, next: TomeNode, command: TreeDiffCommand): void {
-        //
-    }
+    // private static diffPersistantNode(prev: TomeNode, next: TomeNode, command: TreeDiffCommand): void {
+    //     //
+    // }
 
-    private static diffChildNodes(
-        prevChildren:  TomeNode[],
-        nextChildren:  TomeNode[],
-        childCommands: TreeDiffCommand[]
-    ): void {
-        //
-    }
+    // private static diffChildNodes(
+    //     prevChildren:  TomeNode[],
+    //     nextChildren:  TomeNode[],
+    //     childCommands: TreeDiffCommand[]
+    // ): void {
+        // possible edits
+        // - one or more blocks changed to another tag type
+        // - one or more blocks deleted, and or one or more blocks edited
+        // - one or more blocks edits
+    // }
 }
 
 export default TreeDiffPatch;

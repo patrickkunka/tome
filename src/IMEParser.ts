@@ -9,86 +9,54 @@ class IMEParser {
         const virtualNode = tome.getNodeByPath(path, tome.root);
         const prevValue = virtualNode.text;
         const nextValue = node.textContent;
+
+        const action: IAction = IMEParser.diffStringValues(prevValue, nextValue);
+
+        isComposing;
+
+        if (action.type !== ActionType.NONE) {
+            action.range.from += virtualNode.start;
+            action.range.to   += virtualNode.end;
+        }
+
+        return action;
+    }
+
+    public static diffStringValues(prevValue, nextValue): IAction {
         const action: IAction = {type: ActionType.NONE};
 
         if (prevValue === nextValue) return action;
 
         action.type = ActionType.MUTATE;
 
-        // TODO: move into easily testable string diff function
+        let localUpdateStartIndex: number;
+        let localUpdateEndIndexFromEnd: number;
 
-        // start from either end of string and work inward to find
-        // determine edit
+        // start from either end of string and work inward to
+        // determine edit boundary
 
-        if (nextValue.length >= prevValue.length) {
-            // Update with longer or equal string, e.g:
+        for (let i = 0; i < nextValue.length; i++) {
+            if (nextValue[i] === prevValue[i]) continue;
 
-            // prev: "two th|e four"
-            // next: "two th|re|e four"
+            localUpdateStartIndex = i;
 
-            // updateStart: 6
-            // updateEnd: 6 (from end) => 12 - 6 => 6
-            // content: slice through 6 to 6-from-end of next => "re"
-
-            let localUpdateStartIndex: number;
-            let localUpdateEndIndexFromEnd: number;
-
-            // TODO: move into easily testable string diff function
-
-            // start from either end of string and work inward to find
-            // determine edit
-
-            for (let i = 0; i < nextValue.length; i++) {
-                if (nextValue[i] === prevValue[i]) continue;
-
-                localUpdateStartIndex = i;
-
-                break;
-            }
-
-            for (let i = 0; i < prevValue.length; i++) {
-                if (nextValue[nextValue.length - 1 - i] === prevValue[prevValue.length - 1 - i]) continue;
-
-                localUpdateEndIndexFromEnd = i;
-
-                break;
-            }
-
-            action.content = nextValue.slice(localUpdateStartIndex, nextValue.length - localUpdateEndIndexFromEnd);
-
-            action.range = {
-                from: virtualNode.start + localUpdateStartIndex,
-                to: virtualNode.start + prevValue.length - localUpdateEndIndexFromEnd
-            };
-        } else if (isComposing) {
-            // update with shorter string, e.g:
-
-            // prev: "two th|re|e four"
-            // next: "two th|e four"
-
-            // ...
-        } else {
-            // deleting
-
-            const totalDeleted = prevValue.length - nextValue.length;
-
-            let localDeletionStartIndex: number;
-
-            for (let i = 0; i < prevValue.length; i++) {
-                if (nextValue[i] === prevValue[i]) continue;
-
-                localDeletionStartIndex = i;
-
-                break;
-            }
-
-            action.content = '';
-
-            action.range = {
-                from: virtualNode.start + localDeletionStartIndex,
-                to: virtualNode.start + localDeletionStartIndex + totalDeleted
-            };
+            break;
         }
+
+        for (let i = 0; i < prevValue.length; i++) {
+            if (nextValue[nextValue.length - 1 - i] === prevValue[prevValue.length - 1 - i]) continue;
+
+            localUpdateEndIndexFromEnd = i;
+
+            break;
+        }
+
+        action.content = nextValue.slice(localUpdateStartIndex, nextValue.length - localUpdateEndIndexFromEnd);
+
+        action.range = {
+            from: localUpdateStartIndex,
+            to: prevValue.length - localUpdateEndIndexFromEnd
+        };
 
         return action;
     }

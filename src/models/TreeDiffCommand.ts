@@ -1,4 +1,4 @@
-import TreeChangeType from './constants/TreeChangeType';
+import TreeChangeType from '../constants/TreeChangeType';
 
 class TreeDiffCommand {
     public type: TreeChangeType;

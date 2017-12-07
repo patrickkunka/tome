@@ -18,7 +18,6 @@ import TomeSelection      from './models/TomeSelection';
 import reducer            from './reducer';
 import Renderer           from './Renderer';
 import TreeBuilder        from './TreeBuilder';
-import TreeDiffPatch      from './TreeDiffPatch';
 import Util               from './Util';
 
 class Tome implements ITome {
@@ -207,15 +206,13 @@ class Tome implements ITome {
     }
 
     private render(shouldUpdateDom: boolean = false): void {
-        const prevRoot = this.root;
+        // const prevRoot = this.root;
 
         const nextRoot = Tome.buildModelFromState(this.state);
 
-        const treeDiffCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
+        // const treeDiffCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
 
         this.root = nextRoot;
-
-        if (!shouldUpdateDom) return;
 
         const nextRender = Renderer.renderNodes(this.root.childNodes);
 
@@ -231,7 +228,9 @@ class Tome implements ITome {
 
         const diffCommand = DiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
 
-        DiffPatch.patch(this.dom.root, diffCommand);
+        if (shouldUpdateDom) {
+            DiffPatch.patch(this.dom.root, diffCommand);
+        }
 
         this.lastRender = nextRender;
     }
