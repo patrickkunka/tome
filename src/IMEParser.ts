@@ -24,6 +24,7 @@ class IMEParser {
 
     public static diffStringValues(prevValue, nextValue): IAction {
         const action: IAction = {type: ActionType.NONE};
+        const delta = nextValue.length - prevValue.length;
 
         if (prevValue === nextValue) return action;
 
@@ -43,10 +44,19 @@ class IMEParser {
             break;
         }
 
+        const condensedNextValue = nextValue.slice(localUpdateStartIndex);
+        const condensedPrevValue = prevValue.slice(localUpdateStartIndex);
+
         for (let i = 0; i < prevValue.length; i++) {
-            if (nextValue[nextValue.length - 1 - i] === prevValue[prevValue.length - 1 - i]) continue;
+            if (condensedNextValue[condensedNextValue.length - 1 - i] === condensedPrevValue[condensedPrevValue.length - 1 - i]) continue;
 
             localUpdateEndIndexFromEnd = i;
+
+            if (delta < 0 && prevValue.length - localUpdateEndIndexFromEnd === localUpdateStartIndex) {
+                // pointer overlap due to repeated characters
+
+                localUpdateStartIndex += delta;
+            }
 
             break;
         }

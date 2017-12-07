@@ -55,12 +55,20 @@ describe('IMEParser', () => {
             assert.deepEqual(action.range, {from: 5, to: 6});
         });
 
-        it('should recognise a partial deletion', () => {
+        it('should recognise a partial deletion containing repeated characters', () => {
             const action = IMEParser.diffStringValues('Line three.', 'Line thre.');
 
             assert.equal(action.type, ActionType.MUTATE);
             assert.equal(action.content, '');
-            assert.deepEqual(action.range, {from: 8, to: 9});
+            assert.deepEqual(action.range, {from: 9, to: 10});
+        });
+
+        it('should recognise a partial deletion containing repeated characters', () => {
+            const action = IMEParser.diffStringValues('Line two three.', 'Line three.');
+
+            assert.equal(action.type, ActionType.MUTATE);
+            assert.equal(action.content, '');
+            assert.deepEqual(action.range, {from: 6, to: 10});
         });
     });
 });
