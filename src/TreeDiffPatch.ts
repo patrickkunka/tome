@@ -13,7 +13,13 @@ class TreeDiffPatch {
         } else if (prev instanceof TomeNode && next === null) {
             command.type = TreeChangeType.REMOVE;
         } else if (prev instanceof TomeNode && next instanceof TomeNode) {
-            TreeDiffPatch.diffPersistantNode(prev, next, command);
+            if (prev.tag === next.tag && prev.text !== next.text) {
+                command.type = TreeChangeType.UPDATE;
+            } else if (prev.tag !== next.tag && prev.text === next.text) {
+                command.type = TreeChangeType.REPLACE;
+            } else {
+                command.type = TreeChangeType.NONE;
+            }
         }
 
         const maxChildren = Math.max(prev.childNodes.length, next.childNodes.length);
@@ -34,8 +40,8 @@ class TreeDiffPatch {
     }
 
     private static diffChildNodes(
-        prevChildren: TomeNode[],
-        nextChildren: TomeNode[],
+        prevChildren:  TomeNode[],
+        nextChildren:  TomeNode[],
         childCommands: TreeDiffCommand[]
     ): void {
         //
