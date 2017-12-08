@@ -4,7 +4,7 @@
   "private": true,
   "main": "./dist/rte.js",
   "scripts": {
-    "lint": "tslint -c tslint.json './src/**/*.ts'",
+    "lint": "tslint --project tsconfig.json -c tslint.json './src/**/*.ts'",
     "test": "mocha -r ts-node/register ./test/unit.ts",
     "watch": "webpack --watch",
     "build": "npm run lint && npm run test && webpack"

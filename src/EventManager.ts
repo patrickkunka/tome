@@ -41,6 +41,7 @@ class EventManager {
         this.root.addEventListener('paste', this.boundDelegator);
 
         window.addEventListener('mouseup', this.boundDelegator);
+        document.addEventListener('selectionchange', this.boundDelegator);
 
         this.connectMutationObserver();
     }
@@ -56,6 +57,7 @@ class EventManager {
         this.root.removeEventListener('paste', this.boundDelegator);
 
         window.removeEventListener('mouseup', this.boundDelegator);
+        document.removeEventListener('selectionchange', this.boundDelegator);
 
         this.disconnectMutationObserver();
     }
@@ -100,6 +102,12 @@ class EventManager {
         this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
 
+    public handleSelectionchange(): void {
+        if (this.tome.dom.root !== document.activeElement) return;
+
+        this.tome.applyAction({type: ActionType.SET_SELECTION});
+    }
+
     public handleMousedown(): void {
         this.tome.applyAction({type: ActionType.SET_SELECTION});
     }
@@ -116,6 +124,12 @@ class EventManager {
 
     public handleTextInput(e: IInputEvent): void {
         e.preventDefault();
+
+        if (this.isActioning || this.isComposing) {
+            // Input as side effect of composition end/update, ignore
+
+            return;
+        }
 
         this.isActioning = true;
 
@@ -143,7 +157,7 @@ class EventManager {
 
         mutations.forEach(mutation => {
             if (mutation.type === MutationType.CHARACTER_DATA) {
-                action = IMEParser.handleCharacterMutation(mutation, this.tome, this.isComposing);
+                action = IMEParser.handleCharacterMutation(mutation, this.tome);
             }
         });
 

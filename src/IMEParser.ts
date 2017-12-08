@@ -4,15 +4,13 @@ import ITome      from './interfaces/ITome';
 import TomeNode   from './models/TomeNode';
 
 class IMEParser {
-    public static handleCharacterMutation(mutation: MutationRecord, tome: ITome, isComposing: boolean): IAction {
+    public static handleCharacterMutation(mutation: MutationRecord, tome: ITome): IAction {
         const node:        Node     = mutation.target;
         const path:        number[] = tome.getPathFromDomNode(node);
         const virtualNode: TomeNode = tome.getNodeByPath(path, tome.root);
         const prevValue:   string   = virtualNode.text;
         const nextValue:   string   = node.textContent;
         const action:      IAction  = IMEParser.diffStringValues(prevValue, nextValue);
-
-        isComposing;
 
         if (action.type !== ActionType.NONE) {
             action.range.from += virtualNode.start;
@@ -49,7 +47,10 @@ class IMEParser {
         const condensedPrevValue = prevValue.slice(localUpdateStartIndex);
 
         for (let i = 0; i < prevValue.length; i++) {
-            if (condensedNextValue[condensedNextValue.length - 1 - i] === condensedPrevValue[condensedPrevValue.length - 1 - i]) continue;
+            if (
+                condensedNextValue[condensedNextValue.length - 1 - i] ===
+                condensedPrevValue[condensedPrevValue.length - 1 - i]
+            ) continue;
 
             localUpdateEndIndexFromEnd = i;
 
