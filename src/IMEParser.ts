@@ -1,12 +1,40 @@
-import ActionType from './constants/ActionType';
-import IAction    from './interfaces/IAction';
-import ITome      from './interfaces/ITome';
-import TomeNode   from './models/TomeNode';
+import ActionType   from './constants/ActionType';
+import IAction      from './interfaces/IAction';
+import ITome        from './interfaces/ITome';
+import TomeNode     from './models/TomeNode';
+import MutationType from './constants/MutationType';
 
 class IMEParser {
-    public static handleCharacterMutation(mutation: MutationRecord, tome: ITome): IAction {
-        const node:        Node     = mutation.target;
-        const path:        number[] = tome.getPathFromDomNode(node);
+    public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
+        const node: Node = mutation.target;
+
+        let path: number[];
+
+        if (!tome.dom.root.contains(node)) {
+            // The mutated text node was also deleted, find the path
+            // of its parent block to find the virtual node
+
+            const mutationIndex = mutations.indexOf(mutation);
+
+            let parentBlock: HTMLElement = null;
+
+            for (let i = mutationIndex; i < mutations.length; i++) {
+                const nextMutation = mutations[i];
+
+                if (nextMutation.type !== MutationType.CHILD_LIST) continue;
+
+                parentBlock = nextMutation.target as HTMLElement;
+
+                break;
+            }
+
+            const parentPath = tome.getPathFromDomNode(parentBlock);
+
+            path = parentPath.concat(0);
+        } else {
+            path = tome.getPathFromDomNode(node);
+        }
+
         const virtualNode: TomeNode = tome.getNodeByPath(path, tome.root);
         const prevValue:   string   = virtualNode.text;
         const nextValue:   string   = node.textContent;
@@ -25,15 +53,17 @@ class IMEParser {
 
         if (prevValue === nextValue) return action;
 
-        action.type = ActionType.MUTATE;
+        const maxLength = Math.max(prevValue.length, nextValue.length);
 
         let localUpdateStartIndex: number;
         let localUpdateEndIndexFromEnd: number;
 
+        action.type = ActionType.MUTATE;
+
         // start from either end of string and work inward to
         // determine edit boundary
 
-        for (let i = 0; i < nextValue.length; i++) {
+        for (let i = 0; i < maxLength; i++) {
             if (nextValue[i] === prevValue[i]) continue;
 
             localUpdateStartIndex = i;

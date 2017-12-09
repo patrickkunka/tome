@@ -90,6 +90,8 @@ class Tome implements ITome {
             if (!selection.anchorNode || !this.dom.root.contains(selection.anchorNode)) return;
 
             action.range = this.getRangeFromSelection(selection);
+
+            if (action.range.from === this.state.selection.from && action.range.to === this.state.selection.to) return;
         } else if (action.range) {
             // A range has been set, coerce to type
 

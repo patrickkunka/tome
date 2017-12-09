@@ -70,5 +70,29 @@ describe('IMEParser', () => {
             assert.equal(action.content, '');
             assert.deepEqual(action.range, {from: 6, to: 10});
         });
+
+        it('should recognise the deletion of the last character', () => {
+            const action = IMEParser.diffStringValues('Line three. ', 'Line three.');
+
+            assert.equal(action.type, ActionType.MUTATE);
+            assert.equal(action.content, '');
+            assert.deepEqual(action.range, {from: 11, to: 12});
+        });
+
+        it('should recognise the deletion of the first character', () => {
+            const action = IMEParser.diffStringValues(' Line three.', 'Line three.');
+
+            assert.equal(action.type, ActionType.MUTATE);
+            assert.equal(action.content, '');
+            assert.deepEqual(action.range, {from: 0, to: 1});
+        });
+
+        it('should recognise the addition of a character to an empty string', () => {
+            const action = IMEParser.diffStringValues('', 'L');
+
+            assert.equal(action.type, ActionType.MUTATE);
+            assert.equal(action.content, 'L');
+            assert.deepEqual(action.range, {from: 0, to: 0});
+        });
     });
 });

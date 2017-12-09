@@ -153,13 +153,19 @@ class EventManager {
     public handleMutation(mutations) {
         if (this.isActioning) return;
 
-        let action: IAction;
+        let action: IAction = null;
 
-        mutations.forEach(mutation => {
+        for (const mutation of mutations) {
             if (mutation.type === MutationType.CHARACTER_DATA) {
-                action = IMEParser.handleCharacterMutation(mutation, this.tome);
+                // Once a character data mutation is detected, break
+
+                action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
+
+                break;
             }
-        });
+        }
+
+        if (!action) return;
 
         this.isActioning = true;
 
