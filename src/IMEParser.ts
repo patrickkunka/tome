@@ -53,10 +53,12 @@ class IMEParser {
 
         if (prevValue === nextValue) return action;
 
+        console.log(`diff string: prev: '${prevValue}', next: '${nextValue}'`);
+
         const maxLength = Math.max(prevValue.length, nextValue.length);
 
         let localUpdateStartIndex: number;
-        let localUpdateEndIndexFromEnd: number;
+        let localUpdateEndIndexFromEnd: number = 0;
 
         action.type = ActionType.MUTATE;
 

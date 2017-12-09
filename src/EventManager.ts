@@ -27,7 +27,7 @@ class EventManager {
     constructor(tome: ITome) {
         this.tome = tome;
         this.boundDelegator = this.delegator.bind(this);
-        this.observer = new MutationObserver(this.handleMutation.bind(this));
+        this.observer = new MutationObserver((this.handleMutation.bind(this)));
     }
 
     public bindEvents(): void {
@@ -125,13 +125,15 @@ class EventManager {
     public handleTextInput(e: IInputEvent): void {
         e.preventDefault();
 
-        if (this.isActioning || this.isComposing) {
-            // Input as side effect of composition end/update, ignore
+        if (this.isComposing) {
+            // Input as side effect of composition, ignore
 
             return;
         }
 
-        this.isActioning = true;
+        if (e.data !== ' ') {
+            this.isActioning = true;
+        }
 
         this.tome.applyAction({type: ActionType.INSERT, content: e.data});
 
@@ -150,26 +152,18 @@ class EventManager {
         this.isComposing = false;
     }
 
-    public handleMutation(mutations) {
+    public handleMutation(mutations: MutationRecord[]) : void {
         if (this.isActioning) return;
 
-        let action: IAction = null;
-
-        for (const mutation of mutations) {
+        for (let mutation of mutations) {
             if (mutation.type === MutationType.CHARACTER_DATA) {
-                // Once a character data mutation is detected, break
+                const action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
 
-                action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
+                this.isActioning = true;
 
-                break;
+                this.tome.applyAction(action);
             }
         }
-
-        if (!action) return;
-
-        this.isActioning = true;
-
-        this.tome.applyAction(action);
 
         setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
     }
