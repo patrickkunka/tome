@@ -155,15 +155,29 @@ class EventManager {
     public handleMutation(mutations: MutationRecord[]) : void {
         if (this.isActioning) return;
 
+        top:
         for (let mutation of mutations) {
-            if (mutation.type === MutationType.CHARACTER_DATA) {
-                const action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
+            let action: IAction = null;
 
-                this.isActioning = true;
+            switch (mutation.type) {
+                case MutationType.CHARACTER_DATA:
+                    action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
 
-                this.tome.applyAction(action);
+                    this.tome.applyAction(action);
+
+                    break;
+                case MutationType.CHILD_LIST:
+                    if (mutation.target !== this.tome.dom.root) break;
+
+                    action = IMEParser.handleBlockMutation(mutation, mutations, this.tome);
+
+                    if (action) this.tome.applyAction(action);
+
+                    break top;
             }
         }
+
+        this.isActioning = true;
 
         setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
     }

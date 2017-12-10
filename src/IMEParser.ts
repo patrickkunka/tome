@@ -3,6 +3,8 @@ import IAction      from './interfaces/IAction';
 import ITome        from './interfaces/ITome';
 import TomeNode     from './models/TomeNode';
 import MutationType from './constants/MutationType';
+import MarkupTag    from './constants/MarkupTag';
+import HtmlEntity   from './constants/HtmlEntity';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
@@ -48,12 +50,39 @@ class IMEParser {
         return action;
     }
 
+    public static handleBlockMutation(mutation: MutationRecord, _mutations: MutationRecord[], tome: ITome): IAction {
+        const beforeRemoved = mutation.previousSibling;
+        const path = tome.getPathFromDomNode(beforeRemoved);
+
+        // Increment previous sibling path to find own path
+
+        path[path.length - 1]++;
+
+        const virtualNode = tome.getNodeByPath(path, tome.root);
+
+        // If node is not a block break, ignore
+
+        if (virtualNode.tag !== MarkupTag.TEXT || virtualNode.text !== HtmlEntity.BLOCK_BREAK) return;
+
+        // Delete over block break
+
+        const action = {
+            type: ActionType.INSERT,
+            range: {
+                from: virtualNode.start,
+                to: virtualNode.end
+            }
+        };
+
+        console.log('insert via delete mutation:', action);
+
+       return action;
+    }
+
     public static diffStringValues(prevValue, nextValue): IAction {
         const action: IAction = {type: ActionType.NONE};
 
         if (prevValue === nextValue) return action;
-
-        console.log(`diff string: prev: '${prevValue}', next: '${nextValue}'`);
 
         const maxLength = Math.max(prevValue.length, nextValue.length);
 
