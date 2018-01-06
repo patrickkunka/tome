@@ -1,7 +1,7 @@
-import Tome from './Tome';
+import TomeFacade from './TomeFacade';
 
-function factory(el: HTMLElement, config: any = {}): Tome {
-    const tome = new Tome(el, config);
+function factory(el: HTMLElement, config: any = {}): TomeFacade {
+    const tome = new TomeFacade(el, config);
 
     return tome;
 }
