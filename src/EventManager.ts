@@ -103,7 +103,13 @@ class EventManager {
     }
 
     public handleSelectionchange(): void {
-        if (this.tome.dom.root !== document.activeElement) return;
+        // NB: This was determined the most effective way to detect
+        // selection change on touch devices, however is firing in
+        // reaction to programmatically seting the cursor position.
+        // Currently blocked by isActioning flag, but needs further
+        // investigation.
+
+        if (this.tome.dom.root !== document.activeElement || this.isActioning) return;
 
         this.tome.applyAction({type: ActionType.SET_SELECTION});
     }

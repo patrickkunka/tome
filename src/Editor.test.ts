@@ -1000,6 +1000,12 @@ describe('Editor', () => {
         assert.deepEqual(newState.markups[0], new Markup([MarkupTag.P, 0, 9]));
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.P, 11, 11]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.P, 13, 22]));
+
+        assert.deepEqual(newState.selection, Object.assign(new TomeSelection(), {
+            direction: SelectionDirection.LTR,
+            from: 11,
+            to: 11
+        }));
     });
 
     it('should create an empty paragraph between two block breaks when breaking at the start of second block', () => {
