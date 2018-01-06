@@ -21,14 +21,6 @@ import TreeBuilder        from './TreeBuilder';
 import Util               from './Util';
 
 class Tome implements ITome {
-    private static buildModelFromState(state: State): TomeNode {
-        const root = new TomeNode();
-
-        TreeBuilder.build(root, state.text, state.markups);
-
-        return root;
-    }
-
     public dom:    Dom          = new Dom();
     public config: ConfigRoot   = new ConfigRoot();
     public root:   TomeNode     = null;
@@ -387,6 +379,14 @@ class Tome implements ITome {
                 Math.min(offsetEnd, nodeRight.textContent.length)
             );
         }
+    }
+
+    private static buildModelFromState(state: State): TomeNode {
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, state.text, state.markups);
+
+        return root;
     }
 }
 
