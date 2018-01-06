@@ -1,3 +1,5 @@
+import merge from 'helpful-merge';
+
 import ConfigRoot         from './config/ConfigRoot';
 import ActionType         from './constants/ActionType';
 import MarkupTag          from './constants/MarkupTag';
@@ -9,6 +11,7 @@ import IAction            from './interfaces/IAction';
 import INodeLike          from './interfaces/INodeLike';
 import ISelection         from './interfaces/ISelection';
 import ITome              from './interfaces/ITome';
+import IValue             from './interfaces/IValue';
 import Action             from './models/Action';
 import Caret              from './models/Caret';
 import Markup             from './models/Markup';
@@ -163,8 +166,26 @@ class Tome implements ITome {
         return node || null;
     }
 
+    public getState(): State {
+        return this.state;
+    }
+
+    public setValue(value: IValue): void {
+        // TODO: create new state with value and selection at end
+
+        console.log(value, 'not implemented');
+    }
+
     private init(el: HTMLElement, config: any): void {
-        Util.extend(this.config, config, true);
+        merge(this.config, config, {
+            deep: true,
+            errorMessage: (offender, suggestion = '') => {
+                return (
+                    `[MyLibrary] Invalid configuration option "${offender}"` +
+                    (suggestion ? `. Did you mean "${suggestion}"?` : '')
+                );
+            }
+        });
 
         if (!el.contentEditable) {
             el.contentEditable = true.toString();
@@ -184,7 +205,7 @@ class Tome implements ITome {
     }
 
     private buildInitialState(initialState: any): State {
-        const state: State = Util.extend(new State(), initialState);
+        const state: State = merge(new State(), initialState);
 
         if (state.markups.length < 1) {
             state.markups.push(new Markup([MarkupTag.P, 0, 0]));

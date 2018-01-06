@@ -1,3 +1,5 @@
+import merge from 'helpful-merge';
+
 import HtmlEntity     from './constants/HtmlEntity';
 import MarkupTag      from './constants/MarkupTag';
 import IClipboardData from './interfaces/IClipboardData';
@@ -6,7 +8,6 @@ import Markup         from './models/Markup';
 import MarkupsMap     from './models/MarkupsMap';
 import State          from './models/State';
 import TomeSelection  from './models/TomeSelection';
-import Util           from './Util';
 
 /**
  * A static class of utility functions for performing edits to
@@ -69,7 +70,7 @@ class Editor {
         data: any = null,
         markup: Markup = null
     ): State {
-        const nextState: State = Util.extend(new State(), prevState, true);
+        const nextState: State = merge(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
         nextState.markups = prevState.markups.map(prevMarkup => new Markup(prevMarkup.toArray()));
@@ -154,7 +155,7 @@ class Editor {
     }
 
     public static removeInlineMarkup(prevState: State, tag: MarkupTag, from: number, to: number): State {
-        const nextState = Util.extend(new State(), prevState, true);
+        const nextState = merge(new State(), prevState, true);
         const enveloped = prevState.envelopedBlockMarkups || [];
 
         nextState.markups = prevState.markups.map(markup => new Markup(markup.toArray()));
@@ -186,7 +187,7 @@ class Editor {
      */
 
     public static changeBlockType(prevState: State, tag: MarkupTag): State {
-        const nextState = Util.extend(new State(), prevState, true);
+        const nextState = merge(new State(), prevState, true);
 
         // TODO: add configuration option to strip inline markups from non
         // paragraph blocks

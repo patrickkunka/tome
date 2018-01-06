@@ -1,15 +1,16 @@
+import merge from 'helpful-merge';
+
 import ActionType  from './constants/ActionType';
 import HtmlEntity  from './constants/HtmlEntity';
 import Editor      from './Editor';
 import Action      from './models/Action';
 import Markup      from './models/Markup';
 import State       from './models/State';
-import Util        from './Util';
 
 export default (prevState: State, action: Action): State|Promise<State> => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
-            const nextState = Util.extend(new State(), prevState, true);
+            const nextState = merge(new State(), prevState, true);
 
             nextState.markups = prevState.markups.map(markup => new Markup(markup.toArray()));
 
