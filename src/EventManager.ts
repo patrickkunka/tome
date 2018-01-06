@@ -156,7 +156,7 @@ class EventManager {
         if (this.isActioning) return;
 
         top:
-        for (let mutation of mutations) {
+        for (const mutation of mutations) {
             let action: IAction = null;
 
             switch (mutation.type) {

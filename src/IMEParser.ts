@@ -1,10 +1,10 @@
 import ActionType   from './constants/ActionType';
+import HtmlEntity   from './constants/HtmlEntity';
+import MarkupTag    from './constants/MarkupTag';
+import MutationType from './constants/MutationType';
 import IAction      from './interfaces/IAction';
 import ITome        from './interfaces/ITome';
 import TomeNode     from './models/TomeNode';
-import MutationType from './constants/MutationType';
-import MarkupTag    from './constants/MarkupTag';
-import HtmlEntity   from './constants/HtmlEntity';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
@@ -50,7 +50,10 @@ class IMEParser {
         return action;
     }
 
+    // tslint:disable variable-name
     public static handleBlockMutation(mutation: MutationRecord, _mutations: MutationRecord[], tome: ITome): IAction {
+        // tslint:enable variable-name
+
         const beforeRemoved = mutation.previousSibling;
         const path = tome.getPathFromDomNode(beforeRemoved);
 
@@ -74,9 +77,9 @@ class IMEParser {
             }
         };
 
-        console.log('insert via delete mutation:', action);
+        // console.log('insert via delete mutation:', action);
 
-       return action;
+        return action;
     }
 
     public static diffStringValues(prevValue, nextValue): IAction {
