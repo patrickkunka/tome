@@ -9,6 +9,7 @@ enum ActionType {
     NONE                = 'NONE',
     PASTE               = 'PASTE',
     REDO                = 'REDO',
+    REPLACE_VALUE       = 'REPLACE_VALUE',
     RETURN              = 'RETURN',
     SAVE                = 'SAVE',
     SET_SELECTION       = 'SET_SELECTION',

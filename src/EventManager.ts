@@ -232,7 +232,13 @@ class EventManager {
                 case Keypress.Z:
                     e.preventDefault();
 
-                    return e.shiftKey ? this.tome.redo() : this.tome.undo();
+                    this.isActioning = true;
+
+                    e.shiftKey ? this.tome.redo() : this.tome.undo();
+
+                    setTimeout(() => (this.isActioning = false), ACTION_DELAY);
+
+                    return;
                 case Keypress.H:
                     action = {type: ActionType.CHANGE_BLOCK_TYPE, tag: MarkupTag.H1};
 

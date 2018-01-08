@@ -37,7 +37,7 @@ class Tome implements ITome {
         this.init(el, config);
     }
 
-    private get state() {
+    private get state(): State {
         return this.history[this.historyIndex];
     }
 
@@ -171,9 +171,10 @@ class Tome implements ITome {
     }
 
     public setValue(value: IValue): void {
-        // TODO: create new state with value and selection at end
-
-        console.log(value, 'not implemented');
+        this.applyAction({
+            type: ActionType.REPLACE_VALUE,
+            data: value
+        });
     }
 
     private init(el: HTMLElement, config: any): void {
@@ -181,7 +182,7 @@ class Tome implements ITome {
             deep: true,
             errorMessage: (offender, suggestion = '') => {
                 return (
-                    `[MyLibrary] Invalid configuration option "${offender}"` +
+                    `[Tome] Invalid configuration option "${offender}"` +
                     (suggestion ? `. Did you mean "${suggestion}"?` : '')
                 );
             }
@@ -193,7 +194,7 @@ class Tome implements ITome {
 
         this.dom.root = el;
 
-        this.history.push(this.buildInitialState(this.config.value));
+        this.history.push(new State(this.config.value));
 
         this.historyIndex++;
 
@@ -202,22 +203,6 @@ class Tome implements ITome {
         this.eventManager.root = this.dom.root;
 
         this.eventManager.bindEvents();
-    }
-
-    private buildInitialState(initialState: any): State {
-        const state: State = merge(new State(), initialState);
-
-        if (state.markups.length < 1) {
-            state.markups.push(new Markup([MarkupTag.P, 0, 0]));
-        }
-
-        // TODO: if text but no markups, wrap entire in <p>
-
-        // Coerce triplets into `Markup` if needed
-
-        state.markups = state.markups.map(markup => Array.isArray(markup) ? new Markup(markup) : markup);
-
-        return state;
     }
 
     private render(shouldUpdateDom: boolean = false): void {
@@ -250,7 +235,7 @@ class Tome implements ITome {
         this.lastRender = nextRender;
     }
 
-    private getRangeFromSelection(selection: Selection) {
+    private getRangeFromSelection(selection: Selection): TomeSelection {
         const anchorPath = this.getPathFromDomNode(selection.anchorNode);
         const from = new Caret();
         const to = new Caret();

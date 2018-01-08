@@ -15,7 +15,7 @@ class TomeFacade {
 
         this.applyAction = _.applyAction.bind(_);
         this.getState = _.getState.bind(_);
-        this.setValue = _.getState.bind(_);
+        this.setValue = _.setValue.bind(_);
         this.redo = _.applyAction.bind(_);
         this.undo = _.applyAction.bind(_);
 

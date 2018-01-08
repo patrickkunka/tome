@@ -7,7 +7,7 @@ import Action      from './models/Action';
 import Markup      from './models/Markup';
 import State       from './models/State';
 
-export default (prevState: State, action: Action): State|Promise<State> => {
+export default (prevState: State, action: Action): State => {
     switch (action.type) {
         case ActionType.SET_SELECTION: {
             const nextState = merge(new State(), prevState, true);
@@ -22,6 +22,13 @@ export default (prevState: State, action: Action): State|Promise<State> => {
         }
         case ActionType.INSERT: {
             return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
+        }
+        case ActionType.REPLACE_VALUE: {
+            const nextState = new State(action.data);
+
+            nextState.selection.from = nextState.selection.to = nextState.text.length;
+
+            return nextState;
         }
         case ActionType.BACKSPACE: {
             let fromIndex: number = action.range.from;
