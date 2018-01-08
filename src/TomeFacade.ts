@@ -1,7 +1,8 @@
-import IAction from './interfaces/IAction';
-import IValue  from './interfaces/IValue';
-import State   from './models/State';
-import Tome    from './Tome';
+import MarkupTag  from './constants/MarkupTag';
+import IAction    from './interfaces/IAction';
+import IValue     from './interfaces/IValue';
+import State      from './models/State';
+import Tome       from './Tome';
 
 class TomeFacade {
     public applyAction: (action: IAction) => void;
@@ -9,6 +10,14 @@ class TomeFacade {
     public setValue: (state: IValue) => void;
     public redo: () => void;
     public undo: () => void;
+
+    // TODO: implement:
+
+    public cut: () => string;
+    public copy: () => string;
+    public paste: () => void;
+    public toggleInlineMarkup: (markupTag: MarkupTag) => void;
+    public changeBlockType: (markupTag: MarkupTag) => void;
 
     constructor(el: HTMLElement, config: any) {
         const _ = new Tome(el, config);
