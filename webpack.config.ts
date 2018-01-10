@@ -2,7 +2,7 @@ import * as path from 'path';
 // import * as webpack from 'webpack';
 
 module.exports = {
-    entry: './src/factory.ts',
+    entry: './src/index.ts',
     output: {
         filename: 'tome.js',
         path: path.resolve(__dirname, 'dist'),

@@ -1,5 +1,5 @@
-import '../src/Editor.test';
-import '../src/IMEParser.test';
-import '../src/reducer.test';
-import '../src/TreeBuilder.test';
-import '../src/Util.test';
+import '../src/Dom/IMEParser.test';
+import '../src/State/Editor.test';
+import '../src/State/reducer.test';
+import '../src/Tree/TreeBuilder.test';
+import '../src/Util/Util.test';
