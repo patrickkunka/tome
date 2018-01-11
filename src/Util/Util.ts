@@ -1,5 +1,10 @@
-import MarkupTag  from '../State/Constants/MarkupTag';
-import MarkupType from '../State/Constants/MarkupType';
+import IAnchorData from '../Dom/Interfaces/IAnchorData';
+import ActionType  from '../State/Constants/ActionType' ;
+import MarkupTag   from '../State/Constants/MarkupTag' ;
+import MarkupType  from '../State/Constants/MarkupType';
+import IMarkup     from '../State/Interfaces/IMarkup';
+import Markup      from '../State/Markup';
+import ITome       from '../Tome/Interfaces/ITome';
 
 class Util {
     /**
@@ -68,6 +73,26 @@ class Util {
             MarkupTag.H6,
             MarkupTag.P
         ].indexOf(tag) > -1 ? MarkupType.BLOCK : MarkupType.INLINE;
+    }
+
+    public static mapMarkupToArray(markup: Markup): IMarkup {
+        return markup.toArray();
+    }
+
+    public static addInlineLink(tome: ITome): void {
+        const callback = tome.config.callbacks.onAddAnchor;
+
+        if (typeof callback !== 'function') {
+            throw new TypeError('[Tome] No `onAddAnchor` callback function provided');
+        }
+
+        const handlerAccept = (data: IAnchorData) => {
+            const action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A, data};
+
+            tome.applyAction(action);
+        };
+
+        callback(handlerAccept);
     }
 }
 

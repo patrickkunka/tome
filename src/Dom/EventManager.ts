@@ -6,7 +6,6 @@ import Util         from '../Util/Util';
 import Keypress     from './Constants/Keypress';
 import MutationType from './Constants/MutationType';
 import IMEParser    from './IMEParser';
-import IAnchorData  from './Interfaces/IAnchorData';
 
 const SELECTION_DELAY = 10;
 const ACTION_DELAY = 100;
@@ -246,23 +245,20 @@ class EventManager {
 
                     break;
                 case Keypress.K: {
-                    const callback = this.tome.config.callbacks.onAddAnchor;
+                    const state = this.tome.getState();
+                    const isLinkActive = state.isTagActive(MarkupTag.A);
 
                     e.preventDefault();
 
-                    if (typeof callback !== 'function') {
-                        throw new TypeError('[Tome] No `onAddAnchor` callback function provided');
+                    if (!isLinkActive) {
+                        Util.addInlineLink(this.tome);
+
+                        return;
                     }
 
-                    const handlerAccept = (data: IAnchorData) => {
-                        action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A, data};
+                    action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A};
 
-                        this.tome.applyAction(action);
-                    };
-
-                    callback(handlerAccept);
-
-                    return;
+                    break;
                 }
             }
         }

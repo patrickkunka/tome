@@ -6,6 +6,7 @@ import EventManager       from '../Dom/EventManager';
 import HtmlDiffPatch      from '../Dom/HtmlDiffPatch';
 import Action             from '../State/Action';
 import ActionType         from '../State/Constants/ActionType';
+import MarkupTag          from '../State/Constants/MarkupTag';
 import SelectionDirection from '../State/Constants/SelectionDirection';
 import IAction            from '../State/Interfaces/IAction';
 import ISelection         from '../State/Interfaces/ISelection';
@@ -69,6 +70,36 @@ class Tome implements ITome {
         if (typeof fn === 'function') {
             fn(this.state, ActionType.REDO);
         }
+    }
+
+    public getState(): State {
+        return this.state;
+    }
+
+    public setValue(value: IValue): void {
+        this.applyAction({
+            type: ActionType.REPLACE_VALUE,
+            data: value
+        });
+    }
+
+    public getValue(): IValue {
+        return {
+            text: this.state.text,
+            markups: this.state.markups.map(Util.mapMarkupToArray)
+        };
+    }
+
+    public toggleInlineMarkup(tag: MarkupTag) {
+        const isLinkActive = this.state.isTagActive(MarkupTag.A);
+
+        if (!isLinkActive) {
+            Util.addInlineLink(this);
+
+            return;
+        }
+
+        this.applyAction({type: ActionType.TOGGLE_INLINE, tag});
     }
 
     public applyAction(actionRaw: IAction): void {
@@ -162,17 +193,6 @@ class Tome implements ITome {
         }
 
         return node || null;
-    }
-
-    public getState(): State {
-        return this.state;
-    }
-
-    public setValue(value: IValue): void {
-        this.applyAction({
-            type: ActionType.REPLACE_VALUE,
-            data: value
-        });
     }
 
     private init(el: HTMLElement, config: any): void {

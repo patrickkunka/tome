@@ -3,6 +3,7 @@ import merge from 'helpful-merge';
 import Action      from './Action';
 import ActionType  from './Constants/ActionType';
 import HtmlEntity  from './Constants/HtmlEntity';
+import MarkupTag   from './Constants/MarkupTag';
 import Editor      from './Editor';
 import Markup      from './Markup';
 import State       from './State';
@@ -82,8 +83,6 @@ export default (prevState: State, action: Action): State => {
                     {from: action.range.from - 1, to: action.range.to},
                     HtmlEntity.BLOCK_BREAK
                 );
-
-                // TODO: br tag is not being ingested
             }
 
             const succeedingSample = prevState.text.slice(action.range.to, action.range.to + 2);
@@ -101,7 +100,15 @@ export default (prevState: State, action: Action): State => {
             return Editor.insert(prevState, action.range, HtmlEntity.LINE_BREAK);
         }
         case ActionType.TOGGLE_INLINE: {
+            const allowedMarkups: string[] = Object.keys(MarkupTag).map(key => MarkupTag[key]);
+
             let nextState: State;
+
+            if (allowedMarkups.indexOf(action.tag) < 0) {
+                throw new RangeError(`[Tome] Unknown markup tag "${action.tag}"`);
+            }
+
+            if (action.range.isUnselected) return prevState;
 
             // TODO: if collapsed, simply change state to disable/enable active
             // markup, any further set selections will reset it as appropriate
@@ -130,7 +137,7 @@ export default (prevState: State, action: Action): State => {
         case ActionType.COPY:
             return prevState;
         case ActionType.PASTE:
-            return  Editor.insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
+            return Editor.insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
         case ActionType.SAVE:
             return prevState;
         default:
