@@ -1,3 +1,4 @@
+import Util            from '../Util/Util';
 import MarkupTag       from './Constants/MarkupTag';
 import MarkupType      from './Constants/MarkupType';
 import IMarkup         from './interfaces/IMarkup';
@@ -37,15 +38,7 @@ class Markup {
     }
 
     get type(): MarkupType {
-        return [
-            MarkupTag.H1,
-            MarkupTag.H2,
-            MarkupTag.H3,
-            MarkupTag.H4,
-            MarkupTag.H5,
-            MarkupTag.H6,
-            MarkupTag.P
-        ].indexOf(this[0]) > -1 ? MarkupType.BLOCK : MarkupType.INLINE;
+        return Util.getMarkupType(this[0]);
     }
 
     get isBlock(): boolean {

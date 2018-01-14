@@ -2,9 +2,27 @@ import MarkupTag from './Constants/MarkupTag';
 import Markup from './Markup';
 
 class MarkupsMap {
+    public overrides: MarkupTag[] = [];
+
     private map: {
         [tag: string]: Markup[];
     } = {};
+
+    public get tags() {
+        const keys = Object.keys(this.map);
+
+        for (const toggle of this.overrides) {
+            let removeAt: number;
+
+            if ((removeAt = keys.indexOf(toggle)) > -1) {
+                keys.splice(removeAt, 1);
+            } else {
+                keys.push(toggle);
+            }
+        }
+
+        return keys;
+    }
 
     public add(...markups: Markup[]) {
         for (const markup of markups) {

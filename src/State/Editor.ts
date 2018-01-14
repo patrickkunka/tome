@@ -57,6 +57,20 @@ class Editor {
         nextState.selection.from =
         nextState.selection.to   = range.from + totalAdded + totalTrimmed;
 
+        // TODO: add tests for overrides, and determine desired behavior for breaks/linebreaks/paste
+
+        for (const tag of prevState.activeInlineMarkups.overrides) {
+            if (prevState.isTagActive(tag)) {
+                // Override inline markup off
+
+                nextState = Editor.removeInlineMarkup(nextState, tag, range.from, nextState.selection.to);
+            } else {
+                // Override inline markup on
+
+                nextState = Editor.addInlineMarkup(nextState, tag, range.from, nextState.selection.to);
+            }
+        }
+
         Editor.setActiveMarkups(nextState, nextState.selection);
 
         return nextState;

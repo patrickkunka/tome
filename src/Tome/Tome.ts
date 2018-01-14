@@ -21,6 +21,7 @@ import TreeBuilder        from '../Tree/TreeBuilder';
 import Util               from '../Util/Util';
 import INodeLike          from './Interfaces/INodeLike';
 import ITome              from './Interfaces/ITome';
+import MarkupType from '../State/Constants/MarkupType';
 
 class Tome implements ITome {
     public dom:    Dom          = new Dom();
@@ -91,6 +92,10 @@ class Tome implements ITome {
     }
 
     public toggleInlineMarkup(tag: MarkupTag) {
+        if (Util.getMarkupType(tag) !== MarkupType.INLINE) {
+            throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid inline markup`);
+        }
+
         const isLinkActive = this.state.isTagActive(MarkupTag.A);
 
         if (!isLinkActive) {
@@ -100,6 +105,14 @@ class Tome implements ITome {
         }
 
         this.applyAction({type: ActionType.TOGGLE_INLINE, tag});
+    }
+
+    public changeBlockType(tag: MarkupTag) {
+        if (Util.getMarkupType(tag) !== MarkupType.BLOCK) {
+            throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid block markup`);
+        }
+
+        this.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
     }
 
     public applyAction(actionRaw: IAction): void {
