@@ -19,6 +19,8 @@ export default (prevState: State, action: Action): State => {
 
             Editor.setActiveMarkups(nextState, action.range);
 
+            nextState.activeInlineMarkups.overrides.length = 0;
+
             return nextState;
         }
         case ActionType.INSERT: {

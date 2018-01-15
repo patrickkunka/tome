@@ -22,12 +22,16 @@ class Editor {
      */
 
     public static insert(prevState: State, range: ISelection, content: string): State {
-        const totalDeleted = range.to - range.from;
-        const before       = prevState.text.slice(0, range.from);
-        const after        = prevState.text.slice(range.to);
-        const totalAdded   = content.length;
-        const adjustment   = totalAdded - totalDeleted;
-        const totalTrimmed = 0;
+        const totalDeleted      = range.to - range.from;
+        const before            = prevState.text.slice(0, range.from);
+        const after             = prevState.text.slice(range.to);
+        const totalAdded        = content.length;
+        const adjustment        = totalAdded - totalDeleted;
+        const isLineBreaking    = content === HtmlEntity.LINE_BREAK;
+        const isBlockBreaking   = content === HtmlEntity.BLOCK_BREAK;
+        const isDeleting        = content === '';
+        const isInsertingText   = !isLineBreaking && !isBlockBreaking && !isDeleting;
+        const totalTrimmed      = 0;
 
         let nextState = new State();
 
@@ -41,15 +45,15 @@ class Editor {
             adjustment
         );
 
-        if (content === HtmlEntity.BLOCK_BREAK) {
+        if (isBlockBreaking) {
             nextState.markups = Editor.splitMarkups(nextState.markups, range.from);
 
             // TODO: make whitespace trimming available via config
 
             // totalTrimmed = Editor.trimWhitespace(nextState, range.from);
-        } else if (content === HtmlEntity.LINE_BREAK) {
+        } else if (isLineBreaking) {
             nextState = Editor.addInlineMarkup(nextState, MarkupTag.BR, range.from, range.from);
-        } else if (content === '') {
+        } else if (isDeleting) {
             nextState.markups = Editor.joinMarkups(nextState.markups, range.from);
             nextState.markups = Editor.joinMarkups(nextState.markups, range.to);
         }
@@ -57,21 +61,29 @@ class Editor {
         nextState.selection.from =
         nextState.selection.to   = range.from + totalAdded + totalTrimmed;
 
-        // TODO: add tests for overrides, and determine desired behavior for breaks/linebreaks/paste
+        Editor.setActiveMarkups(nextState, nextState.selection);
 
-        for (const tag of prevState.activeInlineMarkups.overrides) {
-            if (prevState.isTagActive(tag)) {
-                // Override inline markup off
+        // TODO: add tests for overrides (break, set selection, delete, insert, paste)
 
-                nextState = Editor.removeInlineMarkup(nextState, tag, range.from, nextState.selection.to);
-            } else {
-                // Override inline markup on
+        if (isInsertingText) {
+            for (const tag of prevState.activeInlineMarkups.overrides) {
+                if (prevState.isTagActive(tag)) {
+                    // Override inline markup off
 
-                nextState = Editor.addInlineMarkup(nextState, tag, range.from, nextState.selection.to);
+                    nextState = Editor.removeInlineMarkup(nextState, tag, range.from, nextState.selection.to);
+                } else {
+                    // Override inline markup on
+
+                    nextState = Editor.addInlineMarkup(nextState, tag, range.from, nextState.selection.to);
+                }
             }
         }
 
-        Editor.setActiveMarkups(nextState, nextState.selection);
+        if ((isBlockBreaking || isLineBreaking) && prevState.activeInlineMarkups.overrides.length > 0) {
+            // Breaking, persist overrides to next state
+
+            nextState.activeInlineMarkups.overrides = prevState.activeInlineMarkups.overrides;
+        }
 
         return nextState;
     }
@@ -677,7 +689,7 @@ class Editor {
         });
 
         const nextState: State = Editor.insert(prevState, {from, to}, clipboardData.text);
-        const inlineMarkups:   Markup[] = [];
+        const inlineMarkups: Markup[] = [];
 
         // iterate through next state markups, which will have been adjusted for the insertion.
         // once we arrive at the block markup containing the `from` index, insert new clipboard
