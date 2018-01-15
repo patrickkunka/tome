@@ -1335,8 +1335,11 @@ describe('Editor', () => {
             text: 'Line one.',
             markups: [
                 new Markup([MarkupTag.P, 0, 9])
-            ]
+            ],
+            selection: new TomeSelection(9, 9)
         });
+
+        Editor.setActiveMarkups(prevState, prevState.selection);
 
         prevState.activeInlineMarkups.overrides.push(MarkupTag.EM);
 
@@ -1353,5 +1356,9 @@ describe('Editor', () => {
         ]);
 
         assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+        assert.equal(nextState.activeInlineMarkups.tags.length, 1);
+        assert.equal(nextState.activeInlineMarkups.tags[0], MarkupTag.EM);
+
+        assert.deepEqual(nextState.selection, new TomeSelection(32, 32));
     });
 });

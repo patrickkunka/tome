@@ -21,7 +21,7 @@ class Editor {
      * insertion.
      */
 
-    public static insert(prevState: State, range: ISelection, content: string): State {
+    public static insert(prevState: State, range: ISelection, content: string, isPasting: boolean = false): State {
         const totalDeleted      = range.to - range.from;
         const before            = prevState.text.slice(0, range.from);
         const after             = prevState.text.slice(range.to);
@@ -65,7 +65,7 @@ class Editor {
 
         // TODO: add tests for overrides (break, set selection, delete, insert, paste)
 
-        if (isInsertingText) {
+        if (!isPasting && isInsertingText) {
             for (const tag of prevState.activeInlineMarkups.overrides) {
                 if (prevState.isTagActive(tag)) {
                     // Override inline markup off
@@ -688,8 +688,9 @@ class Editor {
             return markup;
         });
 
-        const nextState: State = Editor.insert(prevState, {from, to}, clipboardData.text);
         const inlineMarkups: Markup[] = [];
+
+        let nextState: State = Editor.insert(prevState, {from, to}, clipboardData.text, true);
 
         // iterate through next state markups, which will have been adjusted for the insertion.
         // once we arrive at the block markup containing the `from` index, insert new clipboard
@@ -754,6 +755,26 @@ class Editor {
             if (hasInsertedClipboardMarkups && inlineMarkups.length < 1) {
                 break;
             }
+        }
+
+        if (prevState.activeInlineMarkups.overrides.length > 0) {
+            const clipboardEndsAt = from + clipboardData.text.length;
+
+            Editor.setActiveMarkups(nextState, new TomeSelection(from, clipboardEndsAt));
+
+            for (const tag of prevState.activeInlineMarkups.overrides) {
+                if (prevState.isTagActive(tag)) {
+                    // Override inline markup off
+
+                    nextState = Editor.removeInlineMarkup(nextState, tag, from, clipboardEndsAt);
+                } else {
+                    // Override inline markup on
+
+                    nextState = Editor.addInlineMarkup(nextState, tag, from, clipboardEndsAt);
+                }
+            }
+
+            Editor.setActiveMarkups(nextState, new TomeSelection(clipboardEndsAt, clipboardEndsAt));
         }
 
         return nextState;
