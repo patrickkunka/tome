@@ -7,6 +7,7 @@ import HtmlDiffPatch      from '../Dom/HtmlDiffPatch';
 import Action             from '../State/Action';
 import ActionType         from '../State/Constants/ActionType';
 import MarkupTag          from '../State/Constants/MarkupTag';
+import MarkupType         from '../State/Constants/MarkupType';
 import SelectionDirection from '../State/Constants/SelectionDirection';
 import IAction            from '../State/Interfaces/IAction';
 import ISelection         from '../State/Interfaces/ISelection';
@@ -21,7 +22,6 @@ import TreeBuilder        from '../Tree/TreeBuilder';
 import Util               from '../Util/Util';
 import INodeLike          from './Interfaces/INodeLike';
 import ITome              from './Interfaces/ITome';
-import MarkupType from '../State/Constants/MarkupType';
 
 class Tome implements ITome {
     public dom:    Dom          = new Dom();
