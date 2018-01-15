@@ -77,4 +77,22 @@ describe('reducer', () => {
         assert.deepEqual(nextState.markups[1], new Markup([MarkupTag.BR, 11, 11]));
         assert.equal(nextState.selection.from, 22);
     });
+
+    it('should remove inline markup overrides when the selection is changed', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.STRONG);
+
+        const nextState = reducer(prevState, Object.assign(new Action(), {
+            type: ActionType.SET_SELECTION,
+            range: {from: 2, to: 2}
+        }));
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+    });
 });

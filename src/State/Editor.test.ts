@@ -1,5 +1,6 @@
-import * as chai          from 'chai';
-import * as deepEqual     from 'chai-shallow-deep-equal';
+import * as chai      from 'chai';
+import * as deepEqual from 'chai-shallow-deep-equal';
+
 import HtmlEntity         from './Constants/HtmlEntity';
 import MarkupTag          from './Constants/MarkupTag';
 import SelectionDirection from './Constants/SelectionDirection';
@@ -1218,5 +1219,139 @@ describe('Editor', () => {
         ]);
     });
 
-    // TODO: test that inline markups are not extended when pasting multi block content
+    it('should respect inline markup overrides when inserting character(s)', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.EM);
+
+        const nextState = Editor.insert(prevState, {from: 9, to: 9}, 't');
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 10]),
+            new Markup([MarkupTag.EM, 9, 10])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+    });
+
+    it('should respect inline markup overrides when inserting character(s) within an existing inline markup', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.EM, 7, 9])
+            ],
+            selection: new TomeSelection(9, 9)
+        });
+
+        Editor.setActiveMarkups(prevState, prevState.selection);
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.EM);
+
+        const nextState = Editor.insert(prevState, {from: 9, to: 9}, 't');
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 10]),
+            new Markup([MarkupTag.EM, 7, 9])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+    });
+
+    it('should preserve inline markup overrides when inserting a line-break', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.STRONG);
+
+        const nextState = Editor.insert(prevState, {from: 9, to: 9}, HtmlEntity.LINE_BREAK);
+
+        assert.equal(nextState.markups.length, 2);
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 10]),
+            new Markup([MarkupTag.BR, 9, 9])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 1);
+        assert.equal(nextState.activeInlineMarkups.overrides[0], MarkupTag.STRONG);
+    });
+
+    it('should preserve inline markup overrides when inserting a block-break', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.STRONG);
+
+        const nextState = Editor.insert(prevState, {from: 9, to: 9}, HtmlEntity.BLOCK_BREAK);
+
+        assert.equal(nextState.markups.length, 2);
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.P, 11, 11])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 1);
+        assert.equal(nextState.activeInlineMarkups.overrides[0], MarkupTag.STRONG);
+    });
+
+    it('should respect inline markup overrides when pasting character(s)', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.EM);
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: ' Line two.',
+            html: ''
+        }, 9, 9);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 19]),
+            new Markup([MarkupTag.EM, 9, 19])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+    });
+
+    it('should respect inline markup overrides when pasting multi-block content', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        prevState.activeInlineMarkups.overrides.push(MarkupTag.EM);
+
+        const nextState = Editor.insertFromClipboard(prevState, {
+            text: ' Line two.' + HtmlEntity.BLOCK_BREAK + 'Line three.',
+            html: ''
+        }, 9, 9);
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 19]),
+            new Markup([MarkupTag.EM, 9, 19]),
+            new Markup([MarkupTag.P, 21, 32]),
+            new Markup([MarkupTag.EM, 21, 32])
+        ]);
+
+        assert.equal(nextState.activeInlineMarkups.overrides.length, 0);
+    });
 });
