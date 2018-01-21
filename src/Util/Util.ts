@@ -89,7 +89,7 @@ class Util {
         const handlerAccept = (data: IAnchorData) => {
             const action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A, data};
 
-            tome.applyAction(action);
+            tome.stateManager.applyAction(action);
         };
 
         callback(handlerAccept);

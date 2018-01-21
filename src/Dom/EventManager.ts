@@ -90,7 +90,7 @@ class EventManager {
 
         this.isActioning = true;
 
-        this.tome.applyAction({type: ActionType.INSERT, content: e.key});
+        this.tome.stateManager.applyAction({type: ActionType.INSERT, content: e.key});
 
         setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
@@ -98,7 +98,7 @@ class EventManager {
     public handleMouseup(): void {
         if (this.tome.dom.root !== document.activeElement) return;
 
-        this.tome.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
     }
 
     public handleSelectionchange(): void {
@@ -110,11 +110,11 @@ class EventManager {
 
         if (this.tome.dom.root !== document.activeElement || this.isActioning) return;
 
-        this.tome.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
     }
 
     public handleMousedown(): void {
-        this.tome.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
     }
 
     public handlePaste(e: ClipboardEvent): void {
@@ -122,7 +122,7 @@ class EventManager {
         const text = clipboardData.getData('text/plain');
         const html = clipboardData.getData('text/html');
 
-        this.tome.applyAction({type: ActionType.PASTE, data: {text, html}});
+        this.tome.stateManager.applyAction({type: ActionType.PASTE, data: {text, html}});
 
         e.preventDefault();
     }
@@ -140,7 +140,7 @@ class EventManager {
             this.isActioning = true;
         }
 
-        this.tome.applyAction({type: ActionType.INSERT, content: e.data});
+        this.tome.stateManager.applyAction({type: ActionType.INSERT, content: e.data});
 
         setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
@@ -168,7 +168,7 @@ class EventManager {
                 case MutationType.CHARACTER_DATA:
                     action = IMEParser.handleCharacterMutation(mutation, mutations, this.tome);
 
-                    this.tome.applyAction(action);
+                    this.tome.stateManager.applyAction(action);
 
                     break;
                 case MutationType.CHILD_LIST:
@@ -176,7 +176,7 @@ class EventManager {
 
                     action = IMEParser.handleBlockMutation(mutation, mutations, this.tome);
 
-                    if (action) this.tome.applyAction(action);
+                    if (action) this.tome.stateManager.applyAction(action);
 
                     break top;
             }
@@ -295,7 +295,7 @@ class EventManager {
 
         this.isActioning = true;
 
-        setTimeout(() => this.tome.applyAction(action), SELECTION_DELAY);
+        setTimeout(() => this.tome.stateManager.applyAction(action), SELECTION_DELAY);
 
         setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }

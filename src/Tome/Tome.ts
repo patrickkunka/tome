@@ -4,18 +4,14 @@ import ConfigRoot         from '../Config/ConfigRoot';
 import Dom                from '../Dom/Dom';
 import EventManager       from '../Dom/EventManager';
 import HtmlDiffPatch      from '../Dom/HtmlDiffPatch';
-import Action             from '../State/Action';
 import ActionType         from '../State/Constants/ActionType';
 import MarkupTag          from '../State/Constants/MarkupTag';
 import MarkupType         from '../State/Constants/MarkupType';
 import SelectionDirection from '../State/Constants/SelectionDirection';
-import IAction            from '../State/Interfaces/IAction';
 import ISelection         from '../State/Interfaces/ISelection';
 import IValue             from '../State/Interfaces/IValue';
-import reducer            from '../State/reducer';
 import State              from '../State/State';
-import TomeSelection      from '../State/TomeSelection';
-import Caret              from '../Tree/Caret';
+import StateManager       from '../State/StateManager';
 import Renderer           from '../Tree/Renderer';
 import TomeNode           from '../Tree/TomeNode';
 import TreeBuilder        from '../Tree/TreeBuilder';
@@ -24,70 +20,43 @@ import INodeLike          from './Interfaces/INodeLike';
 import ITome              from './Interfaces/ITome';
 
 class Tome implements ITome {
-    public dom:    Dom          = new Dom();
-    public config: ConfigRoot   = new ConfigRoot();
-    public root:   TomeNode     = null;
+    public dom:          Dom          = new Dom();
+    public config:       ConfigRoot   = new ConfigRoot();
+    public root:         TomeNode     = null;
+    public stateManager: StateManager = new StateManager(this);
 
     private eventManager: EventManager = new EventManager(this);
-    private history:      State[]      = [];
-    private historyIndex: number       = -1;
     private lastRender:   string       = '';
 
     constructor(el: HTMLElement, config: any) {
         this.init(el, config);
     }
 
-    private get state(): State {
-        return this.history[this.historyIndex];
-    }
-
     public undo(): void {
-        if (this.historyIndex === 1) return;
-
-        const fn = this.config.callbacks.onStateChange;
-
-        this.historyIndex--;
-
-        this.render(true);
-
-        this.positionCaret(this.state.selection);
-
-        if (typeof fn === 'function') {
-            fn(this.state, ActionType.UNDO);
-        }
+        this.stateManager.undo();
     }
 
     public redo(): void {
-        if (this.history.length - 1 === this.historyIndex) return;
-
-        const fn = this.config.callbacks.onStateChange;
-
-        this.historyIndex++;
-
-        this.render(true);
-
-        this.positionCaret(this.state.selection);
-
-        if (typeof fn === 'function') {
-            fn(this.state, ActionType.REDO);
-        }
+        this.stateManager.redo();
     }
 
     public getState(): State {
-        return this.state;
+        return this.stateManager.state;
     }
 
     public setValue(value: IValue): void {
-        this.applyAction({
+        this.stateManager.applyAction({
             type: ActionType.REPLACE_VALUE,
             data: value
         });
     }
 
     public getValue(): IValue {
+        const {state} = this.stateManager;
+
         return {
-            text: this.state.text,
-            markups: this.state.markups.map(Util.mapMarkupToArray)
+            text: state.text,
+            markups: state.markups.map(Util.mapMarkupToArray)
         };
     }
 
@@ -96,7 +65,7 @@ class Tome implements ITome {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid inline markup`);
         }
 
-        const isLinkActive = this.state.isTagActive(MarkupTag.A);
+        const isLinkActive = this.stateManager.state.isTagActive(MarkupTag.A);
 
         if (!isLinkActive) {
             Util.addInlineLink(this);
@@ -104,7 +73,7 @@ class Tome implements ITome {
             return;
         }
 
-        this.applyAction({type: ActionType.TOGGLE_INLINE, tag});
+        this.stateManager.applyAction({type: ActionType.TOGGLE_INLINE, tag});
     }
 
     public changeBlockType(tag: MarkupTag) {
@@ -112,72 +81,7 @@ class Tome implements ITome {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid block markup`);
         }
 
-        this.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
-    }
-
-    public applyAction(actionRaw: IAction): void {
-        const action: Action = Object.assign(new Action(), actionRaw);
-        const fn = this.config.callbacks.onStateChange;
-
-        if (action.type === ActionType.SET_SELECTION) {
-            // Detect new selection from browser API
-
-            const selection = window.getSelection();
-
-            if (!selection.anchorNode || !this.dom.root.contains(selection.anchorNode)) return;
-
-            action.range = this.getRangeFromSelection(selection);
-
-            if (action.range.from === this.state.selection.from && action.range.to === this.state.selection.to) return;
-        } else if (action.range) {
-            // A range has been set, coerce to type
-
-            action.range = Object.assign(new TomeSelection(), action.range);
-        } else {
-            // Use previous range
-
-            action.range = this.state.selection;
-        }
-
-        const nextState = reducer(this.state, action);
-
-        if (!(nextState instanceof State)) {
-            throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
-        }
-
-        if (nextState === this.state) return;
-
-        Object.freeze(nextState);
-        Object.freeze(nextState.markups);
-        Object.freeze(nextState.activeInlineMarkups);
-        Object.freeze(nextState.envelopedBlockMarkups);
-
-        // TODO: discern between 'push' vs 'replace' commands i.e. inserting a
-        // char vs moving a cursor
-
-        // Chop off any divergent future state
-
-        this.history.length = this.historyIndex + 1;
-
-        // Push in new state
-
-        this.history.push(nextState);
-
-        this.historyIndex++;
-
-        if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
-            this.render(true);
-
-            this.positionCaret(this.state.selection);
-        } else if (action.type === ActionType.MUTATE) {
-            // Update internal tree only, but do not render.
-
-            this.render();
-        }
-
-        if (typeof fn === 'function') {
-            fn(this.state, action.type);
-        }
+        this.stateManager.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
     }
 
     public getPathFromDomNode(domNode: Node): number[] {
@@ -208,38 +112,10 @@ class Tome implements ITome {
         return node || null;
     }
 
-    private init(el: HTMLElement, config: any): void {
-        merge(this.config, config, {
-            deep: true,
-            errorMessage: (offender, suggestion = '') => {
-                return (
-                    `[Tome] Invalid configuration option "${offender}"` +
-                    (suggestion ? `. Did you mean "${suggestion}"?` : '')
-                );
-            }
-        });
-
-        if (!el.contentEditable) {
-            el.contentEditable = true.toString();
-        }
-
-        this.dom.root = el;
-
-        this.history.push(new State(this.config.value));
-
-        this.historyIndex++;
-
-        this.render(true);
-
-        this.eventManager.root = this.dom.root;
-
-        this.eventManager.bindEvents();
-    }
-
-    private render(shouldUpdateDom: boolean = false): void {
+    public render(shouldUpdateDom: boolean = false): void {
         // const prevRoot = this.root;
 
-        const nextRoot = Tome.buildModelFromState(this.state);
+        const nextRoot = Tome.buildModelFromState(this.stateManager.state);
 
         // const treeDiffCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
 
@@ -266,65 +142,7 @@ class Tome implements ITome {
         this.lastRender = nextRender;
     }
 
-    private getRangeFromSelection(selection: Selection): TomeSelection {
-        const anchorPath = this.getPathFromDomNode(selection.anchorNode);
-        const from = new Caret();
-        const to = new Caret();
-
-        let virtualAnchorNode = this.getNodeByPath(anchorPath, this.root);
-        let anchorOffset = selection.anchorOffset;
-        let extentOffset = selection.extentOffset;
-
-        if (virtualAnchorNode.isBlock && anchorOffset > 0) {
-            // Caret is lodged between a safety <br> and
-            // the end of block
-
-            virtualAnchorNode = virtualAnchorNode.childNodes[anchorOffset];
-            anchorOffset = virtualAnchorNode.text.length;
-        }
-
-        let extentPath = anchorPath;
-        let virtualExtentNode: TomeNode = virtualAnchorNode;
-        let isRtl = false;
-        let rangeFrom = -1;
-        let rangeTo = -1;
-
-        if (!selection.isCollapsed) {
-            extentPath = this.getPathFromDomNode(selection.extentNode);
-            virtualExtentNode = this.getNodeByPath(extentPath, this.root);
-
-            if (virtualExtentNode.isBlock && extentOffset > 0) {
-                virtualExtentNode = virtualExtentNode.childNodes[extentOffset];
-
-                extentOffset = virtualExtentNode.text.length;
-            }
-        }
-
-        // If the anchor is greater than the extent, or both paths are equal
-        // but the anchor offset is greater than the extent offset, the range
-        // should be considered "RTL"
-
-        isRtl =
-            Util.isGreaterPath(anchorPath, extentPath) ||
-            (!Util.isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
-
-        from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
-        from.offset = to.offset = isRtl ? extentOffset : anchorOffset;
-        from.path   = to.path = isRtl ? extentPath : anchorPath;
-
-        if (!selection.isCollapsed) {
-            to.node     = isRtl ? virtualAnchorNode : virtualExtentNode;
-            to.offset   = isRtl ? anchorOffset : extentOffset;
-            to.path     = isRtl ? anchorPath : extentPath;
-        }
-
-        rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
-        rangeTo = Math.min(to.node.start + to.offset, to.node.end);
-
-        return new TomeSelection(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
-    }
-
-    private positionCaret({from, to, direction}: ISelection): void {
+    public positionCaret({from, to, direction}: ISelection): void {
         const range = document.createRange();
         const selection = window.getSelection();
 
@@ -416,6 +234,32 @@ class Tome implements ITome {
                 Math.min(offsetEnd, nodeRight.textContent.length)
             );
         }
+    }
+
+    private init(el: HTMLElement, config: any): void {
+        merge(this.config, config, {
+            deep: true,
+            errorMessage: (offender, suggestion = '') => {
+                return (
+                    `[Tome] Invalid configuration option "${offender}"` +
+                    (suggestion ? `. Did you mean "${suggestion}"?` : '')
+                );
+            }
+        });
+
+        if (!el.contentEditable) {
+            el.contentEditable = true.toString();
+        }
+
+        this.dom.root = el;
+
+        this.stateManager.init(this.config.value);
+
+        this.render(true);
+
+        this.eventManager.root = this.dom.root;
+
+        this.eventManager.bindEvents();
     }
 
     private static buildModelFromState(state: State): TomeNode {

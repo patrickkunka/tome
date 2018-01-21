@@ -13,7 +13,7 @@ In progress..
 - Add push/replace state functionality to ensure history is logical
 - ~~~Basic clipboard sanitization~~~
 - ~~~Create facade and public API~~~
-- Move all history related actions out of `Tome` and into to a new state manager class
+- ~~~Move all history related actions out of `Tome` and into to a new state manager class~~~
 - lists?
 
 ---
