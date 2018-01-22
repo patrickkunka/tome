@@ -215,18 +215,43 @@ class Editor {
     public static changeBlockType(prevState: State, tag: MarkupTag): State {
         const nextState = merge(new State(), prevState, true);
 
+        let newTag = tag;
+        let wrappingList = null;
+        let firstEnvelopedBlockIndex = -1;
+
+        if (tag === MarkupTag.OL || tag === MarkupTag.UL) {
+            const {envelopedBlockMarkups} = prevState;
+            const firstEnvelopedStart = envelopedBlockMarkups[0].start;
+            const lastEnvelopedEnd = envelopedBlockMarkups[envelopedBlockMarkups.length - 1].end;
+
+            wrappingList = new Markup([tag, firstEnvelopedStart, lastEnvelopedEnd]);
+
+            newTag = MarkupTag.LI;
+        }
+
         // TODO: add configuration option to strip inline markups from non
         // paragraph blocks
 
-        nextState.markups = prevState.markups.map(prevMarkup => {
+        nextState.markups = prevState.markups.map((prevMarkup, i) => {
             const nextMarkup = new Markup(prevMarkup.toArray());
 
             if (prevState.envelopedBlockMarkups.indexOf(prevMarkup) > -1) {
-                nextMarkup[0] = tag;
+
+                if (firstEnvelopedBlockIndex < 0) {
+                    firstEnvelopedBlockIndex = i;
+                }
+
+                // If markup is enveloped, change its tag
+
+                nextMarkup[0] = newTag;
             }
 
             return nextMarkup;
         });
+
+        if (wrappingList) {
+            nextState.markups.splice(firstEnvelopedBlockIndex, 0, wrappingList);
+        }
 
         return nextState;
     }

@@ -49,6 +49,10 @@ class Markup {
         return this.type === MarkupType.INLINE;
     }
 
+    get isListItem(): boolean {
+        return this.type === MarkupType.LIST_ITEM;
+    }
+
     get isSelfClosing(): boolean {
         return this.tag === MarkupTag.BR;
     }

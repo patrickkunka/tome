@@ -1,5 +1,6 @@
 enum MarkupType {
     INLINE,
+    LIST_ITEM,
     BLOCK
 }
 

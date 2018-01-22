@@ -10,7 +10,10 @@ enum MarkupTag {
     TEXT        = '#text',
     STRONG      = 'strong',
     EM          = 'em',
-    BR          = 'br'
+    BR          = 'br',
+    UL          = 'ul',
+    OL          = 'ol',
+    LI          = 'li'
 }
 
 export default MarkupTag;

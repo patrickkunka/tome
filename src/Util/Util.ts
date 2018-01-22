@@ -64,15 +64,22 @@ class Util {
     }
 
     public static getMarkupType(tag: MarkupTag) {
-        return [
-            MarkupTag.H1,
-            MarkupTag.H2,
-            MarkupTag.H3,
-            MarkupTag.H4,
-            MarkupTag.H5,
-            MarkupTag.H6,
-            MarkupTag.P
-        ].indexOf(tag) > -1 ? MarkupType.BLOCK : MarkupType.INLINE;
+        switch (tag) {
+            case MarkupTag.H1:
+            case MarkupTag.H2:
+            case MarkupTag.H3:
+            case MarkupTag.H4:
+            case MarkupTag.H5:
+            case MarkupTag.H6:
+            case MarkupTag.OL:
+            case MarkupTag.UL:
+            case MarkupTag.P:
+                return MarkupType.BLOCK;
+            case MarkupTag.LI:
+                return MarkupType.LIST_ITEM;
+            default:
+                return MarkupType.INLINE;
+        }
     }
 
     public static mapMarkupToArray(markup: Markup): IMarkup {

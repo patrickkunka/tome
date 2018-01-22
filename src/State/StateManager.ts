@@ -154,14 +154,14 @@ class StateManager {
 
         this.canPushState = false;
 
-        this.timerIdBlockPush = setTimeout(
+        this.timerIdBlockPush = window.setTimeout(
             () => this.allowPush(),
             StateManager.DURATION_BLOCK_PUSH
         );
 
         if (this.timerIdBackup !== null) return;
 
-        this.timerIdBackup = setTimeout(() => {
+        this.timerIdBackup = window.setTimeout(() => {
             this.allowPush();
 
             this.timerIdBackup = null;
