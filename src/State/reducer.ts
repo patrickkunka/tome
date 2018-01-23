@@ -1,12 +1,17 @@
 import merge from 'helpful-merge';
 
-import Action      from './Action';
-import ActionType  from './Constants/ActionType';
-import HtmlEntity  from './Constants/HtmlEntity';
-import MarkupTag   from './Constants/MarkupTag';
-import Editor      from './Editor';
-import Markup      from './Markup';
-import State       from './State';
+import Action              from './Action';
+import ActionType          from './Constants/ActionType';
+import HtmlEntity          from './Constants/HtmlEntity';
+import MarkupTag           from './Constants/MarkupTag';
+import addInlineMarkup     from './Edits/addInlineMarkup';
+import changeBlockType     from './Edits/changeBlockType';
+import insert              from './Edits/insert';
+import insertFromClipboard from './Edits/insertFromClipboard';
+import removeInlineMarkup  from './Edits/removeInlineMarkup';
+import Markup              from './Markup';
+import State               from './State';
+import setActiveMarkups    from './Util/setActiveMarkups';
 
 export default (prevState: State, action: Action): State => {
     switch (action.type) {
@@ -17,14 +22,14 @@ export default (prevState: State, action: Action): State => {
 
             Object.assign(nextState.selection, action.range);
 
-            Editor.setActiveMarkups(nextState, action.range);
+            setActiveMarkups(nextState, action.range);
 
             nextState.activeInlineMarkups.overrides.length = 0;
 
             return nextState;
         }
         case ActionType.INSERT: {
-            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
+            return insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
         }
         case ActionType.REPLACE_VALUE: {
             const nextState = new State(action.data);
@@ -48,7 +53,7 @@ export default (prevState: State, action: Action): State => {
                 fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? action.range.from - 2 : action.range.from - 1;
             }
 
-            return Editor.insert(prevState, {from: fromIndex, to: action.range.to}, '');
+            return insert(prevState, {from: fromIndex, to: action.range.to}, '');
         }
         case ActionType.DELETE: {
             let toIndex: number = action.range.to;
@@ -65,12 +70,12 @@ export default (prevState: State, action: Action): State => {
                 toIndex = succeedingSample === HtmlEntity.BLOCK_BREAK ? action.range.to + 2 : action.range.to + 1;
             }
 
-            return Editor.insert(prevState, {from: action.range.from, to: toIndex}, '');
+            return insert(prevState, {from: action.range.from, to: toIndex}, '');
         }
         case ActionType.MUTATE:
-            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
+            return insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
         case ActionType.RETURN:
-            return Editor.insert(prevState, action.range, HtmlEntity.BLOCK_BREAK);
+            return insert(prevState, action.range, HtmlEntity.BLOCK_BREAK);
         case ActionType.SHIFT_RETURN: {
             // detect if inserting a line break directly before or
             // after an existing line break
@@ -80,7 +85,7 @@ export default (prevState: State, action: Action): State => {
             if (precedingSample.match(/(\S|^)\n$/)) {
                 // Matches single preceeding newline
 
-                return Editor.insert(
+                return insert(
                     prevState,
                     {from: action.range.from - 1, to: action.range.to},
                     HtmlEntity.BLOCK_BREAK
@@ -92,14 +97,14 @@ export default (prevState: State, action: Action): State => {
             if (succeedingSample.match(/^\n(\S|$)/)) {
                 // Matches single succeeding newline character
 
-                return Editor.insert(
+                return insert(
                     prevState,
                     {from: action.range.from, to: action.range.to + 1},
                     HtmlEntity.BLOCK_BREAK
                 );
             }
 
-            return Editor.insert(prevState, action.range, HtmlEntity.LINE_BREAK);
+            return insert(prevState, action.range, HtmlEntity.LINE_BREAK);
         }
         case ActionType.TOGGLE_INLINE: {
             const allowedMarkups: string[] = Object.keys(MarkupTag).map(key => MarkupTag[key]);
@@ -125,9 +130,9 @@ export default (prevState: State, action: Action): State => {
             }
 
             if (prevState.isTagActive(action.tag)) {
-                nextState = Editor.removeInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
+                nextState = removeInlineMarkup(prevState, action.tag, action.range.from, action.range.to);
             } else {
-                nextState = Editor.addInlineMarkup(
+                nextState = addInlineMarkup(
                     prevState,
                     action.tag,
                     action.range.from,
@@ -136,19 +141,19 @@ export default (prevState: State, action: Action): State => {
                 );
             }
 
-            Editor.setActiveMarkups(nextState, action.range);
+            setActiveMarkups(nextState, action.range);
 
             return nextState;
         }
         case ActionType.CHANGE_BLOCK_TYPE: {
-            return Editor.changeBlockType(prevState, action.tag);
+            return changeBlockType(prevState, action.tag);
         }
         case ActionType.CUT:
-            return Editor.insert(prevState, {from: action.range.from, to: action.range.to}, '');
+            return insert(prevState, {from: action.range.from, to: action.range.to}, '');
         case ActionType.COPY:
             return prevState;
         case ActionType.PASTE:
-            return Editor.insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
+            return insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
         case ActionType.SAVE:
             return prevState;
         default:
