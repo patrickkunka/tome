@@ -57,8 +57,6 @@ function insert(prevState: State, range: ISelection, content: string, isPasting:
 
     setActiveMarkups(nextState, nextState.selection);
 
-    // TODO: add tests for overrides (break, set selection, delete, insert, paste)
-
     if (!isPasting && isInsertingText) {
         for (const tag of prevState.activeInlineMarkups.overrides) {
             if (prevState.isTagActive(tag)) {
