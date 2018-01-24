@@ -4,8 +4,8 @@ import MarkupTag   from '../State/Constants/MarkupTag' ;
 import MarkupType  from '../State/Constants/MarkupType';
 import IMarkup     from '../State/Interfaces/IMarkup';
 import Markup      from '../State/Markup';
+import INodeLike   from '../Tome/Interfaces/INodeLike';
 import ITome       from '../Tome/Interfaces/ITome';
-import INodeLike from '../Tome/Interfaces/INodeLike';
 
 class Util {
     /**

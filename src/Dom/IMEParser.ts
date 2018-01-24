@@ -4,8 +4,8 @@ import MarkupTag    from '../State/Constants/MarkupTag';
 import IAction      from '../State/Interfaces/IAction';
 import ITome        from '../Tome/Interfaces/ITome';
 import TomeNode     from '../Tree/TomeNode';
+import Util         from '../Util/Util';
 import MutationType from './Constants/MutationType';
-import Util from '../Util/Util';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {

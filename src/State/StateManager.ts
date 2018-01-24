@@ -45,9 +45,9 @@ class StateManager {
 
         this.historyIndex--;
 
-        this.tome.render(true);
+        this.tome.tree.render(true);
 
-        this.tome.positionCaret(this.state.selection);
+        this.tome.tree.positionCaret(this.state.selection);
 
         if (typeof fn === 'function') {
             fn(this.state, ActionType.UNDO);
@@ -61,9 +61,9 @@ class StateManager {
 
         this.historyIndex++;
 
-        this.tome.render(true);
+        this.tome.tree.render(true);
 
-        this.tome.positionCaret(this.state.selection);
+        this.tome.tree.positionCaret(this.state.selection);
 
         if (typeof fn === 'function') {
             fn(this.state, ActionType.REDO);
@@ -135,13 +135,13 @@ class StateManager {
         this.lastActionType = action.type;
 
         if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
-            this.tome.render(true);
+            this.tome.tree.render(true);
 
-            this.tome.positionCaret(this.state.selection);
+            this.tome.tree.positionCaret(this.state.selection);
         } else if (action.type === ActionType.MUTATE) {
             // Update internal tree only, but do not render.
 
-            this.tome.render();
+            this.tome.tree.render();
         }
 
         if (typeof fn === 'function') {
