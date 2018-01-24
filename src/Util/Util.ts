@@ -5,6 +5,7 @@ import MarkupType  from '../State/Constants/MarkupType';
 import IMarkup     from '../State/Interfaces/IMarkup';
 import Markup      from '../State/Markup';
 import ITome       from '../Tome/Interfaces/ITome';
+import INodeLike from '../Tome/Interfaces/INodeLike';
 
 class Util {
     /**
@@ -23,6 +24,24 @@ class Util {
     public static pascalCase(str: string): string {
         return (str = (str.match(/[_-]/) ? Util.camelCase(str) : str))
             .charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    /**
+     * Returns a child node of a provided `INodeLike` based on a provided path.
+     */
+
+    public static getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
+        let node: T = root;
+        let index = -1;
+        let i = 0;
+
+        while (typeof (index = path[i]) === 'number') {
+            node = node.childNodes[index];
+
+            i++;
+        }
+
+        return node || null;
     }
 
     /**

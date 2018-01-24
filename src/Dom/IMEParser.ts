@@ -5,6 +5,7 @@ import IAction      from '../State/Interfaces/IAction';
 import ITome        from '../Tome/Interfaces/ITome';
 import TomeNode     from '../Tree/TomeNode';
 import MutationType from './Constants/MutationType';
+import Util from '../Util/Util';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
@@ -30,14 +31,14 @@ class IMEParser {
                 break;
             }
 
-            const parentPath = tome.getPathFromDomNode(parentBlock);
+            const parentPath = tome.dom.getPathFromDomNode(parentBlock);
 
             path = parentPath.concat(0);
         } else {
-            path = tome.getPathFromDomNode(node);
+            path = tome.dom.getPathFromDomNode(node);
         }
 
-        const virtualNode: TomeNode = tome.getNodeByPath(path, tome.root);
+        const virtualNode: TomeNode = Util.getNodeByPath(path, tome.root);
         const prevValue:   string   = virtualNode.text;
         const nextValue:   string   = node.textContent;
         const action:      IAction  = IMEParser.diffStringValues(prevValue, nextValue);
@@ -55,13 +56,13 @@ class IMEParser {
         // tslint:enable variable-name
 
         const beforeRemoved = mutation.previousSibling;
-        const path = tome.getPathFromDomNode(beforeRemoved);
+        const path = tome.dom.getPathFromDomNode(beforeRemoved);
 
         // Increment previous sibling path to find own path
 
         path[path.length - 1]++;
 
-        const virtualNode = tome.getNodeByPath(path, tome.root);
+        const virtualNode = Util.getNodeByPath(path, tome.root);
 
         // If node is not a block break, ignore
 

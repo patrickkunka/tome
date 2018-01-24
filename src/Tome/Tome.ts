@@ -16,7 +16,6 @@ import Renderer           from '../Tree/Renderer';
 import TomeNode           from '../Tree/TomeNode';
 import TreeBuilder        from '../Tree/TreeBuilder';
 import Util               from '../Util/Util';
-import INodeLike          from './Interfaces/INodeLike';
 import ITome              from './Interfaces/ITome';
 
 class Tome implements ITome {
@@ -84,38 +83,10 @@ class Tome implements ITome {
         this.stateManager.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
     }
 
-    public getPathFromDomNode(domNode: Node): number[] {
-        const path = [];
-
-        while (domNode) {
-            if (domNode instanceof HTMLElement && domNode === this.dom.root) break;
-
-            path.unshift(Util.index(domNode, true));
-
-            domNode = domNode.parentElement;
-        }
-
-        return path;
-    }
-
-    public getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
-        let node: T = root;
-        let index = -1;
-        let i = 0;
-
-        while (typeof (index = path[i]) === 'number') {
-            node = node.childNodes[index];
-
-            i++;
-        }
-
-        return node || null;
-    }
-
     public render(shouldUpdateDom: boolean = false): void {
         // const prevRoot = this.root;
 
-        const nextRoot = Tome.buildModelFromState(this.stateManager.state);
+        const nextRoot = Tome.buildTreeFromState(this.stateManager.state);
 
         // const treeDiffCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
 
@@ -177,7 +148,7 @@ class Tome implements ITome {
             break;
         }
 
-        nodeLeft = this.getNodeByPath(virtualNode.path, this.dom.root);
+        nodeLeft = Util.getNodeByPath(virtualNode.path, this.dom.root);
 
         // Account for #text nodes representing a block break, but with only 1 character rendered
 
@@ -213,7 +184,7 @@ class Tome implements ITome {
             break;
         }
 
-        nodeRight = this.getNodeByPath(virtualNode.path, this.dom.root);
+        nodeRight = Util.getNodeByPath(virtualNode.path, this.dom.root);
 
         range.setEnd(nodeRight, Math.min(offsetEnd, nodeRight.textContent.length));
 
@@ -262,7 +233,7 @@ class Tome implements ITome {
         this.eventManager.bindEvents();
     }
 
-    private static buildModelFromState(state: State): TomeNode {
+    private static buildTreeFromState(state: State): TomeNode {
         const root = new TomeNode();
 
         TreeBuilder.build(root, state.text, state.markups);

@@ -214,11 +214,11 @@ class StateManager {
     }
 
     private getRangeFromSelection(selection: Selection): TomeSelection {
-        const anchorPath = this.tome.getPathFromDomNode(selection.anchorNode);
+        const anchorPath = this.tome.dom.getPathFromDomNode(selection.anchorNode);
         const from = new Caret();
         const to = new Caret();
 
-        let virtualAnchorNode = this.tome.getNodeByPath(anchorPath, this.tome.root);
+        let virtualAnchorNode = Util.getNodeByPath(anchorPath, this.tome.root);
         let anchorOffset = selection.anchorOffset;
         let extentOffset = selection.extentOffset;
 
@@ -237,8 +237,8 @@ class StateManager {
         let rangeTo = -1;
 
         if (!selection.isCollapsed) {
-            extentPath = this.tome.getPathFromDomNode(selection.extentNode);
-            virtualExtentNode = this.tome.getNodeByPath(extentPath, this.tome.root);
+            extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
+            virtualExtentNode = Util.getNodeByPath(extentPath, this.tome.root);
 
             if (virtualExtentNode.isBlock && extentOffset > 0) {
                 virtualExtentNode = virtualExtentNode.childNodes[extentOffset];
