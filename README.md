@@ -17,5 +17,15 @@ In progress..
 - lists?
 - additional IME mutation detection work
 
+list stories:
+- user converts an existing block selection to a list
+- user block returns inside a list item, splits the list item to create a new list item within the list, list is expanded
+- user block returns at the end of the last list item in a list, creates an empty list item below, list is expanded
+- user block returns at the start of the last (empty) list item in a list, converting the list item to a paragraph tag, list is contracted
+- user deletes a list item via backspace, list item is removed and list is contracted
+- user deletes or inserts characters within a list, the list is expanded or contracted
+- user deletes/inserts characters spanning one or more list items, the outermost list items are joined, list is expanded or contracted
+- user backspace from start of first list item in a list, the item is converted to a paragraph, list is contracted to start from next list item or removed if none
+
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

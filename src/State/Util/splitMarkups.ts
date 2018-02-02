@@ -9,6 +9,8 @@ import Markup     from '../Markup';
  */
 
 function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
+    let listToExtend = null;
+
     for (let i = 0; i < markups.length; i++) {
         const markup = markups[i];
         const originalMarkupEnd = markup.end;
@@ -16,8 +18,11 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
         let newMarkup = null;
 
         if (markup.start <= splitIndex && markup.end > splitIndex) {
+            // Iterate through any markup that envelops the split index
+
             const newStartIndex = splitIndex + HtmlEntity.BLOCK_BREAK.length;
-            const newTag = markup.isBlock && markup.end === newStartIndex ? MarkupTag.P : markup.tag;
+            const newTag = markup.isBlock && markup.end === newStartIndex ?
+                MarkupTag.P : markup.tag;
 
             let j = i + 1;
             let insertIndex = -1;
@@ -32,6 +37,13 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
                 markups.splice(i, 1);
 
                 i--;
+
+                continue;
+            } else if ([MarkupTag.UL, MarkupTag.OL].indexOf(markup.tag) > -1) {
+                // Markup is a wrapping list element and should not be split
+                // but extended
+
+                listToExtend = markup;
 
                 continue;
             }
@@ -61,6 +73,10 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
             }
 
             markups.splice(insertIndex, 0, newMarkup);
+
+            if (newMarkup.tag === MarkupTag.LI && listToExtend) {
+                listToExtend[2] = newMarkup.end;
+            }
         }
     }
 

@@ -28,7 +28,7 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
         newTag = MarkupTag.LI;
     }
 
-    // TODO: add configuration option to strip inline markups from non
+    // TODO: add configuration option to strip inline markups from non-
     // paragraph blocks
 
     nextState.markups = prevState.markups.map((prevMarkup, i) => {
