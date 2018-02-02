@@ -9,7 +9,6 @@ import MarkupType         from '../State/Constants/MarkupType';
 import IValue             from '../State/Interfaces/IValue';
 import State              from '../State/State';
 import StateManager       from '../State/StateManager';
-import TomeNode           from '../Tree/TomeNode';
 import Tree               from '../Tree/Tree';
 import Util               from '../Util/Util';
 import ITome              from './Interfaces/ITome';
@@ -17,7 +16,6 @@ import ITome              from './Interfaces/ITome';
 class Tome implements ITome {
     public dom:          Dom          = new Dom();
     public config:       ConfigRoot   = new ConfigRoot();
-    public root:         TomeNode     = null;
     public tree:         Tree         = new Tree(this);
     public stateManager: StateManager = new StateManager(this);
 

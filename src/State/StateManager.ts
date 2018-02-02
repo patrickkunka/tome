@@ -13,16 +13,16 @@ import State                   from './State';
 import TomeSelection           from './TomeSelection';
 
 class StateManager {
-    private lastActionType: ActionType = null;
-    private history:          State[] = [];
-    private historyIndex:     number  = -1;
-    private tome:             ITome   = null;
-    private canPushState:     boolean = true;
-    private timerIdBlockPush: number  = null;
-    private timerIdBackup:    number  = null;
+    private lastActionType:   ActionType = null;
+    private history:          State[]    = [];
+    private historyIndex:     number     = -1;
+    private tome:             ITome      = null;
+    private canPushState:     boolean    = true;
+    private timerIdBlockPush: number     = null;
+    private timerIdBackup:    number     = null;
 
     private static DURATION_BLOCK_PUSH = 750;
-    private static DURATION_BACKUP = 2000;
+    private static DURATION_BACKUP     = 2000;
 
     public get state(): State {
         return this.history[this.historyIndex];
@@ -218,7 +218,7 @@ class StateManager {
         const from = new Caret();
         const to = new Caret();
 
-        let virtualAnchorNode = Util.getNodeByPath(anchorPath, this.tome.root);
+        let virtualAnchorNode = Util.getNodeByPath(anchorPath, this.tome.tree.root);
         let anchorOffset = selection.anchorOffset;
         let extentOffset = selection.extentOffset;
 
@@ -238,7 +238,7 @@ class StateManager {
 
         if (!selection.isCollapsed) {
             extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
-            virtualExtentNode = Util.getNodeByPath(extentPath, this.tome.root);
+            virtualExtentNode = Util.getNodeByPath(extentPath, this.tome.tree.root);
 
             if (virtualExtentNode.isBlock && extentOffset > 0) {
                 virtualExtentNode = virtualExtentNode.childNodes[extentOffset];
@@ -260,9 +260,9 @@ class StateManager {
         from.path   = to.path = isRtl ? extentPath : anchorPath;
 
         if (!selection.isCollapsed) {
-            to.node     = isRtl ? virtualAnchorNode : virtualExtentNode;
-            to.offset   = isRtl ? anchorOffset : extentOffset;
-            to.path     = isRtl ? anchorPath : extentPath;
+            to.node   = isRtl ? virtualAnchorNode : virtualExtentNode;
+            to.offset = isRtl ? anchorOffset : extentOffset;
+            to.path   = isRtl ? anchorPath : extentPath;
         }
 
         rangeFrom = Math.min(from.node.start + from.offset, from.node.end);

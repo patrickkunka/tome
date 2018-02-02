@@ -16,6 +16,9 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
     let firstEnvelopedBlockIndex = -1;
 
     if (tag === MarkupTag.OL || tag === MarkupTag.UL) {
+        // If converting one or more blocks to a list, a wrapping <ol>
+        // or <ul> is applied, and each inner block is converted to a <li>
+
         const {envelopedBlockMarkups} = prevState;
         const firstEnvelopedStart = envelopedBlockMarkups[0].start;
         const lastEnvelopedEnd = envelopedBlockMarkups[envelopedBlockMarkups.length - 1].end;

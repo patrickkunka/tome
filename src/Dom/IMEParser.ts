@@ -38,7 +38,7 @@ class IMEParser {
             path = tome.dom.getPathFromDomNode(node);
         }
 
-        const virtualNode: TomeNode = Util.getNodeByPath(path, tome.root);
+        const virtualNode: TomeNode = Util.getNodeByPath(path, tome.tree.root);
         const prevValue:   string   = virtualNode.text;
         const nextValue:   string   = node.textContent;
         const action:      IAction  = IMEParser.diffStringValues(prevValue, nextValue);
@@ -62,7 +62,7 @@ class IMEParser {
 
         path[path.length - 1]++;
 
-        const virtualNode = Util.getNodeByPath(path, tome.root);
+        const virtualNode = Util.getNodeByPath(path, tome.tree.root);
 
         // If node is not a block break, ignore
 
