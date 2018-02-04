@@ -31,7 +31,10 @@ function adjustMarkups(
 
             if (!isCollapsedRange && markup.isSelfClosing && markup.start === fromIndex) {
                 removeMarkup = true;
-            } else if (markup.start === fromIndex && (markup.isBlock || markup.isInline && totalAdded > 0)) {
+            } else if (
+                markup.start === fromIndex &&
+                (markup.isBlock || ((markup.isInline || markup.isListItem) && totalAdded > 0))
+            ) {
                 // Markup should be preserved is a) is block element,
                 // b) is inline and inserting
 
@@ -40,7 +43,7 @@ function adjustMarkups(
                 if (markup.isSelfClosing) newMarkup[1] = newMarkup.end;
             } else if (markup.isSelfClosing && markup.start === toIndex) {
                 newMarkup[1] = newMarkup[2] = markup.start + adjustment;
-            } else if (!markup.isBlock || markup.start > fromIndex) {
+            } else if (markup.isInline || markup.start > fromIndex) {
                 removeMarkup = true;
             }
         } else if (markup.start <= fromIndex && markup.end >= toIndex) {

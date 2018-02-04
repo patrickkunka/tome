@@ -809,4 +809,97 @@ describe('insert', () => {
         assert.equal(nextState.activeInlineMarkups.overrides.length, 1);
         assert.equal(nextState.activeInlineMarkups.overrides[0], MarkupTag.STRONG);
     });
+
+    it('should insert characters into an empty list item', () => {
+        const prevState = Object.assign(new State(), {
+            text: '',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 0]),
+                new Markup([MarkupTag.LI, 0, 0])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 0, to: 0}, 'foo');
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const wrappingList = markups[0];
+        const listItem = markups[1];
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 3);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 3);
+    });
+
+    it('should split a list item and extend the wrapping list', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\nList item 2.\n\nList item 3.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 40]),
+                new Markup([MarkupTag.LI, 0, 12]),
+                new Markup([MarkupTag.LI, 14, 26]),
+                new Markup([MarkupTag.LI, 28, 40])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 33, to: 33}, HtmlEntity.BLOCK_BREAK);
+
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 5);
+
+        const originalListItem = markups[3];
+        const newListItem = markups[4];
+        const wrappingList = markups[0];
+
+        assert.equal(originalListItem.tag, MarkupTag.LI);
+        assert.equal(originalListItem.start, 28);
+        assert.equal(originalListItem.end, 33);
+
+        assert.equal(newListItem.tag, MarkupTag.LI);
+        assert.equal(newListItem.start, 35);
+        assert.equal(newListItem.end, 42);
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 42);
+    });
+
+    it('should create an empty list item when a block break is inserted at the end of a list item', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\nList item 2.\n\nList item 3.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 40]),
+                new Markup([MarkupTag.LI, 0, 12]),
+                new Markup([MarkupTag.LI, 14, 26]),
+                new Markup([MarkupTag.LI, 28, 40])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 26, to: 26}, HtmlEntity.BLOCK_BREAK);
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 5);
+
+        const newListItem = markups[3];
+        const nextListItem = markups[4];
+        const wrappingList = markups[0];
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 42);
+
+        assert.equal(newListItem.tag, MarkupTag.LI);
+        assert.equal(newListItem.start, 28);
+        assert.equal(newListItem.end, 28);
+
+        assert.equal(nextListItem.tag, MarkupTag.LI);
+        assert.equal(nextListItem.start, 30);
+        assert.equal(nextListItem.end, 42);
+    });
 });

@@ -33,6 +33,14 @@ class Markup {
         return this[2];
     }
 
+    get length(): number {
+        return this.end - this.start;
+    }
+
+    get isEmpty(): boolean {
+        return this.length === 0;
+    }
+
     get data(): any {
         return typeof this[3] === 'undefined' ? null : this[3];
     }
@@ -51,6 +59,10 @@ class Markup {
 
     get isListItem(): boolean {
         return this.type === MarkupType.LIST_ITEM;
+    }
+
+    get isList(): boolean {
+        return [MarkupTag.OL, MarkupTag.UL].indexOf(this.tag) > -1;
     }
 
     get isSelfClosing(): boolean {

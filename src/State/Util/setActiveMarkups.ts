@@ -28,7 +28,7 @@ function setActiveMarkups(state: State, selection: TomeSelection): void {
         // selection and should therefore be activated in any UI
 
         if (markup.start <= selection.from && markup.end >= selection.from) {
-            if (markup.isBlock) {
+            if (markup.isBlock || markup.isListItem) {
                 // Only one block markup may be active at a time
                 // (the first one)
 
@@ -70,7 +70,7 @@ function setActiveMarkups(state: State, selection: TomeSelection): void {
             activeInlineMarkups.clearTag(markup.tag);
         }
 
-        if (!markup.isBlock) continue;
+        if (markup.isInline || markup.isList) continue;
 
         parentBlock = markup;
 

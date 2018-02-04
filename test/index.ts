@@ -1,0 +1,10 @@
+import '../src/Dom/IMEParser.test.ts';
+import '../src/State/Edits/addInlineMarkup.test.ts';
+import '../src/State/Edits/insert.test.ts';
+import '../src/State/Edits/insertFromClipboard.test.ts';
+import '../src/State/Edits/removeInlineMarkup.test.ts';
+import '../src/State/reducer.test.ts';
+import '../src/State/Util/setActiveMarkups.test.ts';
+import '../src/State/Util/splitMarkups.test.ts';
+import '../src/Tree/TreeBuilder.test.ts';
+import '../src/Util/Util.test.ts';

@@ -82,7 +82,7 @@ class Util {
         return index;
     }
 
-    public static getMarkupType(tag: MarkupTag) {
+    public static getMarkupType(tag: MarkupTag): MarkupType {
         switch (tag) {
             case MarkupTag.H1:
             case MarkupTag.H2:

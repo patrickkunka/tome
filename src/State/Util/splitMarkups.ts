@@ -5,11 +5,13 @@ import Markup     from '../Markup';
 /**
  * Splits a markup at the provided index, creating a new markup
  * of the same type starting two characters later (\n\n). Assumes the
- * addition of a block break.
+ * addition of a block break that has already extended the containing
+ * markup.
  */
 
 function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
     let listToExtend = null;
+    let lastListItem = null;
 
     for (let i = 0; i < markups.length; i++) {
         const markup = markups[i];
@@ -31,7 +33,7 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
 
             markup[2] = splitIndex;
 
-            if (markup.isInline && markup[1] === markup[2]) {
+            if (markup.isInline && markup.isEmpty) {
                 // Markup has contracted into non-existence
 
                 markups.splice(i, 1);
@@ -39,7 +41,7 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
                 i--;
 
                 continue;
-            } else if ([MarkupTag.UL, MarkupTag.OL].indexOf(markup.tag) > -1) {
+            } else if (markup.isList) {
                 // Markup is a wrapping list element and should not be split
                 // but extended
 
@@ -73,10 +75,16 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
             }
 
             markups.splice(insertIndex, 0, newMarkup);
+        }
 
-            if (newMarkup.tag === MarkupTag.LI && listToExtend) {
-                listToExtend[2] = newMarkup.end;
-            }
+        if (!listToExtend) continue;
+
+        if (markup.isListItem) {
+            lastListItem = markup;
+
+            listToExtend[2] = lastListItem.end;
+        } else {
+            listToExtend = null;
         }
     }
 

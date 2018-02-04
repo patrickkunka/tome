@@ -35,7 +35,6 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
         const nextMarkup = new Markup(prevMarkup.toArray());
 
         if (prevState.envelopedBlockMarkups.indexOf(prevMarkup) > -1) {
-
             if (firstEnvelopedBlockIndex < 0) {
                 firstEnvelopedBlockIndex = i;
             }

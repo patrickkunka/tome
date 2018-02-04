@@ -1,17 +1,20 @@
 import merge from 'helpful-merge';
 
-import Action              from './Action';
-import ActionType          from './Constants/ActionType';
-import HtmlEntity          from './Constants/HtmlEntity';
-import MarkupTag           from './Constants/MarkupTag';
-import addInlineMarkup     from './Edits/addInlineMarkup';
-import changeBlockType     from './Edits/changeBlockType';
-import insert              from './Edits/insert';
-import insertFromClipboard from './Edits/insertFromClipboard';
-import removeInlineMarkup  from './Edits/removeInlineMarkup';
-import Markup              from './Markup';
-import State               from './State';
-import setActiveMarkups    from './Util/setActiveMarkups';
+import Action                 from './Action';
+import ActionType             from './Constants/ActionType';
+import HtmlEntity             from './Constants/HtmlEntity';
+import MarkupTag              from './Constants/MarkupTag';
+import MarkupType             from './Constants/MarkupType';
+import addInlineMarkup        from './Edits/addInlineMarkup';
+import changeBlockType        from './Edits/changeBlockType';
+import insert                 from './Edits/insert';
+import insertFromClipboard    from './Edits/insertFromClipboard';
+import removeInlineMarkup     from './Edits/removeInlineMarkup';
+import Markup                 from './Markup';
+import State                  from './State';
+import getMarkupOfTypeAtIndex from './Util/getMarkupOfTypeAtIndex';
+import setActiveMarkups       from './Util/setActiveMarkups';
+import sanitizeLists          from './Util/sanitizeLists';
 
 export default (prevState: State, action: Action): State => {
     switch (action.type) {
@@ -74,8 +77,27 @@ export default (prevState: State, action: Action): State => {
         }
         case ActionType.MUTATE:
             return insert(prevState, {from: action.range.from, to: action.range.to}, action.content);
-        case ActionType.RETURN:
+        case ActionType.RETURN: {
+            if (action.range.isCollapsed) {
+                const listItemAtIndex = getMarkupOfTypeAtIndex(
+                    prevState.markups,
+                    MarkupType.LIST_ITEM,
+                    action.range.from
+                );
+
+                if (listItemAtIndex && listItemAtIndex.isEmpty) {
+                    // If the current markup is an empty list item, convert it to a <p>
+
+                    const nextState = changeBlockType(prevState, MarkupTag.P);
+
+                    sanitizeLists(nextState.markups);
+
+                    return nextState;
+                }
+            }
+
             return insert(prevState, action.range, HtmlEntity.BLOCK_BREAK);
+        }
         case ActionType.SHIFT_RETURN: {
             // detect if inserting a line break directly before or
             // after an existing line break
