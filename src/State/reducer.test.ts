@@ -135,4 +135,36 @@ describe('reducer', () => {
         assert.equal(newParagraph.start, 42);
         assert.equal(newParagraph.end, 42);
     });
+
+    it('should convert the first list item of a list into a paragraph when backspacing from its start', () => {
+        const firstListItem = new Markup([MarkupTag.LI, 0, 12]);
+
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\nList item 2.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 42]),
+                firstListItem,
+                new Markup([MarkupTag.LI, 14, 26])
+            ],
+            envelopedBlockMarkups: [
+                firstListItem
+            ],
+            activeBlockMarkup: firstListItem
+        });
+
+        const nextState = reducer(prevState, Object.assign(new Action(), {
+            type: ActionType.BACKSPACE,
+            range: new TomeSelection(0, 0)
+        }));
+
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 3);
+
+        const [firstMarkup, secondMarkup, thirdMarkup] = markups;
+
+        assert.equal(firstMarkup.tag, MarkupTag.P);
+        assert.equal(secondMarkup.tag, MarkupTag.UL);
+        assert.equal(thirdMarkup.tag, MarkupTag.LI);
+    });
 });

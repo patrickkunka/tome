@@ -6,11 +6,19 @@ import Markup     from '../Markup';
  */
 
 function getMarkupOfType(markups: Markup[], type: MarkupType, index: number): Markup {
-    return markups.find(markup => (
-        markup.type === type &&
-        markup.start <= index &&
-        markup.end >= index)
-    ) || null;
+    // TODO: could be improved with quick sort
+
+    for (const markup of markups) {
+        if (
+            markup.type === type &&
+            markup.start <= index &&
+            markup.end >= index
+        ) {
+            return markup;
+        } else if (markup.start > index) break;
+    }
+
+    return null;
 }
 
 export default getMarkupOfType;

@@ -902,4 +902,84 @@ describe('insert', () => {
         assert.equal(nextListItem.start, 30);
         assert.equal(nextListItem.end, 42);
     });
+
+    it('should delete characters in a list and contract the wrapping list accordingly', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'a',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 1]),
+                new Markup([MarkupTag.LI, 0, 1])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 0, to: 1}, '');
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const wrappingList = markups[0];
+        const listItem = markups[1];
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 0);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 0);
+    });
+
+    it('should remove a list item when backspacing from its start', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\n',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 14]),
+                new Markup([MarkupTag.LI, 0, 12]),
+                new Markup([MarkupTag.LI, 14, 14])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 12, to: 14}, '');
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const wrappingList = markups[0];
+        const listItem = markups[1];
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 12);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 12);
+    });
+
+    it('should join a list item to the following list item or block if deleting from its end', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\nParagraph.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 14]),
+                new Markup([MarkupTag.LI, 0, 12]),
+                new Markup([MarkupTag.P, 14, 24])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 12, to: 14}, '');
+        const {markups} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const wrappingList = markups[0];
+        const listItem = markups[1];
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 22);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 22);
+    });
 });

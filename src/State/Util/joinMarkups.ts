@@ -15,7 +15,7 @@ function joinMarkups(markups: Markup[], index: number): Markup[] {
         const markup = new Markup(markups[i].toArray());
 
         if (markup.end === index) {
-            if (markup.isBlock) {
+            if (markup.isBlock || markup.isListItem) {
                 // Block markup closes at index
 
                 closingBlock = markups[i];
@@ -25,7 +25,7 @@ function joinMarkups(markups: Markup[], index: number): Markup[] {
         } else if (markup.start === index) {
             let extend = null;
 
-            if (markup.isBlock && closingBlock) {
+            if ((markup.isBlock || markup.isListItem) && closingBlock) {
                 // Block markup opens at index, and will touch
                 // previous block
 

@@ -4,6 +4,7 @@ import ISelection         from '../Interfaces/ISelection';
 import State              from '../State';
 import adjustMarkups      from '../Util/adjustMarkups';
 import joinMarkups        from '../Util/joinMarkups';
+import sanitizeLists      from '../Util/sanitizeLists';
 import setActiveMarkups   from '../Util/setActiveMarkups';
 import splitMarkups       from '../Util/splitMarkups';
 import addInlineMarkup    from './addInlineMarkup';
@@ -50,6 +51,8 @@ function insert(prevState: State, range: ISelection, content: string, isPasting:
     } else if (isDeleting) {
         nextState.markups = joinMarkups(nextState.markups, range.from);
         nextState.markups = joinMarkups(nextState.markups, range.to);
+
+        sanitizeLists(nextState.markups);
     }
 
     nextState.selection.from =

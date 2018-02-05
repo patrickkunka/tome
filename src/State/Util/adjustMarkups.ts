@@ -33,10 +33,10 @@ function adjustMarkups(
                 removeMarkup = true;
             } else if (
                 markup.start === fromIndex &&
-                (markup.isBlock || ((markup.isInline || markup.isListItem) && totalAdded > 0))
+                (markup.isBlock || markup.isListItem || (markup.isInline && totalAdded > 0))
             ) {
-                // Markup should be preserved is a) is block element,
-                // b) is inline and inserting
+                // Markup should be preserved is a) is block element or list item,
+                // b) is inline or and inserting
 
                 newMarkup[2] = markup.start + totalAdded;
 
@@ -80,9 +80,11 @@ function adjustMarkups(
                 // adjustment, closing markup will be removed in
                 // subsequent iteration
 
-                newMarkup[2] = closingBlockMarkup.end + adjustment;
+                if (closingBlockMarkup) {
+                    newMarkup[2] = closingBlockMarkup.end + adjustment;
 
-                toRemove.push(closingBlockMarkup);
+                    toRemove.push(closingBlockMarkup);
+                }
             }
         }
 

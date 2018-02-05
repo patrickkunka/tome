@@ -43,9 +43,7 @@ function sanitizeLists(markups: Markup[]): void {
                     // Unneccessary list, delete
 
                     i = deleteWrappingList(markups, i, -1);
-                }
-
-                if (lastWrappingList.end !== lastListItem.end) {
+                } else if (lastWrappingList.end !== lastListItem.end) {
                     lastWrappingList[2] = lastListItem.end;
                 }
 
@@ -67,7 +65,7 @@ function sanitizeLists(markups: Markup[]): void {
 function deleteWrappingList(markups: Markup[], index: number, deleteOffset: number = 0): number {
     markups.splice(index + deleteOffset, 1);
 
-    return index--;
+    return (index - 1) + deleteOffset;
 }
 
 export default sanitizeLists;

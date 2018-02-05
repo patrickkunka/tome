@@ -13,8 +13,8 @@ import removeInlineMarkup     from './Edits/removeInlineMarkup';
 import Markup                 from './Markup';
 import State                  from './State';
 import getMarkupOfTypeAtIndex from './Util/getMarkupOfTypeAtIndex';
-import setActiveMarkups       from './Util/setActiveMarkups';
 import sanitizeLists          from './Util/sanitizeLists';
+import setActiveMarkups       from './Util/setActiveMarkups';
 
 export default (prevState: State, action: Action): State => {
     switch (action.type) {
@@ -44,9 +44,29 @@ export default (prevState: State, action: Action): State => {
         case ActionType.BACKSPACE: {
             let fromIndex: number = action.range.from;
 
+            if (action.range.isCollapsed) {
+                // If at the start of a list, convert the first list item to a <p>
+
+                const blockAtIndex = getMarkupOfTypeAtIndex(
+                    prevState.markups,
+                    MarkupType.BLOCK,
+                    action.range.to
+                );
+
+                if (blockAtIndex.isList && blockAtIndex.start === action.range.to) {
+                    const nextState = changeBlockType(prevState, MarkupTag.P);
+
+                    sanitizeLists(nextState.markups);
+
+                    return nextState;
+                }
+            }
+
             // If at start, ignore
 
-            if (action.range.to === 0) return prevState;
+            if (action.range.to === 0) {
+                return prevState;
+            }
 
             if (action.range.isCollapsed) {
                 // If previous character is a block break, ingest previous two characters, else one
