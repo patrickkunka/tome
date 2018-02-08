@@ -11,7 +11,7 @@ function getClosingBlockMarkup(markups: Markup[], markupIndex: number, toIndex: 
             markup = new Markup(markup);
         }
 
-        if (markup.isBlock && markup.start <= toIndex && markup.end >= toIndex) {
+        if ((markup.isBlock || markup.isListItem) && markup.start <= toIndex && markup.end >= toIndex) {
             return markup;
         }
     }

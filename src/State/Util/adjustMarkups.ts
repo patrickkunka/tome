@@ -61,7 +61,7 @@ function adjustMarkups(
 
             newMarkup[1] += adjustment;
             newMarkup[2] += adjustment;
-        } else if (fromIndex < markup.start && toIndex > markup.start && toIndex < markup.end && markup.isInline) {
+        } else if (markup.isInline && fromIndex < markup.start && toIndex > markup.start && toIndex < markup.end) {
             // Selection partially envelopes inline markup from start
 
             newMarkup[1] += (adjustment + (toIndex - markup.start));
@@ -74,6 +74,8 @@ function adjustMarkups(
 
                 newMarkup[2] = fromIndex + totalAdded;
             } else {
+                // Block or list item
+
                 const closingBlockMarkup = getClosingBlockMarkup(markups, i, toIndex);
 
                 // Extend block markup to end of closing block +/-

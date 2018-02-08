@@ -982,4 +982,33 @@ describe('insert', () => {
         assert.equal(listItem.start, 0);
         assert.equal(listItem.end, 22);
     });
+
+    it('should join two list items if a range of characters is deleted crossing both items', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List item 1.\n\nList item 2.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 26]),
+                new Markup([MarkupTag.LI, 0, 12]),
+                new Markup([MarkupTag.LI, 14, 26])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 5, to: 19}, '');
+        const {markups, text} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const wrappingList = markups[0];
+        const listItem = markups[1];
+
+        assert.equal(text, 'List item 2.');
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 12);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 12);
+    });
 });
