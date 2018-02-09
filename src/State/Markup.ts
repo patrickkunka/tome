@@ -62,7 +62,7 @@ class Markup {
     }
 
     get isList(): boolean {
-        return [MarkupTag.OL, MarkupTag.UL].indexOf(this.tag) > -1;
+        return [MarkupTag.OL, MarkupTag.UL].includes(this.tag);
     }
 
     get isSelfClosing(): boolean {

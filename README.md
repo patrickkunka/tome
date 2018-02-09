@@ -30,8 +30,9 @@ list stories:
 - ~~~user backspace from start of first list item in a list, the item is converted to a paragraph, list is contracted to start from next list item or removed if none~~
 - ~~~user deletes from the end of a list, the following list item or block is joined to become part of the list item.~~~
 - ~~~user deletes/inserts characters spanning one or more list items, the outermost list items are joined, list is expanded or contracted~~~
-- user converts one or more li blocks to another block type. Wrapping UL is removed, list items are converted. List is split if necessary.
-- user backspaces from the beginning of one to list to a preceding list. The two lists are joined and take on the list type of the first list.
+- ~~~user converts one or more li blocks to another block type. Wrapping UL is removed, list items are converted. List is split if necessary.~~~
+- ~~~user backspaces from the beginning of one to list to a preceding list. The two lists are joined and take on the list type of the first list.~~~
+- a list item is split by a line break. User returns at line break. Line break is removed and item is split into two lists.
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

@@ -45,7 +45,8 @@ export default (prevState: State, action: Action): State => {
             let fromIndex: number = action.range.from;
 
             if (action.range.isCollapsed) {
-                // If at the start of a list, convert the first list item to a <p>
+                // If at the start of a list and the previous element is
+                // not another list item, convert the first list item to a <p>
 
                 const blockAtIndex = getMarkupOfTypeAtIndex(
                     prevState.markups,
@@ -53,12 +54,22 @@ export default (prevState: State, action: Action): State => {
                     action.range.to
                 );
 
-                if (blockAtIndex.isList && blockAtIndex.start === action.range.to) {
-                    const nextState = changeBlockType(prevState, MarkupTag.P);
+                if (blockAtIndex && blockAtIndex.isList && blockAtIndex.start === action.range.to) {
+                    // TODO: implement a linked list for this type of operation
 
-                    sanitizeLists(nextState.markups);
+                    const precedingBlock = getMarkupOfTypeAtIndex(
+                        prevState.markups,
+                        MarkupType.BLOCK,
+                        blockAtIndex.start - HtmlEntity.BLOCK_BREAK.length
+                    );
 
-                    return nextState;
+                    if (!precedingBlock || !precedingBlock.isList) {
+                        const nextState = changeBlockType(prevState, MarkupTag.P);
+
+                        sanitizeLists(nextState.markups);
+
+                        return nextState;
+                    }
                 }
             }
 

@@ -1011,4 +1011,33 @@ describe('insert', () => {
         assert.equal(listItem.start, 0);
         assert.equal(listItem.end, 12);
     });
+
+    it('should join two adjacent lists when the separating block break is removed', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'List 1.\n\nList 2.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 7]),
+                new Markup([MarkupTag.LI, 0, 7]),
+                new Markup([MarkupTag.UL, 9, 16]),
+                new Markup([MarkupTag.LI, 9, 16])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 7, to: 9}, '');
+        const {markups, text} = nextState;
+
+        assert.equal(markups.length, 2);
+
+        const [wrappingList, listItem] = markups;
+
+        assert.equal(text, 'List 1.List 2.');
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 14);
+
+        assert.equal(listItem.tag, MarkupTag.LI);
+        assert.equal(listItem.start, 0);
+        assert.equal(listItem.end, 14);
+    });
 });
