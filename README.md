@@ -18,21 +18,9 @@ In progress..
 - additional IME mutation detection work
 - bug when changing a block type to its own type
 
-list stories:
-- ~~~user converts an existing block selection to a list~~~
-- ~~~user block returns inside a list item, splits the list item to create a new list item within the list, list is expanded~~~
-- ~~~user types into newly created empty list item, list item persists and is extended~~~
-- ~~~user block returns at the end of the last list item in a list, creates an empty list item below, list is expanded~~~
-- ~~~user block returns at the start of the last (empty) list item in a list, converting the list item to a paragraph tag, list is contracted or split~~~
-- ~~~as above, when a list is split, a second list is created~~~
-- ~~~user deletes a list item via backspace, list item is removed and list is contracted~~~
-- ~~~user deletes or inserts characters within a list, the list is expanded or contracted~~~
-- ~~~user backspace from start of first list item in a list, the item is converted to a paragraph, list is contracted to start from next list item or removed if none~~
-- ~~~user deletes from the end of a list, the following list item or block is joined to become part of the list item.~~~
-- ~~~user deletes/inserts characters spanning one or more list items, the outermost list items are joined, list is expanded or contracted~~~
-- ~~~user converts one or more li blocks to another block type. Wrapping UL is removed, list items are converted. List is split if necessary.~~~
-- ~~~user backspaces from the beginning of one to list to a preceding list. The two lists are joined and take on the list type of the first list.~~~
-- a list item is split by a line break. User returns at line break. Line break is removed and item is split into two lists.
+BUGS
+ - when changing a block type to its own type
+ - when inserting characters after a line break in a list item that's been reselected
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

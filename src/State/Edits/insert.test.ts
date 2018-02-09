@@ -1040,4 +1040,35 @@ describe('insert', () => {
         assert.equal(listItem.start, 0);
         assert.equal(listItem.end, 14);
     });
+
+    it('should create a new list item when block breaking at a line break within an existing line break', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\nLine two.',
+            markups: [
+                new Markup([MarkupTag.UL, 0, 19]),
+                new Markup([MarkupTag.LI, 0, 19])
+            ]
+        });
+
+        const nextState = insert(prevState, {from: 10, to: 10}, HtmlEntity.BLOCK_BREAK);
+        const {markups, text} = nextState;
+
+        assert.equal(markups.length, 3);
+
+        const [wrappingList, firstlistItem, secondListItem] = markups;
+
+        assert.equal(text, 'Line one.\n\n\nLine two.');
+
+        assert.equal(wrappingList.tag, MarkupTag.UL);
+        assert.equal(wrappingList.start, 0);
+        assert.equal(wrappingList.end, 21);
+
+        assert.equal(firstlistItem.tag, MarkupTag.LI);
+        assert.equal(firstlistItem.start, 0);
+        assert.equal(firstlistItem.end, 10);
+
+        assert.equal(secondListItem.tag, MarkupTag.LI);
+        assert.equal(secondListItem.start, 12);
+        assert.equal(secondListItem.end, 21);
+    });
 });

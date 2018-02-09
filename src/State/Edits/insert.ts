@@ -51,9 +51,9 @@ function insert(prevState: State, range: ISelection, content: string, isPasting:
     } else if (isDeleting) {
         nextState.markups = joinMarkups(nextState.markups, range.from);
         nextState.markups = joinMarkups(nextState.markups, range.to);
-
-        sanitizeLists(nextState.markups);
     }
+
+    sanitizeLists(nextState.markups);
 
     nextState.selection.from =
     nextState.selection.to   = range.from + totalAdded + totalTrimmed;
