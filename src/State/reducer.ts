@@ -199,7 +199,11 @@ export default (prevState: State, action: Action): State => {
             return nextState;
         }
         case ActionType.CHANGE_BLOCK_TYPE: {
-            return changeBlockType(prevState, action.tag);
+            const nextState = changeBlockType(prevState, action.tag);
+
+            setActiveMarkups(nextState, action.range);
+
+            return nextState;
         }
         case ActionType.CUT:
             return insert(prevState, {from: action.range.from, to: action.range.to}, '');

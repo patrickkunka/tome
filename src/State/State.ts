@@ -11,6 +11,7 @@ class State {
     public markups:               Markup[]      = [];
     public selection:             TomeSelection = new TomeSelection();
     public activeBlockMarkup:     Markup        = null;
+    public activeListMarkup:      Markup        = null;
     public envelopedBlockMarkups: Markup[]      = [];
     public activeInlineMarkups:   MarkupsMap    = new MarkupsMap();
 

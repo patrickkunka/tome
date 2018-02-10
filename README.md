@@ -16,10 +16,7 @@ In progress..
 - ~~~Move all history related actions out of `Tome` and into to a new state manager class~~~
 - ~~~lists~~~
 - additional IME mutation detection work
-
-BUGS
- - when changing a block type to its own type
- - when inserting characters after a line break in a list item that's been reselected
+- custom blocks
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

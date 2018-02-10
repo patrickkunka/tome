@@ -15,7 +15,7 @@ function setActiveMarkups(state: State, selection: TomeSelection): void {
 
     let parentBlock: Markup = null;
 
-    state.activeBlockMarkup = null;
+    state.activeBlockMarkup = state.activeListMarkup = null;
 
     state.envelopedBlockMarkups.length = 0;
 
@@ -28,8 +28,10 @@ function setActiveMarkups(state: State, selection: TomeSelection): void {
         // selection and should therefore be activated in any UI
 
         if (markup.start <= selection.from && markup.end >= selection.from) {
-            if (markup.isBlock || markup.isListItem) {
-                // Only one block markup may be active at a time
+            if (markup.isList) {
+                state.activeListMarkup = markup;
+            } else if (markup.isBlock || markup.isListItem) {
+                // Only one (non-list) block markup may be active at a time
                 // (the first one)
 
                 state.activeBlockMarkup = markup;

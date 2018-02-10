@@ -11,13 +11,14 @@ import sanitizeLists from '../Util/sanitizeLists';
 
 function changeBlockType(prevState: State, tag: MarkupTag): State {
     const nextState = merge(new State(), prevState, true);
+    const isChangingToList = [MarkupTag.OL, MarkupTag.UL].includes(tag);
 
     let newTag = tag;
     let wrappingList = null;
-    let firstEnvelopedBlockIndex = -1;
+    let firstListItemIndex = -1;
     let isListAffected = false;
 
-    if ([MarkupTag.OL, MarkupTag.UL].includes(tag)) {
+    if (isChangingToList) {
         // If converting one or more blocks to a list, a wrapping <ol>
         // or <ul> is applied, and each inner block is converted to a <li>
 
@@ -36,13 +37,19 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
     nextState.markups = prevState.markups.map((prevMarkup, i) => {
         const nextMarkup = new Markup(prevMarkup.toArray());
 
+        if (isChangingToList && prevState.activeListMarkup === prevMarkup) {
+            // Ensure list tag tracks new block type
+
+            nextMarkup[0] = tag;
+        }
+
         if (prevState.envelopedBlockMarkups.includes(prevMarkup)) {
             if (prevMarkup.isListItem) {
                 isListAffected = true;
             }
 
-            if (firstEnvelopedBlockIndex < 0) {
-                firstEnvelopedBlockIndex = i;
+            if (wrappingList && !prevMarkup.isListItem && firstListItemIndex < 0) {
+                firstListItemIndex = i;
             }
 
             // If markup is enveloped, change its tag
@@ -53,8 +60,8 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
         return nextMarkup;
     });
 
-    if (wrappingList) {
-        nextState.markups.splice(firstEnvelopedBlockIndex, 0, wrappingList);
+    if (firstListItemIndex > -1) {
+        nextState.markups.splice(firstListItemIndex, 0, wrappingList);
     }
 
     if (isListAffected) {
