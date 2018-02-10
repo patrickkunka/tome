@@ -222,7 +222,7 @@ class StateManager {
         let anchorOffset = selection.anchorOffset;
         let extentOffset = selection.extentOffset;
 
-        if (virtualAnchorNode.isBlock && anchorOffset > 0) {
+        if ((virtualAnchorNode.isBlock || virtualAnchorNode.isListItem) && anchorOffset > 0) {
             // Caret is lodged between a safety <br> and
             // the end of block
 

@@ -1,7 +1,8 @@
 enum MarkupType {
     INLINE,
     LIST_ITEM,
-    BLOCK
+    BLOCK,
+    TEXT
 }
 
 export default MarkupType;

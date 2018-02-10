@@ -96,6 +96,8 @@ class Util {
                 return MarkupType.BLOCK;
             case MarkupTag.LI:
                 return MarkupType.LIST_ITEM;
+            case MarkupTag.TEXT:
+                return MarkupType.TEXT;
             default:
                 return MarkupType.INLINE;
         }

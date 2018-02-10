@@ -1,4 +1,6 @@
-import MarkupTag from '../State/Constants/MarkupTag';
+import MarkupTag  from '../State/Constants/MarkupTag';
+import MarkupType from '../State/Constants/MarkupType';
+import Util       from '../Util/Util';
 
 class TomeNode {
     public childNodes: TomeNode[] = [];
@@ -9,24 +11,24 @@ class TomeNode {
     public text:       string     = '';
     public path:       number[]   = [];
 
-    get isText(): boolean {
-        return this.tag === MarkupTag.TEXT;
+    get type(): MarkupType {
+        return Util.getMarkupType(this[0]);
     }
 
     get isBlock(): boolean {
-        return [
-            MarkupTag.H1,
-            MarkupTag.H2,
-            MarkupTag.H3,
-            MarkupTag.H4,
-            MarkupTag.H5,
-            MarkupTag.H6,
-            MarkupTag.P
-        ].indexOf(this.tag) > -1;
+        return this.type === MarkupType.BLOCK;
+    }
+
+    get isListItem(): boolean {
+        return this.type === MarkupType.LIST_ITEM;
     }
 
     get isInline(): boolean {
-        return !this.isText && !this.isBlock;
+        return this.type === MarkupType.INLINE;
+    }
+
+    get isText(): boolean {
+        return this.tag === MarkupTag.TEXT;
     }
 
     get isSelfClosing(): boolean {

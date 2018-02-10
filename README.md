@@ -14,9 +14,8 @@ In progress..
 - ~~~Basic clipboard sanitization~~~
 - ~~~Create facade and public API~~~
 - ~~~Move all history related actions out of `Tome` and into to a new state manager class~~~
-- lists?
+- ~~~lists~~~
 - additional IME mutation detection work
-- bug when changing a block type to its own type
 
 BUGS
  - when changing a block type to its own type
