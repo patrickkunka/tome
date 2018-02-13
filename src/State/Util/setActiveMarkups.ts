@@ -1,14 +1,14 @@
+import ISelection    from '../interfaces/ISelection';
 import Markup        from '../Markup';
 import MarkupsMap    from '../MarkupsMap';
 import State         from '../State';
-import TomeSelection from '../TomeSelection';
 
 /**
  * Determines which block and inline markups should be "active"
  * or "enveloped" for a particular selection.
  */
 
-function setActiveMarkups(state: State, selection: TomeSelection): void {
+function setActiveMarkups(state: State, selection: ISelection): void {
     const activeInlineMarkups = new MarkupsMap();
 
     state.activeInlineMarkups.clearAll();

@@ -265,7 +265,7 @@ class EventManager {
 
         switch (key) {
             case Keypress.ENTER:
-                action = {type: e.shiftKey ? ActionType.SHIFT_RETURN : ActionType.RETURN};
+                action = {type: e.shiftKey ? ActionType.INSERT_LINE_BREAK : ActionType.INSERT_BLOCK_BREAK};
 
                 e.preventDefault();
 

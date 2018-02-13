@@ -1,15 +1,21 @@
 import merge from 'helpful-merge';
 
-import MarkupTag     from '../Constants/MarkupTag';
-import Markup        from '../Markup';
-import State         from '../State';
-import sanitizeLists from '../Util/sanitizeLists';
+import MarkupTag        from '../Constants/MarkupTag';
+import Markup           from '../Markup';
+import State            from '../State';
+import TomeSelection    from '../TomeSelection';
+import sanitizeLists    from '../Util/sanitizeLists';
+import setActiveMarkups from '../Util/setActiveMarkups';
 
 /**
  * Changes the currently active block markup to the provided tag.
  */
 
-function changeBlockType(prevState: State, tag: MarkupTag): State {
+function changeBlockType(
+    prevState: State,
+    tag: MarkupTag,
+    range: TomeSelection = null
+): State {
     const nextState = merge(new State(), prevState, true);
     const isChangingToList = [MarkupTag.OL, MarkupTag.UL].includes(tag);
 
@@ -66,6 +72,10 @@ function changeBlockType(prevState: State, tag: MarkupTag): State {
 
     if (isListAffected) {
         sanitizeLists(nextState.markups);
+    }
+
+    if (range) {
+        setActiveMarkups(nextState, range);
     }
 
     return nextState;

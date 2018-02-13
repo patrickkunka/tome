@@ -7,7 +7,7 @@ import removeInlineMarkup from './removeInlineMarkup';
 
 const assert = chai.assert;
 
-describe('removeInlineMarkup', () => {
+describe('removeInlineMarkup()', () => {
     it('should remove a portion of an inline link, creating two equal copies of it', () => {
         const anchorData = {
             href: 'https://www.kunkalabs.com',

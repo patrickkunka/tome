@@ -7,6 +7,7 @@ import Util               from '../Util/Util';
 import Renderer           from './Renderer';
 import TomeNode           from './TomeNode';
 import TreeBuilder        from './TreeBuilder';
+import TreeDiffPatch      from './TreeDiffPatch';
 
 class Tree {
     public root: TomeNode = null;
@@ -20,8 +21,9 @@ class Tree {
 
     public render(shouldUpdateDom: boolean = false): void {
         const nextRoot = Tree.buildFromState(this.tome.stateManager.state);
+        const treeDiffCommand = TreeDiffPatch.diff(this.root, nextRoot);
 
-        // const treeDiffCommand = TreeDiffPatch.diff(this.root, nextRoot);
+        console.log(treeDiffCommand);
 
         this.root = nextRoot;
 

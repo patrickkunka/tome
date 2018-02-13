@@ -10,7 +10,7 @@ import insertFromClipboard from './insertFromClipboard';
 
 const assert = chai.assert;
 
-describe('removeInlineMarkup', () => {
+describe('removeInlineMarkup()', () => {
     it('should insert a single unformatted line from the clipboard', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.\n\nLine two.',

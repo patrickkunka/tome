@@ -6,9 +6,9 @@ import Action                  from './Action';
 import ActionType              from './Constants/ActionType';
 import HistoryManipulationType from './Constants/HistoryManipulationType';
 import SelectionDirection      from './Constants/SelectionDirection';
+import createStateFromAction   from './createStateFromAction';
 import IAction                 from './Interfaces/IAction';
 import IValue                  from './Interfaces/IValue';
-import reducer                 from './reducer';
 import State                   from './State';
 import TomeSelection           from './TomeSelection';
 
@@ -100,7 +100,7 @@ class StateManager {
 
         console.info(manipulation);
 
-        const nextState = reducer(this.state, action);
+        const nextState = createStateFromAction(this.state, action);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);

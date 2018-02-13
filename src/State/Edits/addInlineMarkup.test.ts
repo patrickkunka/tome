@@ -9,7 +9,7 @@ import addInlineMarkup    from './addInlineMarkup';
 
 const assert = chai.assert;
 
-describe('addInlineMarkup', () => {
+describe('addInlineMarkup()', () => {
     it('should add an inline markup within a selection', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',

@@ -5,15 +5,15 @@ enum ActionType {
     CUT                 = 'CUT',
     DELETE              = 'DELETE',
     INSERT              = 'INSERT',
+    INSERT_BLOCK_BREAK  = 'INSERT_BLOCK_BREAK',
+    INSERT_LINE_BREAK   = 'INSERT_LINE_BREAK',
     MUTATE              = 'MUTATE',
     NONE                = 'NONE',
     PASTE               = 'PASTE',
     REDO                = 'REDO',
     REPLACE_VALUE       = 'REPLACE_VALUE',
-    RETURN              = 'RETURN',
     SAVE                = 'SAVE',
     SET_SELECTION       = 'SET_SELECTION',
-    SHIFT_RETURN        = 'SHIFT_RETURN',
     TOGGLE_INLINE       = 'TOGGLE_INLINE',
     UNDO                = 'UNDO'
 }
