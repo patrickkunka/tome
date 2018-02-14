@@ -1,31 +1,30 @@
-import IClipboardData          from '../Interfaces/IClipboardData';
-import Markup                  from '../Markup';
-import State                   from '../State';
-import TomeSelection           from '../TomeSelection';
-import parseClipboardToMarkups from '../Util/parseClipboardToMarkups';
-import setActiveMarkups        from '../Util/setActiveMarkups';
-import addInlineMarkup         from './addInlineMarkup';
-import insert                  from './insert';
-import removeInlineMarkup      from './removeInlineMarkup';
+import IClipboardData              from '../Interfaces/IClipboardData';
+import ISelection                  from '../Interfaces/ISelection';
+import Markup                      from '../Markup';
+import State                       from '../State';
+import TomeSelection               from '../TomeSelection';
+import overrideActiveInlineMarkups from '../Util/overrideActiveInlineMarkups';
+import parseClipboardToMarkups     from '../Util/parseClipboardToMarkups';
+import setActiveMarkups            from '../Util/setActiveMarkups';
+import insert                      from './insert';
 
 function insertFromClipboard(
     prevState: State,
     clipboardData: IClipboardData,
-    from: number,
-    to: number
+    range: ISelection,
 ): State {
     const clipboardMarkups: Markup[] = parseClipboardToMarkups(clipboardData.text).map(markup => {
         // Increment markup indices by `from` offset
 
-        markup[1] += from;
-        markup[2] += from;
+        markup[1] += range.from;
+        markup[2] += range.from;
 
         return markup;
     });
 
     const inlineMarkups: Markup[] = [];
 
-    let nextState: State = insert(prevState, {from, to}, clipboardData.text, true);
+    let nextState: State = insert(prevState, range, clipboardData.text, true);
 
     // iterate through next state markups, which will have been adjusted for the insertion.
     // once we arrive at the block markup containing the `from` index, insert new clipboard
@@ -38,7 +37,7 @@ function insertFromClipboard(
 
         if (!markup.isBlock) continue;
 
-        if (markup.start <= from && markup.end >= from) {
+        if (markup.start <= range.from && markup.end >= range.from) {
             const clipboardBlocks: Markup[] = clipboardMarkups.filter(clipboardMarkup => clipboardMarkup.isBlock);
 
             // Extract all inline markups within enveloping markup
@@ -93,21 +92,11 @@ function insertFromClipboard(
     }
 
     if (prevState.activeInlineMarkups.overrides.length > 0) {
-        const clipboardEndsAt = from + clipboardData.text.length;
+        const clipboardEndsAt = range.from + clipboardData.text.length;
 
-        setActiveMarkups(nextState, new TomeSelection(from, clipboardEndsAt));
+        setActiveMarkups(nextState, new TomeSelection(range.from, clipboardEndsAt));
 
-        for (const tag of prevState.activeInlineMarkups.overrides) {
-            if (prevState.isTagActive(tag)) {
-                // Override inline markup off
-
-                nextState = removeInlineMarkup(nextState, tag, from, clipboardEndsAt);
-            } else {
-                // Override inline markup on
-
-                nextState = addInlineMarkup(nextState, tag, from, clipboardEndsAt);
-            }
-        }
+        nextState = overrideActiveInlineMarkups(prevState, nextState, range.from, clipboardEndsAt);
 
         setActiveMarkups(nextState, new TomeSelection(clipboardEndsAt, clipboardEndsAt));
     }

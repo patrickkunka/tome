@@ -1,4 +1,5 @@
-import Markup from '../Markup';
+import Markup      from '../Markup';
+import cloneMarkup from './cloneMarkup';
 
 /**
  * Joins two adjacent markups at a provided (known) index.
@@ -12,7 +13,7 @@ function joinMarkups(markups: Markup[], index: number): Markup[] {
     let closingBlock = null;
 
     for (let i = 0; i < markups.length; i++) {
-        const markup = new Markup(markups[i].toArray());
+        const markup = cloneMarkup(markups[i]);
 
         if (markup.end === index) {
             if (markup.isBlock || markup.isListItem) {

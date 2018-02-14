@@ -1,14 +1,14 @@
-import HtmlEntity         from '../Constants/HtmlEntity';
-import MarkupTag          from '../Constants/MarkupTag';
-import ISelection         from '../Interfaces/ISelection';
-import State              from '../State';
-import adjustMarkups      from '../Util/adjustMarkups';
-import joinMarkups        from '../Util/joinMarkups';
-import sanitizeLists      from '../Util/sanitizeLists';
-import setActiveMarkups   from '../Util/setActiveMarkups';
-import splitMarkups       from '../Util/splitMarkups';
-import addInlineMarkup    from './addInlineMarkup';
-import removeInlineMarkup from './removeInlineMarkup';
+import HtmlEntity                  from '../Constants/HtmlEntity';
+import MarkupTag                   from '../Constants/MarkupTag';
+import ISelection                  from '../Interfaces/ISelection';
+import State                       from '../State';
+import adjustMarkups               from '../Util/adjustMarkups';
+import joinMarkups                 from '../Util/joinMarkups';
+import overrideActiveInlineMarkups from '../Util/overrideActiveInlineMarkups';
+import sanitizeLists               from '../Util/sanitizeLists';
+import setActiveMarkups            from '../Util/setActiveMarkups';
+import splitMarkups                from '../Util/splitMarkups';
+import addInlineMarkup             from './addInlineMarkup';
 
 /**
  * Inserts zero or more characters into a range, deleting
@@ -16,7 +16,12 @@ import removeInlineMarkup from './removeInlineMarkup';
  * insertion.
  */
 
-function insert(prevState: State, range: ISelection, content: string, isPasting: boolean = false): State {
+function insert(
+    prevState: State,
+    range: ISelection,
+    content: string = '',
+    isPasting: boolean = false
+): State {
     const totalDeleted      = range.to - range.from;
     const before            = prevState.text.slice(0, range.from);
     const after             = prevState.text.slice(range.to);
@@ -61,17 +66,7 @@ function insert(prevState: State, range: ISelection, content: string, isPasting:
     setActiveMarkups(nextState, nextState.selection);
 
     if (!isPasting && isInsertingText) {
-        for (const tag of prevState.activeInlineMarkups.overrides) {
-            if (prevState.isTagActive(tag)) {
-                // Override inline markup off
-
-                nextState = removeInlineMarkup(nextState, tag, range.from, nextState.selection.to);
-            } else {
-                // Override inline markup on
-
-                nextState = addInlineMarkup(nextState, tag, range.from, nextState.selection.to);
-            }
-        }
+        nextState = overrideActiveInlineMarkups(prevState, nextState, range.from, nextState.selection.to);
     }
 
     if ((isBlockBreaking || isLineBreaking) && prevState.activeInlineMarkups.overrides.length > 0) {

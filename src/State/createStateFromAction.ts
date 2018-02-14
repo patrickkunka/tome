@@ -35,11 +35,11 @@ function createStateFromAction(prevState: State, action: Action): State {
         case ActionType.CHANGE_BLOCK_TYPE:
             return changeBlockType(prevState, action.tag, action.range);
         case ActionType.CUT:
-            return insert(prevState, {from: action.range.from, to: action.range.to}, '');
+            return insert(prevState, action.range);
         case ActionType.COPY:
             return prevState;
         case ActionType.PASTE:
-            return insertFromClipboard(prevState, action.data, action.range.from, action.range.to);
+            return insertFromClipboard(prevState, action.data, action.range);
         case ActionType.SAVE:
             return prevState;
         default:

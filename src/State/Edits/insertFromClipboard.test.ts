@@ -23,7 +23,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: 'Lorem ipsum',
             html: ''
-        }, 20, 20);
+        }, {from: 20, to: 20});
 
         assert.equal(nextState.text, 'Line one.\n\nLine two.Lorem ipsum');
         assert.equal(nextState.markups.length, 2);
@@ -46,7 +46,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: 'Lorem\nipsum',
             html: ''
-        }, 20, 20);
+        }, {from: 20, to: 20});
 
         assert.equal(nextState.text, 'Line one.\n\nLine two.Lorem\nipsum');
         assert.equal(nextState.markups.length, 3);
@@ -70,7 +70,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: 'Line two.',
             html: ''
-        }, 10, 10);
+        }, {from: 10, to: 10});
 
         assert.equal(nextState.text, 'Line one.\nLine two.');
         assert.equal(nextState.markups.length, 2);
@@ -93,7 +93,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: 'Line three.\n\nLine four.',
             html: ''
-        }, 20, 20);
+        }, {from: 20, to: 20});
 
         assert.equal(nextState.text, 'Line one.\n\nLine two.Line three.\n\nLine four.');
         assert.equal(nextState.markups.length, 3);
@@ -118,7 +118,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: ' Line two.',
             html: ''
-        }, 9, 9);
+        }, {from: 9, to: 9});
 
         assert.deepEqual(nextState.markups, [
             new Markup([MarkupTag.P, 0, 19]),
@@ -144,7 +144,7 @@ describe('removeInlineMarkup()', () => {
         const nextState = insertFromClipboard(prevState, {
             text: ' Line two.' + HtmlEntity.BLOCK_BREAK + 'Line three.',
             html: ''
-        }, 9, 9);
+        }, {from: 9, to: 9});
 
         assert.deepEqual(nextState.markups, [
             new Markup([MarkupTag.P, 0, 19]),

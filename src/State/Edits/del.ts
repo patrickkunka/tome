@@ -18,7 +18,7 @@ function del(prevState: State, range: TomeSelection): State {
         toIndex = succeedingSample === HtmlEntity.BLOCK_BREAK ? range.to + 2 : range.to + 1;
     }
 
-    return insert(prevState, {from: range.from, to: toIndex}, '');
+    return insert(prevState, {from: range.from, to: toIndex});
 }
 
 export default del;

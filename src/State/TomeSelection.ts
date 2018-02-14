@@ -6,7 +6,11 @@ class TomeSelection implements ISelection {
     public to:        number;
     public direction: SelectionDirection;
 
-    constructor(from: number = -1, to: number = -1, direction: SelectionDirection = SelectionDirection.LTR) {
+    constructor(
+        from: number = -1,
+        to: number = -1,
+        direction: SelectionDirection = SelectionDirection.LTR
+    ) {
         this.from       = from;
         this.to         = to;
         this.direction  = direction;

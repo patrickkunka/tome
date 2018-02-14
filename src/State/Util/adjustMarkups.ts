@@ -1,4 +1,5 @@
 import Markup                from '../Markup';
+import cloneMarkup           from './cloneMarkup';
 import getClosingBlockMarkup from './getClosingBlockMarkup';
 
 /**
@@ -18,7 +19,7 @@ function adjustMarkups(
     const isCollapsedRange = fromIndex === toIndex;
 
     for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
-        const newMarkup = new Markup(markup.toArray());
+        const newMarkup = cloneMarkup(markup);
 
         let removeMarkup = false;
 

@@ -4,6 +4,7 @@ import MarkupTag        from '../Constants/MarkupTag';
 import Markup           from '../Markup';
 import State            from '../State';
 import TomeSelection    from '../TomeSelection';
+import cloneMarkup      from '../Util/cloneMarkup';
 import sanitizeLists    from '../Util/sanitizeLists';
 import setActiveMarkups from '../Util/setActiveMarkups';
 
@@ -41,7 +42,7 @@ function changeBlockType(
     // paragraph blocks
 
     nextState.markups = prevState.markups.map((prevMarkup, i) => {
-        const nextMarkup = new Markup(prevMarkup.toArray());
+        const nextMarkup = cloneMarkup(prevMarkup);
 
         if (isChangingToList && prevState.activeListMarkup === prevMarkup) {
             // Ensure list tag tracks new block type

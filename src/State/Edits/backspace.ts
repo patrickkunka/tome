@@ -54,7 +54,7 @@ function backspace(prevState: State, range: TomeSelection): State {
         fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? range.from - 2 : range.from - 1;
     }
 
-    return insert(prevState, {from: fromIndex, to: range.to}, '');
+    return insert(prevState, {from: fromIndex, to: range.to});
 }
 
 export default backspace;
