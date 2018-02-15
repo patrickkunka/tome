@@ -1,54 +1,67 @@
 import TreeChangeType  from './Constants/TreeChangeType';
 import TomeNode        from './TomeNode';
 import TreeDiffCommand from './TreeDiffCommand';
+import isEqualNode     from './Util/isEqualNode';
 
 class TreeDiffPatch {
-    public static diff(prev: TomeNode, next: TomeNode): TreeDiffCommand {
+    public static diff(prevNode: TomeNode, nextNode: TomeNode): TreeDiffCommand {
         const command = new TreeDiffCommand();
 
-        // at this point we know that the node is equivalent
+        if (isEqualNode(prevNode, nextNode)) {
+            command.type = TreeChangeType.NONE;
+        } else {
+            command.type = TreeChangeType.UPDATE_CONTENTS;
+        }
 
-        if (prev === null && next instanceof TomeNode) {
-            command.type = TreeChangeType.ADD;
-        } else if (prev instanceof TomeNode && next === null) {
-            command.type = TreeChangeType.REMOVE;
-        } else if (prev instanceof TomeNode && next instanceof TomeNode) {
-            if (prev.tag === next.tag && prev.text !== next.text) {
-                command.type = TreeChangeType.UPDATE;
-            } else if (prev.tag !== next.tag && prev.text === next.text) {
-                command.type = TreeChangeType.REPLACE;
+        return command;
+    }
+
+    public static compareChildren(
+        prevChildren: TomeNode[],
+        nextChildren: TomeNode[]
+    ): TreeDiffCommand[] {
+        const commands = [];
+        const totalCommands = Math.max(prevChildren.length, nextChildren.length);
+
+        commands.length = totalCommands;
+
+        let leftPointer: number;
+        let rightPointer: number;
+
+        for (leftPointer = 0; leftPointer < nextChildren.length; leftPointer++) {
+            const prevNode = prevChildren[leftPointer];
+            const nextNode = nextChildren[leftPointer];
+
+            const command = TreeDiffPatch.diff(prevNode, nextNode);
+
+            if (command.type === TreeChangeType.NONE) {
+                commands[leftPointer] = command;
             } else {
-                command.type = TreeChangeType.NONE;
+                break;
             }
         }
 
-        const maxChildren = Math.max(prev.childNodes.length, next.childNodes.length);
+        for (rightPointer = 0; rightPointer < nextChildren.length; rightPointer++) {
+            const prevNode = prevChildren[prevChildren.length - 1 - rightPointer];
+            const nextNode = nextChildren[nextChildren.length - 1 - rightPointer];
 
-        if (maxChildren === 0) return command;
+            const command = TreeDiffPatch.diff(prevNode, nextNode);
 
-        // TreeDiffPatch.diffChildNodes(prev.childNodes, next.childNodes, command.childCommands);
+            if (command.type === TreeChangeType.NONE) {
+                commands[commands.length - 1 - rightPointer] = command;
+            } else {
+                break;
+            }
+        }
 
-        // iterate through prev children
-        // for each one, check hash against all of next children and break on first match
-        // if indices are not equal, an addition, removal, or update has occured
-        // once all nodes are mapped to equal nodes, we can determine the update types
-        // for those that are left?
+        // is the number of nodes different?
+        // have blocks been added or removed?
+        // find the common sections
+        // isolate affected section
+        // ?
+
+        return commands;
     }
-
-    // private static diffPersistantNode(prev: TomeNode, next: TomeNode, command: TreeDiffCommand): void {
-    //     //
-    // }
-
-    // private static diffChildNodes(
-    //     prevChildren:  TomeNode[],
-    //     nextChildren:  TomeNode[],
-    //     childCommands: TreeDiffCommand[]
-    // ): void {
-        // possible edits
-        // - one or more blocks changed to another tag type
-        // - one or more blocks deleted, and or one or more blocks edited
-        // - one or more blocks edits
-    // }
 }
 
 export default TreeDiffPatch;
