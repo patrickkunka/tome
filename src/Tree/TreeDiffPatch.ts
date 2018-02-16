@@ -3,60 +3,54 @@ import TomeNode        from './TomeNode';
 import TreeDiffCommand from './TreeDiffCommand';
 import isEqualNode     from './Util/isEqualNode';
 
-interface IContext {
-    commands: TreeDiffCommand[];
-    prevPointer: number;
-    nextPointer: number;
+interface IPointers {
+    prev: number;
+    next: number;
 }
 
 class TreeDiffPatch {
     public static diffChildren(
         prevChildren: TomeNode[],
         nextChildren: TomeNode[],
-        context: IContext = {
-            commands: [],
-            prevPointer: 0,
-            nextPointer: 0
-        }
+        commands: TreeDiffCommand[] = [],
+        pointers: IPointers = {prev: 0, next: 0}
     ): TreeDiffCommand[] {
         const command = new TreeDiffCommand();
-        const prevChild = prevChildren[context.prevPointer];
-        const nextChild = nextChildren[context.nextPointer];
+        const prevChild = prevChildren[pointers.prev];
+        const nextChild = nextChildren[pointers.next];
 
         switch (true) {
             case isEqualNode(prevChild, nextChild):
                 command.type = TreeChangeType.NONE;
 
-                context.prevPointer++;
-                context.nextPointer++;
+                pointers.prev++;
+                pointers.next++;
 
                 break;
-            case !prevChild || isEqualNode(prevChild, nextChildren[context.nextPointer + 1]):
+            case !prevChild || isEqualNode(prevChild, nextChildren[pointers.next + 1]):
                 command.type = TreeChangeType.ADD;
-
-                context.nextPointer++;
+                pointers.next++;
 
                 break;
-            case !nextChild || isEqualNode(nextChild, prevChildren[context.prevPointer + 1]):
+            case !nextChild || isEqualNode(nextChild, prevChildren[pointers.prev + 1]):
                 command.type = TreeChangeType.REMOVE;
-
-                context.prevPointer++;
+                pointers.prev++;
 
                 break;
             default:
                 command.type = TreeChangeType.UPDATE;
 
-                context.prevPointer++;
-                context.nextPointer++;
+                pointers.prev++;
+                pointers.next++;
         }
 
-        context.commands.push(command);
+        commands.push(command);
 
-        if (prevChildren[context.prevPointer] || nextChildren[context.nextPointer]) {
-            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, context);
-        } else {
-            return context.commands;
+        if (prevChildren[pointers.prev] || nextChildren[pointers.next]) {
+            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, pointers);
         }
+
+        return commands;
     }
 }
 

@@ -86,7 +86,7 @@ const testCases: ITestCase[] = [
 
 describe('TreeDiffPatch', () => {
     describe('#diffChildren()', () => {
-        it('should detect correctly build up a list of diff commands', () => {
+        it('should build up an accurate list of diff commands', () => {
             testCases.forEach(({prev, next, diffs}, i) => {
                 const prevChildren = prev.map(text => createNode({text}));
                 const nextChildren = next.map(text => createNode({text}));
