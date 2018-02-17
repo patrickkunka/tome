@@ -1,10 +1,10 @@
 import * as chai      from 'chai';
 import * as deepEqual from 'chai-shallow-deep-equal';
 
-import TreeChangeType  from './Constants/TreeChangeType';
-import TomeNode        from './TomeNode';
-import TreeDiffCommand from './TreeDiffCommand';
-import TreeDiffPatch   from './TreeDiffPatch';
+import NodeChangeType   from './Constants/NodeChangeType';
+import TomeNode         from './TomeNode';
+import TreeDiffPatch    from './TreeDiffPatch';
+import TreePatchCommand from './TreePatchCommand';
 
 chai.use(deepEqual);
 
@@ -14,21 +14,21 @@ const {
     NONE,
     ADD,
     REMOVE,
-    UPDATE
-} = TreeChangeType;
+    UPDATE_TEXT
+} = NodeChangeType;
 
 function createNode(initData = {}) {
     return Object.assign(new TomeNode(), initData);
 }
 
 function createDiffCommand(initData = {}) {
-    return Object.assign(new TreeDiffCommand(), initData);
+    return Object.assign(new TreePatchCommand(), initData);
 }
 
 interface ITestCase {
     prev: string[];
     next: string[];
-    diffs: TreeChangeType[];
+    diffs: NodeChangeType[];
 }
 
 const testCases: ITestCase[] = [
@@ -40,7 +40,7 @@ const testCases: ITestCase[] = [
     {
         prev: ['a', 'b', 'c', 'd'],
         next: ['a', 'z', 'c', 'd'],
-        diffs: [NONE, UPDATE, NONE, NONE]
+        diffs: [NONE, UPDATE_TEXT, NONE, NONE]
     },
     {
         prev: ['a', 'b', 'c', 'd'],
@@ -60,7 +60,7 @@ const testCases: ITestCase[] = [
     {
         prev: ['a', 'b', 'c'],
         next: ['c', 'b', 'a'],
-        diffs: [UPDATE, NONE, UPDATE]
+        diffs: [UPDATE_TEXT, NONE, UPDATE_TEXT]
     },
     {
         prev: ['a', 'b', 'c', 'd'],
@@ -80,7 +80,7 @@ const testCases: ITestCase[] = [
     {
         prev: ['a', 'b', 'c', 'd'],
         next: ['e', 'f', 'g', 'h'],
-        diffs: [UPDATE, UPDATE, UPDATE, UPDATE]
+        diffs: [UPDATE_TEXT, UPDATE_TEXT, UPDATE_TEXT, UPDATE_TEXT]
     }
 ];
 

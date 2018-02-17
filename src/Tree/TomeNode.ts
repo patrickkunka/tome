@@ -34,6 +34,10 @@ class TomeNode {
     get isSelfClosing(): boolean {
         return this.tag === MarkupTag.BR;
     }
+
+    get length() {
+        return this.end - this.start;
+    }
 }
 
 export default TomeNode;

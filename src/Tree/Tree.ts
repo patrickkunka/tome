@@ -21,9 +21,7 @@ class Tree {
 
     public render(shouldUpdateDom: boolean = false): void {
         const nextRoot = Tree.buildFromState(this.tome.stateManager.state);
-        const treeDiffCommand = TreeDiffPatch.diff(this.root, nextRoot);
-
-        console.log(treeDiffCommand);
+        const prevRoot = this.root;
 
         this.root = nextRoot;
 
@@ -35,10 +33,13 @@ class Tree {
             this.tome.dom.root.innerHTML = this.lastRender = nextRender;
 
             return;
+        } else {
+            const treePatchCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
+
+            console.log(treePatchCommand);
         }
 
         const prevRender = this.lastRender;
-
         const diffCommand = HtmlDiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
 
         if (shouldUpdateDom) {
