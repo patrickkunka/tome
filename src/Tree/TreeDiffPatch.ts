@@ -3,54 +3,40 @@ import TomeNode        from './TomeNode';
 import TreeDiffCommand from './TreeDiffCommand';
 import isEqualNode     from './Util/isEqualNode';
 
-interface IPointers {
-    prev: number;
-    next: number;
-}
-
 class TreeDiffPatch {
     public static diffChildren(
         prevChildren: TomeNode[],
         nextChildren: TomeNode[],
         commands: TreeDiffCommand[] = [],
-        pointers: IPointers = {prev: 0, next: 0}
+        prevPointer: number = 0,
+        nextPointer: number = 0
     ): TreeDiffCommand[] {
+        const prevChild = prevChildren[prevPointer];
+        const nextChild = nextChildren[nextPointer];
+
+        if (!prevChild && !nextChild) return commands;
+
         const command = new TreeDiffCommand();
-        const prevChild = prevChildren[pointers.prev];
-        const nextChild = nextChildren[pointers.next];
-
-        switch (true) {
-            case isEqualNode(prevChild, nextChild):
-                command.type = TreeChangeType.NONE;
-
-                pointers.prev++;
-                pointers.next++;
-
-                break;
-            case !prevChild || isEqualNode(prevChild, nextChildren[pointers.next + 1]):
-                command.type = TreeChangeType.ADD;
-                pointers.next++;
-
-                break;
-            case !nextChild || isEqualNode(nextChild, prevChildren[pointers.prev + 1]):
-                command.type = TreeChangeType.REMOVE;
-                pointers.prev++;
-
-                break;
-            default:
-                command.type = TreeChangeType.UPDATE;
-
-                pointers.prev++;
-                pointers.next++;
-        }
 
         commands.push(command);
 
-        if (prevChildren[pointers.prev] || nextChildren[pointers.next]) {
-            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, pointers);
+        if (isEqualNode(prevChild, nextChild)) {
+            command.type = TreeChangeType.NONE;
+
+            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer + 1);
+        } else if (!prevChild || isEqualNode(prevChild, nextChildren[nextPointer + 1])) {
+            command.type = TreeChangeType.ADD;
+
+            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer, nextPointer + 1);
+        } else if (!nextChild || isEqualNode(nextChild, prevChildren[prevPointer + 1])) {
+            command.type = TreeChangeType.REMOVE;
+
+            return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer);
         }
 
-        return commands;
+        command.type = TreeChangeType.UPDATE;
+
+        return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer + 1);
     }
 }
 
