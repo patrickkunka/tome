@@ -81,6 +81,11 @@ const testCases: ITestCase[] = [
         prev: ['a', 'b', 'c', 'd'],
         next: ['e', 'f', 'g', 'h'],
         diffs: [UPDATE_TEXT, UPDATE_TEXT, UPDATE_TEXT, UPDATE_TEXT]
+    },
+    {
+        prev: ['a', 'b', 'c', 'd'],
+        next: ['x', 'y', 'a', 'b', 'c', 'd'],
+        diffs: [ADD, ADD, NONE, NONE, NONE, NONE]
     }
 ];
 

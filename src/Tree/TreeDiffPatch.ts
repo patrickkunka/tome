@@ -1,13 +1,29 @@
 import NodeChangeType   from './Constants/NodeChangeType';
 import TomeNode         from './TomeNode';
 import TreePatchCommand from './TreePatchCommand';
-import getChangeType    from './Util/getChangeType';
+
+const {
+    NONE,
+    ADD,
+    REMOVE,
+    UPDATE_TEXT,
+    UPDATE_TAG,
+    UPDATE_CHILDREN,
+    UPDATE_ALL
+} = NodeChangeType;
+
+const getIsEqualNode = (prevNode, nextNode) => TreeDiffPatch.getChangeType(prevNode, nextNode) === NONE;
+
+const getHasChildChanges = (prevNode, nextNode) => (
+    prevNode.childNodes.length !== nextNode.childNodes.length ||
+    prevNode.childNodes.some((prevChild, i) => !getIsEqualNode(prevChild, nextNode.childNodes[i]))
+);
 
 class TreeDiffPatch {
     public static diff(prevNode: TomeNode, nextNode: TomeNode) {
         const command = new TreePatchCommand();
 
-        command.type = getChangeType(prevNode, nextNode);
+        command.type = TreeDiffPatch.getChangeType(prevNode, nextNode);
         command.childCommands = TreeDiffPatch.diffChildren(prevNode.childNodes, nextNode.childNodes);
 
         return command;
@@ -29,16 +45,16 @@ class TreeDiffPatch {
 
         commands.push(command);
 
-        if (getChangeType(prevChild, nextChild) === NodeChangeType.NONE) {
-            command.type = NodeChangeType.NONE;
+        if (getIsEqualNode(prevChild, nextChild)) {
+            command.type = NONE;
 
             return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer + 1);
-        } else if (!prevChild || getChangeType(prevChild, nextChildren[nextPointer + 1]) === NodeChangeType.NONE) {
-            command.type = NodeChangeType.ADD;
+        } else if (!prevChild || getIsEqualNode(prevChild, nextChildren[nextPointer + 1])) {
+            command.type = ADD;
 
             return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer, nextPointer + 1);
-        } else if (!nextChild || getChangeType(nextChild, prevChildren[prevPointer + 1]) === NodeChangeType.NONE) {
-            command.type = NodeChangeType.REMOVE;
+        } else if (!nextChild || getIsEqualNode(nextChild, prevChildren[prevPointer + 1])) {
+            command.type = REMOVE;
 
             return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer);
         }
@@ -48,6 +64,35 @@ class TreeDiffPatch {
         commands[commands.length - 1] = updateCommand;
 
         return TreeDiffPatch.diffChildren(prevChildren, nextChildren, commands, prevPointer + 1, nextPointer + 1);
+    }
+
+    public static getChangeType(prevNode: TomeNode = null, nextNode: TomeNode = null): NodeChangeType {
+        if (prevNode && !nextNode) {
+            return REMOVE;
+        }
+
+        if (nextNode && !prevNode) {
+            return ADD;
+        }
+
+        if (
+            prevNode && nextNode &&
+            prevNode.childNodes.length === 0 && nextNode.childNodes.length === 0
+        ) {
+            // Text nodes
+
+            return prevNode.text === nextNode.text ? NONE : UPDATE_TEXT;
+        }
+
+        // HTML elements
+
+        const hasChildChanges = getHasChildChanges(prevNode, nextNode);
+
+        if (prevNode.tag !== nextNode.tag) {
+            return hasChildChanges ? UPDATE_ALL : UPDATE_TAG;
+        }
+
+        return hasChildChanges ? UPDATE_CHILDREN : NONE;
     }
 }
 
