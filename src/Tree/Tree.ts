@@ -1,4 +1,3 @@
-import HtmlDiffPatch      from '../Dom/HtmlDiffPatch';
 import SelectionDirection from '../State/Constants/SelectionDirection';
 import ISelection         from '../State/interfaces/ISelection';
 import State              from '../State/State';
@@ -8,6 +7,7 @@ import Renderer           from './Renderer';
 import TomeNode           from './TomeNode';
 import TreeBuilder        from './TreeBuilder';
 import TreeDiff           from './TreeDiff';
+import TreePatch          from './TreePatch';
 
 class Tree {
     public root: TomeNode = null;
@@ -22,31 +22,23 @@ class Tree {
     public render(shouldUpdateDom: boolean = false): void {
         const nextRoot = Tree.buildFromState(this.tome.stateManager.state);
         const prevRoot = this.root;
-
-        this.root = nextRoot;
-
-        const nextRender = Renderer.renderNodes(this.root.childNodes);
+        const rootEl = this.tome.dom.root;
 
         if (!this.lastRender) {
             // Initial render
 
-            this.tome.dom.root.innerHTML = this.lastRender = nextRender;
+            const nextRender = Renderer.renderNodes(nextRoot.childNodes);
 
-            return;
-        } else {
+            rootEl.innerHTML = this.lastRender = nextRender;
+        } else if (shouldUpdateDom) {
             const treePatchCommand = TreeDiff.diff(prevRoot, nextRoot);
 
-            console.log(treePatchCommand);
+            if (!treePatchCommand.isNone) {
+                TreePatch.patch(rootEl.childNodes[0], rootEl, treePatchCommand.childCommands);
+            }
         }
 
-        const prevRender = this.lastRender;
-        const diffCommand = HtmlDiffPatch.diff(`<div>${prevRender}</div>`, `<div>${nextRender}</div>`);
-
-        if (shouldUpdateDom) {
-            HtmlDiffPatch.patch(this.tome.dom.root, diffCommand);
-        }
-
-        this.lastRender = nextRender;
+        this.root = nextRoot;
     }
 
     public positionCaret({from, to, direction}: ISelection): void {

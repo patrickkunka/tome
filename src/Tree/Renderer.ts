@@ -7,7 +7,7 @@ class Renderer {
         return nodes.map(node => Renderer.renderNode(node, parent)).join('');
     }
 
-    private static renderNode(node: TomeNode, parent: TomeNode): string {
+    public static renderNode(node: TomeNode, parent: TomeNode): string {
         let html: string = '';
 
         if (node.tag !== MarkupTag.TEXT) {

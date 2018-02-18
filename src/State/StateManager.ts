@@ -98,7 +98,7 @@ class StateManager {
 
         manipulation = this.getManipulationTypeForActionType(action.type);
 
-        console.info(manipulation);
+        // console.info(manipulation);
 
         const nextState = createStateFromAction(this.state, action);
 
