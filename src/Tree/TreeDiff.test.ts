@@ -1,10 +1,9 @@
 import * as chai      from 'chai';
 import * as deepEqual from 'chai-shallow-deep-equal';
 
-import NodeChangeType   from './Constants/NodeChangeType';
-import TomeNode         from './TomeNode';
-import TreeDiffPatch    from './TreeDiffPatch';
-import TreePatchCommand from './TreePatchCommand';
+import NodeChangeType from './Constants/NodeChangeType';
+import TomeNode       from './TomeNode';
+import TreeDiff       from './TreeDiff';
 
 chai.use(deepEqual);
 
@@ -19,10 +18,6 @@ const {
 
 function createNode(initData = {}) {
     return Object.assign(new TomeNode(), initData);
-}
-
-function createDiffCommand(initData = {}) {
-    return Object.assign(new TreePatchCommand(), initData);
 }
 
 interface ITestCase {
@@ -60,7 +55,7 @@ const testCases: ITestCase[] = [
     {
         prev: ['a', 'b', 'c'],
         next: ['c', 'b', 'a'],
-        diffs: [UPDATE_TEXT, NONE, UPDATE_TEXT]
+        diffs: [ADD, ADD, NONE, REMOVE, REMOVE]
     },
     {
         prev: ['a', 'b', 'c', 'd'],
@@ -86,21 +81,24 @@ const testCases: ITestCase[] = [
         prev: ['a', 'b', 'c', 'd'],
         next: ['x', 'y', 'a', 'b', 'c', 'd'],
         diffs: [ADD, ADD, NONE, NONE, NONE, NONE]
+    },
+    {
+        prev: ['a', 'b', 'c', 'd'],
+        next: ['c', 'd'],
+        diffs: [REMOVE, REMOVE, NONE, NONE]
     }
 ];
 
-describe('TreeDiffPatch', () => {
+describe('TreeDiff', () => {
     describe('#diffChildren()', () => {
-        it('should build up an accurate list of diff commands', () => {
-            testCases.forEach(({prev, next, diffs}, i) => {
+        testCases.forEach(({prev, next, diffs}, i) => {
+            it('should build up an accurate list of diff commands', () => {
                 const prevChildren = prev.map(text => createNode({text}));
                 const nextChildren = next.map(text => createNode({text}));
-                const expectedDiffs = diffs.map(type => createDiffCommand({type}));
-
-                const commands = TreeDiffPatch.diffChildren(prevChildren, nextChildren);
+                const commands = TreeDiff.diffChildren(prevChildren, nextChildren);
 
                 try {
-                    assert.deepEqual(commands, expectedDiffs);
+                    assert.deepEqual(commands.map(command => command.type), diffs);
                 } catch (err) {
                     console.error(testCases[i]);
 

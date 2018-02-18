@@ -7,7 +7,7 @@ import Util               from '../Util/Util';
 import Renderer           from './Renderer';
 import TomeNode           from './TomeNode';
 import TreeBuilder        from './TreeBuilder';
-import TreeDiffPatch      from './TreeDiffPatch';
+import TreeDiff           from './TreeDiff';
 
 class Tree {
     public root: TomeNode = null;
@@ -34,7 +34,7 @@ class Tree {
 
             return;
         } else {
-            const treePatchCommand = TreeDiffPatch.diff(prevRoot, nextRoot);
+            const treePatchCommand = TreeDiff.diff(prevRoot, nextRoot);
 
             console.log(treePatchCommand);
         }

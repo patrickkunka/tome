@@ -5,7 +5,7 @@ enum NodeChangeType {
     UPDATE_CHILDREN = 'UPDATE_CHILDREN',
     UPDATE_TAG      = 'UPDATE_TAG',
     UPDATE_TEXT     = 'UPDATE_TEXT',
-    UPDATE_ALL      = 'UPDATE_ALL',
+    UPDATE_NODE     = 'UPDATE_NODE',
     NONE            = 'NONE'
 }
 

@@ -12,5 +12,5 @@ import '../src/State/Edits/setSelection.test.ts';
 import '../src/State/Util/setActiveMarkups.test.ts';
 import '../src/State/Util/splitMarkups.test.ts';
 import '../src/Tree/TreeBuilder.test.ts';
-import '../src/Tree/TreeDiffPatch.test.ts';
+import '../src/Tree/TreeDiff.test.ts';
 import '../src/Util/Util.test.ts';
