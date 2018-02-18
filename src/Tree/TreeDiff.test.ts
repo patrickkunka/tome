@@ -30,7 +30,7 @@ const testCases: ITestCase[] = [
     {
         prev: ['a', 'b', 'c', 'd'],
         next: ['a', 'b', 'c', 'd'],
-        diffs: [NONE, NONE, NONE, NONE]
+        diffs: []
     },
     {
         prev: ['a', 'b', 'c', 'd'],
@@ -93,12 +93,12 @@ describe('TreeDiff', () => {
     describe('#diffChildren()', () => {
         testCases.forEach(({prev, next, diffs}, i) => {
             it('should build up an accurate list of diff commands', () => {
-                const prevChildren = prev.map(text => createNode({text}));
-                const nextChildren = next.map(text => createNode({text}));
-                const commands = TreeDiff.diffChildren(prevChildren, nextChildren);
+                const prevNode = createNode({childNodes: prev.map(text => createNode({text}))});
+                const nextNode = createNode({childNodes: next.map(text => createNode({text}))});
+                const command = TreeDiff.diff(prevNode, nextNode);
 
                 try {
-                    assert.deepEqual(commands.map(command => command.type), diffs);
+                    assert.deepEqual(command.childCommands.map(childCommand => childCommand.type), diffs);
                 } catch (err) {
                     console.error(testCases[i]);
 
