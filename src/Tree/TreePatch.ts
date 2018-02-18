@@ -35,7 +35,7 @@ class TreePatch {
             case UPDATE_CHILDREN:
                 return TreePatch.updateChildren(currentCommand, currentNode, currentParent, commands, commandIndex);
             case UPDATE_NODE:
-                return TreePatch.updateNode(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.replaceNode(currentCommand, currentNode, currentParent, commands, commandIndex);
             default:
                 return TreePatch.maintainNode(currentNode, currentParent, commands, commandIndex);
         }
@@ -95,7 +95,7 @@ class TreePatch {
         return TreePatch.patch(currentNode.nextSibling, currentParent, commands, ++commandIndex);
     }
 
-    private static updateNode(currentCommand, currentNode, currentParent, commands, commandIndex) {
+    private static replaceNode(currentCommand, currentNode, currentParent, commands, commandIndex) {
         const updatedTomeNode = currentCommand.nextNode;
         const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
         const updatedTomeNodeEl = TreePatch.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
