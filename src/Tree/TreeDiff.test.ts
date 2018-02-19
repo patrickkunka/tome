@@ -90,7 +90,7 @@ const testCases: ITestCase[] = [
 ];
 
 describe('TreeDiff', () => {
-    describe('#diffChildren()', () => {
+    describe('#diff()', () => {
         testCases.forEach(({prev, next, diffs}, i) => {
             it('should build up an accurate list of diff commands', () => {
                 const prevNode = createNode({childNodes: prev.map(text => createNode({text}))});

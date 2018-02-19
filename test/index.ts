@@ -11,6 +11,7 @@ import '../src/State/Edits/replaceValue.test.ts';
 import '../src/State/Edits/setSelection.test.ts';
 import '../src/State/Util/setActiveMarkups.test.ts';
 import '../src/State/Util/splitMarkups.test.ts';
+import '../src/Tree/TextDiff.test.ts';
 import '../src/Tree/TreeBuilder.test.ts';
 import '../src/Tree/TreeDiff.test.ts';
 import '../src/Util/Util.test.ts';

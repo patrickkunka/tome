@@ -1,5 +1,6 @@
 import NodeChangeType    from './Constants/NodeChangeType';
 import ITreePatchCommand from './Interfaces/ITreePatchCommand';
+import TextDiff          from './TextDiff';
 import TomeNode          from './TomeNode';
 import TreePatchCommand  from './TreePatchCommand';
 
@@ -194,7 +195,7 @@ class TreeDiff {
 
             return prevNode.text === nextNode.text ?
                 TreeDiff.createPatchCommand() :
-                TreeDiff.createUpdateTextCommand(nextNode);
+                TreeDiff.createUpdateTextCommand(prevNode.text, nextNode.text);
         }
 
         // HTML elements
@@ -236,10 +237,12 @@ class TreeDiff {
      * Returns a mapped patch command representing a node with text content to be updated.
      */
 
-    private static createUpdateTextCommand(nextNode: TomeNode): TreePatchCommand {
+    private static createUpdateTextCommand(prevText, nextText): TreePatchCommand {
+        const textPatchCommand = TextDiff.diff(prevText, nextText);
+
         return TreeDiff.createPatchCommand({
             type: UPDATE_TEXT,
-            nextText: nextNode.text
+            textPatchCommand
         });
     }
 
