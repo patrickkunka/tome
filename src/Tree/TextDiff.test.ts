@@ -136,6 +136,15 @@ const testCases: ITestCase[] = [
             replaceStart: 5,
             replaceEnd: 5
         }
+    },
+    {
+        prev: 'fffawdawdawdawdbbb',
+        next: 'fffabbb',
+        patch: {
+            text: '',
+            replaceStart: 4,
+            replaceEnd: 15
+        }
     }
 ];
 
