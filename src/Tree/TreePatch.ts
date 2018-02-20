@@ -1,7 +1,9 @@
-import MarkupTag        from '../State/Constants/MarkupTag';
-import NodeChangeType   from './Constants/NodeChangeType';
-import Renderer         from './Renderer';
-import TreePatchCommand from './TreePatchCommand';
+import HtmlEntity           from '../State/Constants/HtmlEntity';
+import MarkupTag            from '../State/Constants/MarkupTag';
+import NodeChangeType       from './Constants/NodeChangeType';
+import WhitespaceExpression from './Constants/WhitespaceExpression';
+import Renderer             from './Renderer';
+import TreePatchCommand     from './TreePatchCommand';
 
 const {
     ADD,
@@ -11,6 +13,8 @@ const {
     UPDATE_CHILDREN,
     UPDATE_NODE
 } = NodeChangeType;
+
+const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
 interface IPatchParams {
     commands: TreePatchCommand[];
@@ -101,8 +105,11 @@ class TreePatch {
         }
 
         const {replaceStart, replaceCount, text} = textPatchCommand;
+        const currentNodeAsCharacterData = currentNode as CharacterData;
 
-        (currentNode as CharacterData).replaceData(replaceStart, replaceCount, text);
+        currentNodeAsCharacterData.replaceData(replaceStart, replaceCount, text);
+
+        TreePatch.reinforceWhitespace(currentNodeAsCharacterData);
 
         TreePatch.patch(params, nextSibling, ++commandIndex);
     }
@@ -171,6 +178,29 @@ class TreePatch {
         temp.innerHTML = html;
 
         return temp.firstChild;
+    }
+
+    private static reinforceWhitespace(node: CharacterData): void {
+        const {textContent} = node;
+
+        let matches: RegExpExecArray;
+
+        while (matches = WhitespaceExpression.multiple.exec(textContent)) {
+            // Replace 2 consecutive spaces with an alternating pattern of
+            // reinforced whitespace
+
+            node.replaceData(matches.index, 2, ` ${NON_BREAKING_SPACE}`);
+        }
+
+        WhitespaceExpression.multiple.lastIndex = 0;
+
+        if (WhitespaceExpression.leadingOrLone.test(textContent)) {
+            node.replaceData(0, 1, NON_BREAKING_SPACE);
+        }
+
+        if (WhitespaceExpression.trailing.test(textContent)) {
+            node.replaceData(textContent.length, 1, NON_BREAKING_SPACE);
+        }
     }
 }
 

@@ -2,6 +2,8 @@ import HtmlEntity from '../State/Constants/HtmlEntity';
 import MarkupTag  from '../State/Constants/MarkupTag';
 import TomeNode   from './TomeNode';
 
+const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
+
 class Renderer {
     public static renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
         return nodes.map(node => Renderer.renderNode(node, parent)).join('');
@@ -23,11 +25,11 @@ class Renderer {
             // Replace 2 consecutive spaces with visible pattern of alternating
             // space/non-breaking space
 
-                .replace(/ {2}/g, ` ${HtmlEntity.NON_BREAKING_SPACE}`)
+                .replace(/ {2}/g, ` ${NON_BREAKING_SPACE}`)
 
                 // Replace leading space or single space with non-breaking space
 
-                .replace(/^ ((?=\S)|$)/g, HtmlEntity.NON_BREAKING_SPACE);
+                .replace(/^ ((?=\S)|$)/g, NON_BREAKING_SPACE);
 
             if (text === HtmlEntity.BLOCK_BREAK) {
                 text = HtmlEntity.LINE_BREAK;
