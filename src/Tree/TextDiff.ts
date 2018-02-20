@@ -4,6 +4,8 @@ class TextDiff {
     public static diff(prevText: string, nextText: string): TextPatchCommand {
         const command = new TextPatchCommand();
 
+        console.log(`diff: "${prevText}" with "${nextText}"`);
+
         const [
             indexDivergesFromLeft,
             indexDivergesFromRight

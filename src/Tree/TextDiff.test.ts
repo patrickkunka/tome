@@ -145,6 +145,15 @@ const testCases: ITestCase[] = [
             replaceStart: 4,
             replaceCount: 11
         }
+    },
+    {
+        prev: 'foo    bar.',
+        next: 'foo bar.',
+        patch: {
+            text: '',
+            replaceStart: 4,
+            replaceCount: 3
+        }
     }
 ];
 

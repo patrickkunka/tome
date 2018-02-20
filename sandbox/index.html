@@ -51,7 +51,7 @@
                 ]
             },
             callbacks: {
-                // onStateChange: handleStateChange,
+                onStateChange: handleStateChange,
                 onAddAnchor: done => {
                     console.log('adding anchor');
 
@@ -63,16 +63,16 @@
             }
         });
 
-        // function handleStateChange(state, actionType) {
-        //     plainText.value = state.text;
-        //     pre.innerHTML =
-        //         JSON.stringify(state.selection) +
-        //         '\n\n' +
-        //         JSON.stringify(state.markups.map(markup => markup.toArray()), null, 4) +
-        //         '\n\n' +
-        //         JSON.stringify(state.activeInlineMarkups.tags, null, 4);
+        function handleStateChange(state, actionType) {
+            plainText.value = state.text;
+            // pre.innerHTML =
+            //     JSON.stringify(state.selection) +
+            //     '\n\n' +
+            //     JSON.stringify(state.markups.map(markup => markup.toArray()), null, 4) +
+            //     '\n\n' +
+            //     JSON.stringify(state.activeInlineMarkups.tags, null, 4);
 
-        //     console.log(actionType);
-        // }
+            console.log(actionType);
+        }
     </script>
 </html>
