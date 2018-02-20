@@ -34,7 +34,10 @@ class Tree {
             const treePatchCommand = TreeDiff.diff(prevRoot, nextRoot);
 
             if (!treePatchCommand.isNone) {
-                TreePatch.patch(rootEl.childNodes[0], rootEl, treePatchCommand.childCommands);
+                TreePatch.patch({
+                    parent: rootEl,
+                    commands: treePatchCommand.childCommands
+                }, rootEl.childNodes[0]);
             }
         }
 

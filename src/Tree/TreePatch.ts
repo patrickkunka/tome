@@ -12,70 +12,82 @@ const {
     UPDATE_NODE
 } = NodeChangeType;
 
+interface IPatchParams {
+    commands: TreePatchCommand[];
+    parent: HTMLElement;
+}
+
+type IPatchOperation = (
+    params: IPatchParams,
+    currentNode: Node,
+    commandIndex: number,
+    currentCommand: TreePatchCommand
+) => void;
+
 class TreePatch {
     public static patch(
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
         commandIndex: number = 0
     ): void {
-        const currentCommand = commands[commandIndex] || null;
+        const currentCommand = params.commands[commandIndex] || null;
 
         if (!currentCommand) return;
 
-        switch (currentCommand.type) {
+        return TreePatch.getOperationForType(currentCommand.type)(params, currentNode, commandIndex, currentCommand);
+    }
+
+    private static getOperationForType(type: NodeChangeType): IPatchOperation {
+        switch (type) {
             case ADD:
-                return TreePatch.addNode(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.addNode;
             case REMOVE:
-                return TreePatch.removeNode(currentNode, currentParent, commands, commandIndex);
+                return TreePatch.removeNode;
             case UPDATE_TEXT:
-                return TreePatch.updateText(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.updateText;
             case UPDATE_TAG:
-                return TreePatch.updateTag(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.updateTag;
             case UPDATE_CHILDREN:
-                return TreePatch.updateChildren(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.updateChildren;
             case UPDATE_NODE:
-                return TreePatch.replaceNode(currentCommand, currentNode, currentParent, commands, commandIndex);
+                return TreePatch.replaceNode;
             default:
-                return TreePatch.maintainNode(currentNode, currentParent, commands, commandIndex);
+                return TreePatch.maintainNode;
         }
     }
 
     private static addNode(
-        currentCommand: TreePatchCommand,
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
         const addedTomeNode = currentCommand.nextNode;
         const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent);
         const addedTomeNodeEl = TreePatch.renderHtmlToDom(addedTomeNodeHtml);
 
-        currentParent.insertBefore(addedTomeNodeEl, currentNode);
+        params.parent.insertBefore(addedTomeNodeEl, currentNode);
 
-        TreePatch.patch(currentNode, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, currentNode, ++commandIndex);
     }
 
     private static removeNode(
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
         commandIndex: number
     ): void {
         const nextSibling = currentNode.nextSibling;
 
-        currentParent.removeChild(currentNode);
+        params.parent.removeChild(currentNode);
 
-        TreePatch.patch(nextSibling, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, nextSibling, ++commandIndex);
     }
 
     private static updateText(
-        currentCommand: TreePatchCommand,
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
         const nextSibling = currentNode.nextSibling;
         const {textPatchCommand} = currentCommand;
@@ -83,24 +95,23 @@ class TreePatch {
         if (currentNode.nodeName.toLowerCase() === MarkupTag.BR) {
             const textNode = document.createTextNode('');
 
-            currentParent.replaceChild(textNode, currentNode);
+            params.parent.replaceChild(textNode, currentNode);
 
             currentNode = textNode;
         }
 
-        const {replaceStart, replaceEnd, text} = textPatchCommand;
+        const {replaceStart, replaceCount, text} = textPatchCommand;
 
-        (currentNode as CharacterData).replaceData(replaceStart, replaceEnd - replaceStart, text);
+        (currentNode as CharacterData).replaceData(replaceStart, replaceCount, text);
 
-        TreePatch.patch(nextSibling, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, nextSibling, ++commandIndex);
     }
 
     private static updateTag(
-        currentCommand: TreePatchCommand,
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
         const nextSibling = currentNode.nextSibling;
         const {innerHTML} = currentNode as HTMLElement;
@@ -108,46 +119,50 @@ class TreePatch {
 
         updatedTomeNodeEl.innerHTML = innerHTML;
 
-        currentParent.replaceChild(updatedTomeNodeEl, currentNode);
+        params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        TreePatch.patch(nextSibling, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, nextSibling, ++commandIndex);
     }
 
     private static updateChildren(
-        currentCommand: TreePatchCommand,
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
-        TreePatch.patch(currentNode.childNodes[0], currentNode as HTMLElement, currentCommand.childCommands);
+        const {firstChild} = currentNode;
 
-        TreePatch.patch(currentNode.nextSibling, currentParent, commands, ++commandIndex);
+        const childParams: IPatchParams = {
+            ...params,
+            commands: currentCommand.childCommands,
+            parent: currentNode as HTMLElement
+        };
+
+        TreePatch.patch(childParams, firstChild);
+        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
     private static replaceNode(
-        currentCommand: TreePatchCommand,
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
         const updatedTomeNode = currentCommand.nextNode;
         const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
         const updatedTomeNodeEl = TreePatch.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
-        currentParent.replaceChild(updatedTomeNodeEl, currentNode);
+        params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        TreePatch.patch(currentNode.nextSibling, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
     private static maintainNode(
+        params: IPatchParams,
         currentNode: Node,
-        currentParent: HTMLElement,
-        commands: TreePatchCommand[],
         commandIndex: number
     ): void {
-        TreePatch.patch(currentNode.nextSibling, currentParent, commands, ++commandIndex);
+        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
     private static renderHtmlToDom(html: string): Node {

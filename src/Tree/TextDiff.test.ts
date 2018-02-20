@@ -10,7 +10,7 @@ const assert = chai.assert;
 interface IExpectedCommand {
     text: string;
     replaceStart: number;
-    replaceEnd: number;
+    replaceCount: number;
 }
 
 interface ITestCase {
@@ -26,7 +26,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'a',
             replaceStart: 3,
-            replaceEnd: 3
+            replaceCount: 0
         }
     },
     {
@@ -35,7 +35,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'a',
             replaceStart: 0,
-            replaceEnd: 0
+            replaceCount: 0
         }
     },
     {
@@ -44,7 +44,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'a',
             replaceStart: 2,
-            replaceEnd: 2
+            replaceCount: 0
         }
     },
     {
@@ -53,7 +53,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 3,
-            replaceEnd: 4
+            replaceCount: 1
         }
     },
     {
@@ -62,7 +62,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 0,
-            replaceEnd: 1
+            replaceCount: 1
         }
     },
     {
@@ -71,7 +71,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'bar',
             replaceStart: 0,
-            replaceEnd: 3
+            replaceCount: 3
         }
     },
     {
@@ -80,7 +80,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'a',
             replaceStart: 1,
-            replaceEnd: 2
+            replaceCount: 1
         }
     },
     {
@@ -89,7 +89,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 0,
-            replaceEnd: 3
+            replaceCount: 3
         }
     },
     {
@@ -98,7 +98,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'foo',
             replaceStart: 0,
-            replaceEnd: 0
+            replaceCount: 0
         }
     },
     {
@@ -107,7 +107,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'o',
             replaceStart: 3,
-            replaceEnd: 3
+            replaceCount: 0
         }
     },
     {
@@ -116,7 +116,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: 'oo',
             replaceStart: 5,
-            replaceEnd: 5
+            replaceCount: 0
         }
     },
     {
@@ -125,7 +125,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 3,
-            replaceEnd: 3
+            replaceCount: 1
         }
     },
     {
@@ -134,7 +134,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 5,
-            replaceEnd: 5
+            replaceCount: 2
         }
     },
     {
@@ -143,7 +143,7 @@ const testCases: ITestCase[] = [
         patch: {
             text: '',
             replaceStart: 4,
-            replaceEnd: 15
+            replaceCount: 11
         }
     }
 ];

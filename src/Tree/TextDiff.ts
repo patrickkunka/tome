@@ -11,7 +11,7 @@ class TextDiff {
 
         command.text = nextText.slice(indexDivergesFromLeft, nextText.length - indexDivergesFromRight);
         command.replaceStart = indexDivergesFromLeft;
-        command.replaceEnd = prevText.length - indexDivergesFromRight;
+        command.replaceCount = (prevText.length - indexDivergesFromRight) - indexDivergesFromLeft;
 
         return command;
     }
@@ -46,7 +46,9 @@ class TextDiff {
         }
 
         if (prevLength - indexDivergesFromRight <= indexDivergesFromLeft) {
-            indexDivergesFromRight = prevLength - indexDivergesFromLeft;
+            const minLength = Math.min(prevLength, nextText.length);
+
+            indexDivergesFromRight = minLength - indexDivergesFromLeft;
         }
 
         const indices: [number, number] = [indexDivergesFromLeft, indexDivergesFromRight];
