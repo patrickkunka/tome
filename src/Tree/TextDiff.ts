@@ -4,8 +4,6 @@ class TextDiff {
     public static diff(prevText: string, nextText: string): TextPatchCommand {
         const command = new TextPatchCommand();
 
-        console.log(`diff: "${prevText}" with "${nextText}"`);
-
         const [
             indexDivergesFromLeft,
             indexDivergesFromRight
@@ -20,6 +18,8 @@ class TextDiff {
 
     private static getDivergentIndices(prevText, nextText): [number, number] {
         const prevLength = prevText.length;
+        const nextLength = nextText.length;
+        const minLength = Math.min(prevLength, nextLength);
 
         let leftPointer = 0;
         let rightPointer = 0;
@@ -37,7 +37,7 @@ class TextDiff {
 
             if (indexDivergesFromRight < 0) {
                 const prevIndex = (prevLength - 1) - rightPointer;
-                const nextIndex = (nextText.length - 1) - rightPointer;
+                const nextIndex = (nextLength - 1) - rightPointer;
 
                 if (prevText[prevIndex] !== nextText[nextIndex]) {
                     indexDivergesFromRight = rightPointer;
@@ -47,9 +47,7 @@ class TextDiff {
             }
         }
 
-        if (prevLength - indexDivergesFromRight <= indexDivergesFromLeft) {
-            const minLength = Math.min(prevLength, nextText.length);
-
+        if (minLength - indexDivergesFromRight <= indexDivergesFromLeft) {
             indexDivergesFromRight = minLength - indexDivergesFromLeft;
         }
 

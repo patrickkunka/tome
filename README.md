@@ -17,7 +17,6 @@ In progress..
 - ~~~lists~~~
 - additional IME mutation detection work
 - custom blocks
-- fix undo state/render sync issues
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*
