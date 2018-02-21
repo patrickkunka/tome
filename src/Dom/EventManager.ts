@@ -6,26 +6,32 @@ import Util         from '../Util/Util';
 import Keypress     from './Constants/Keypress';
 import MutationType from './Constants/MutationType';
 import IMEParser    from './IMEParser';
+import debounce     from './Util/debounce';
 
 const SELECTION_DELAY = 10;
 const ACTION_DELAY = 100;
+const DEBOUNCE_DELAY = 200;
 
 interface IInputEvent extends UIEvent {
     data: string;
 }
 
+type IEventHandler = (Event) => void;
+
 class EventManager {
     public root: HTMLElement = null;
 
-    private tome:           ITome               = null;
-    private boundDelegator: EventListenerObject = null;
-    private observer:       MutationObserver    = null;
-    private isComposing:    boolean             = false;
-    private isActioning:    boolean             = false;
+    private tome:                    ITome               = null;
+    private boundDelegator:          IEventHandler       = null;
+    private debouncedBoundDelegator: IEventHandler       = null;
+    private observer:                MutationObserver    = null;
+    private isComposing:             boolean             = false;
+    private isActioning:             boolean             = false;
 
     constructor(tome: ITome) {
         this.tome = tome;
         this.boundDelegator = this.delegator.bind(this);
+        this.debouncedBoundDelegator = debounce(this.boundDelegator, DEBOUNCE_DELAY, true);
         this.observer = new MutationObserver((this.handleMutation.bind(this)));
     }
 
@@ -40,7 +46,7 @@ class EventManager {
         this.root.addEventListener('paste', this.boundDelegator);
 
         window.addEventListener('mouseup', this.boundDelegator);
-        document.addEventListener('selectionchange', this.boundDelegator);
+        document.addEventListener('selectionchange', this.debouncedBoundDelegator);
 
         this.connectMutationObserver();
     }
@@ -56,7 +62,7 @@ class EventManager {
         this.root.removeEventListener('paste', this.boundDelegator);
 
         window.removeEventListener('mouseup', this.boundDelegator);
-        document.removeEventListener('selectionchange', this.boundDelegator);
+        document.removeEventListener('selectionchange', this.debouncedBoundDelegator);
 
         this.disconnectMutationObserver();
     }
@@ -95,13 +101,13 @@ class EventManager {
         setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
 
-    public handleMouseup(): void {
+    public handleMouseup(e: MouseEvent): void {
         if (this.tome.dom.root !== document.activeElement) return;
 
-        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
-    public handleSelectionchange(): void {
+    public handleSelectionchange(e): void {
         // NB: This was determined the most effective way to detect
         // selection change on touch devices, however is firing in
         // reaction to programmatically seting the cursor position.
@@ -110,11 +116,11 @@ class EventManager {
 
         if (this.tome.dom.root !== document.activeElement || this.isActioning) return;
 
-        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
-    public handleMousedown(): void {
-        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION});
+    public handleMousedown(e: MouseEvent): void {
+        this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
     public handlePaste(e: ClipboardEvent): void {
@@ -199,7 +205,7 @@ class EventManager {
         if (e.metaKey) {
             switch (key) {
                 case Keypress.A:
-                    action = {type: ActionType.SET_SELECTION};
+                    action = {type: ActionType.SET_SELECTION, data: e};
 
                     break;
                 case Keypress.B:
@@ -286,7 +292,7 @@ class EventManager {
             case Keypress.ARROW_RIGHT:
             case Keypress.ARROW_UP:
             case Keypress.ARROW_DOWN:
-                action = {type: ActionType.SET_SELECTION};
+                action = {type: ActionType.SET_SELECTION, data: e};
 
                 break;
         }

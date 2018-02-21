@@ -96,9 +96,9 @@ class StateManager {
             action.range = this.state.selection;
         }
 
-        manipulation = this.getManipulationTypeForActionType(action.type);
+        manipulation = this.getManipulationTypeForActionType(action);
 
-        // console.info(manipulation);
+        console.info(manipulation);
 
         const nextState = createStateFromAction(this.state, action);
 
@@ -172,8 +172,8 @@ class StateManager {
         this.canPushState = true;
     }
 
-    private getManipulationTypeForActionType(actionType: ActionType): HistoryManipulationType {
-        switch (actionType) {
+    private getManipulationTypeForActionType(action: Action): HistoryManipulationType {
+        switch (action.type) {
             case ActionType.INSERT:
                 if (
                     [
@@ -205,7 +205,9 @@ class StateManager {
 
                 return HistoryManipulationType.REPLACE;
             case ActionType.SET_SELECTION:
-                return HistoryManipulationType.REPLACE;
+                const e = action.data;
+
+                return e.type === 'keydown' ? HistoryManipulationType.REPLACE : HistoryManipulationType.PUSH;
         }
 
         this.resetCanPushTimer();

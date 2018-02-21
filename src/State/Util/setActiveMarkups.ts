@@ -11,13 +11,13 @@ import State         from '../State';
 function setActiveMarkups(state: State, selection: ISelection): void {
     const activeInlineMarkups = new MarkupsMap();
 
-    state.activeInlineMarkups.clearAll();
-
     let parentBlock: Markup = null;
 
-    state.activeBlockMarkup = state.activeListMarkup = null;
+    // Reset previous state if cloned
 
-    state.envelopedBlockMarkups.length = 0;
+    state.activeInlineMarkups = new MarkupsMap();
+    state.envelopedBlockMarkups = [];
+    state.activeBlockMarkup = state.activeListMarkup = null;
 
     for (const markup of state.markups) {
         const lastConsecutive = activeInlineMarkups.lastOfTag(markup.tag);

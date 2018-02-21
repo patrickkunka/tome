@@ -17,6 +17,8 @@ In progress..
 - ~~~lists~~~
 - additional IME mutation detection work
 - custom blocks
+- performance optimisations
+- partial toggle (off) inline markup bug. (Select "line", ctrl-B, ctrl-B)
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*
