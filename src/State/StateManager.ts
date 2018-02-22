@@ -12,6 +12,8 @@ import IValue                  from './Interfaces/IValue';
 import State                   from './State';
 import TomeSelection           from './TomeSelection';
 
+const ACTION_DELAY_OVERRIDE = 500;
+
 class StateManager {
     private lastActionType:   ActionType = null;
     private history:          State[]    = [];
@@ -45,6 +47,8 @@ class StateManager {
 
         this.historyIndex--;
 
+        this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
+
         this.tome.tree.render(true);
 
         this.tome.tree.positionCaret(this.state.selection);
@@ -60,6 +64,8 @@ class StateManager {
         const fn = this.tome.config.callbacks.onStateChange;
 
         this.historyIndex++;
+
+        this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
 
         this.tome.tree.render(true);
 
@@ -98,9 +104,9 @@ class StateManager {
 
         manipulation = this.getManipulationTypeForActionType(action);
 
-        console.info(manipulation);
-
         const nextState = createStateFromAction(this.state, action);
+
+        console.info(manipulation);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
@@ -133,6 +139,13 @@ class StateManager {
         }
 
         this.lastActionType = action.type;
+
+        if (action.type === ActionType.CHANGE_BLOCK_TYPE) {
+            // A change of block type will trigger a `selectionchange` event. Momentarily
+            // raise the `isActioning` flag to prevent it from being handled.
+
+            this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
+        }
 
         if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
             this.tome.tree.render(true);
@@ -205,9 +218,13 @@ class StateManager {
 
                 return HistoryManipulationType.REPLACE;
             case ActionType.SET_SELECTION:
-                const e = action.data;
+                const {type} = action.data;
 
-                return e.type === 'keydown' ? HistoryManipulationType.REPLACE : HistoryManipulationType.PUSH;
+                if (type === 'keydown') {
+                    return HistoryManipulationType.REPLACE;
+                }
+
+                return HistoryManipulationType.PUSH;
         }
 
         this.resetCanPushTimer();

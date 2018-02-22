@@ -19,8 +19,7 @@ function adjustMarkups(
     const isCollapsedRange = fromIndex === toIndex;
 
     for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
-        const newMarkup = cloneMarkup(markup);
-
+        let newMarkup = null;
         let removeMarkup = false;
 
         if (toRemove.length > 0 && toRemove.indexOf(markup) > -1) {
@@ -39,16 +38,22 @@ function adjustMarkups(
                 // Markup should be preserved is a) is block element or list item,
                 // b) is inline or and inserting
 
+                newMarkup = cloneMarkup(markup);
+
                 newMarkup[2] = markup.start + totalAdded;
 
                 if (markup.isSelfClosing) newMarkup[1] = newMarkup.end;
             } else if (markup.isSelfClosing && markup.start === toIndex) {
+                newMarkup = cloneMarkup(markup);
+
                 newMarkup[1] = newMarkup[2] = markup.start + adjustment;
             } else if (markup.isInline || markup.start > fromIndex) {
                 removeMarkup = true;
             }
         } else if (markup.start <= fromIndex && markup.end >= toIndex) {
             // Selection within markup or equal to markup
+
+            newMarkup = cloneMarkup(markup);
 
             newMarkup[2] += adjustment;
 
@@ -60,10 +65,14 @@ function adjustMarkups(
         } else if (markup.start >= toIndex) {
             // Markup starts after Selection
 
+            newMarkup = cloneMarkup(markup);
+
             newMarkup[1] += adjustment;
             newMarkup[2] += adjustment;
         } else if (markup.isInline && fromIndex < markup.start && toIndex > markup.start && toIndex < markup.end) {
             // Selection partially envelopes inline markup from start
+
+            newMarkup = cloneMarkup(markup);
 
             newMarkup[1] += (adjustment + (toIndex - markup.start));
             newMarkup[2] += adjustment;
@@ -72,6 +81,8 @@ function adjustMarkups(
 
             if (markup.isInline) {
                 // Extend inline markup to end of insertion
+
+                newMarkup = cloneMarkup(markup);
 
                 newMarkup[2] = fromIndex + totalAdded;
             } else {
@@ -84,20 +95,31 @@ function adjustMarkups(
                 // subsequent iteration
 
                 if (closingBlockMarkup) {
+                    newMarkup = cloneMarkup(markup);
+
                     newMarkup[2] = closingBlockMarkup.end + adjustment;
 
                     toRemove.push(closingBlockMarkup);
                 }
             }
+        } else {
+            // use existing reference, unchanged
+
+            newMarkup = markup;
         }
 
-        // If an inline markup has collapsed, remove it
+        if (
+            removeMarkup ||
+            newMarkup && newMarkup[1] === newMarkup[2] &&
+            newMarkup.isInline &&
+            !newMarkup.isSelfClosing
+        ) {
+            // If instructed to remove, or a collapsed inline markup, remove the markup
 
-        if (newMarkup[1] === newMarkup[2] && newMarkup.isInline && !newMarkup.isSelfClosing) removeMarkup = true;
-
-        if (!removeMarkup) {
-            newMarkups.push(newMarkup);
+            continue;
         }
+
+        newMarkups.push(newMarkup);
     }
 
     return newMarkups;

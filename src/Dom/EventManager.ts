@@ -27,6 +27,7 @@ class EventManager {
     private observer:                MutationObserver    = null;
     private isComposing:             boolean             = false;
     private isActioning:             boolean             = false;
+    private isActioningTimerId:      number              = -1;
 
     constructor(tome: ITome) {
         this.tome = tome;
@@ -67,47 +68,29 @@ class EventManager {
         this.disconnectMutationObserver();
     }
 
-    public delegator(e: Event): void {
-        const eventType = e.type;
-        const fn = this['handle' + Util.pascalCase(eventType)];
-
-        if (typeof fn !== 'function') {
-            throw new Error(`[EventManager] No handler found for event "${eventType}"`);
-        }
-
-        fn.call(this, e);
-    }
-
-    public connectMutationObserver() {
-        this.observer.observe(this.root, {
-            childList: true,
-            characterData: true,
-            characterDataOldValue: true,
-            subtree: true
-        });
-    }
-
-    public disconnectMutationObserver() {
-        this.observer.disconnect();
-    }
-
-    public handleKeypress(e: KeyboardEvent): void {
-        e.preventDefault();
+    public raiseIsActioningFlag(delay = ACTION_DELAY) {
+;
 
         this.isActioning = true;
 
-        this.tome.stateManager.applyAction({type: ActionType.INSERT, content: e.key});
-
-        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
+        this.isActioningTimerId = window.setTimeout(() => (this.isActioning = false), delay);
     }
 
-    public handleMouseup(e: MouseEvent): void {
+    protected handleKeypress(e: KeyboardEvent): void {
+        e.preventDefault();
+
+        this.raiseIsActioningFlag();
+
+        this.tome.stateManager.applyAction({type: ActionType.INSERT, content: e.key});
+    }
+
+    protected handleMouseup(e: MouseEvent): void {
         if (this.tome.dom.root !== document.activeElement) return;
 
         this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
-    public handleSelectionchange(e): void {
+    protected handleSelectionchange(e): void {
         // NB: This was determined the most effective way to detect
         // selection change on touch devices, however is firing in
         // reaction to programmatically seting the cursor position.
@@ -119,11 +102,11 @@ class EventManager {
         this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
-    public handleMousedown(e: MouseEvent): void {
+    protected handleMousedown(e: MouseEvent): void {
         this.tome.stateManager.applyAction({type: ActionType.SET_SELECTION, data: e});
     }
 
-    public handlePaste(e: ClipboardEvent): void {
+    protected handlePaste(e: ClipboardEvent): void {
         const {clipboardData} = e;
         const text = clipboardData.getData('text/plain');
         const html = clipboardData.getData('text/html');
@@ -133,7 +116,7 @@ class EventManager {
         e.preventDefault();
     }
 
-    public handleTextInput(e: IInputEvent): void {
+    protected handleTextInput(e: IInputEvent): void {
         e.preventDefault();
 
         if (this.isComposing) {
@@ -143,27 +126,25 @@ class EventManager {
         }
 
         if (e.data !== ' ') {
-            this.isActioning = true;
+            this.raiseIsActioningFlag();
         }
 
         this.tome.stateManager.applyAction({type: ActionType.INSERT, content: e.data});
-
-        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
     }
 
-    public handleCompositionstart(): void {
+    protected handleCompositionstart(): void {
         this.isComposing = true;
     }
 
-    public handleCompositionupdate(): void {
+    protected handleCompositionupdate(): void {
         this.isComposing = true;
     }
 
-    public handleCompositionend(): void {
+    protected handleCompositionend(): void {
         this.isComposing = false;
     }
 
-    public handleMutation(mutations: MutationRecord[]) : void {
+    protected handleMutation(mutations: MutationRecord[]) : void {
         if (this.isActioning) return;
 
         top:
@@ -193,7 +174,7 @@ class EventManager {
         setTimeout(() => (this.isActioning = false), SELECTION_DELAY);
     }
 
-    public handleKeydown(e: KeyboardEvent): void {
+    protected handleKeydown(e: KeyboardEvent): void {
         const key = e.key.toLowerCase();
 
         if (key === Keypress.UNIDENTIFIED) {
@@ -237,11 +218,7 @@ class EventManager {
                 case Keypress.Z:
                     e.preventDefault();
 
-                    this.isActioning = true;
-
                     e.shiftKey ? this.tome.redo() : this.tome.undo();
-
-                    setTimeout(() => (this.isActioning = false), ACTION_DELAY);
 
                     return;
                 case Keypress.H:
@@ -299,11 +276,33 @@ class EventManager {
 
         if (!action || action.type === ActionType.NONE) return;
 
-        this.isActioning = true;
+        this.raiseIsActioningFlag();
 
         setTimeout(() => this.tome.stateManager.applyAction(action), SELECTION_DELAY);
+    }
 
-        setTimeout(() => (this.isActioning = false), ACTION_DELAY);
+    private delegator(e: Event): void {
+        const eventType = e.type;
+        const fn = this['handle' + Util.pascalCase(eventType)];
+
+        if (typeof fn !== 'function') {
+            throw new Error(`[EventManager] No handler found for event "${eventType}"`);
+        }
+
+        fn.call(this, e);
+    }
+
+    private connectMutationObserver() {
+        this.observer.observe(this.root, {
+            childList: true,
+            characterData: true,
+            characterDataOldValue: true,
+            subtree: true
+        });
+    }
+
+    private disconnectMutationObserver() {
+        this.observer.disconnect();
     }
 }
 

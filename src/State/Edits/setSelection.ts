@@ -1,11 +1,9 @@
-import merge from 'helpful-merge';
-
 import ISelection       from '../interfaces/ISelection';
 import State            from '../State';
 import setActiveMarkups from '../Util/setActiveMarkups';
 
 function setSelection(prevState: State, range: ISelection): State {
-    const nextState = merge(new State(), prevState);
+    const nextState = Object.assign(new State(), prevState);
 
     nextState.markups = prevState.markups.slice();
 

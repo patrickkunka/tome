@@ -18,8 +18,7 @@ class Tome implements ITome {
     public config:       ConfigRoot   = new ConfigRoot();
     public tree:         Tree         = new Tree(this);
     public stateManager: StateManager = new StateManager(this);
-
-    private eventManager: EventManager = new EventManager(this);
+    public eventManager: EventManager = new EventManager(this);
 
     constructor(el: HTMLElement, config: any) {
         this.init(el, config);

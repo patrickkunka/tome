@@ -1,5 +1,3 @@
-import merge from 'helpful-merge';
-
 import MarkupTag        from '../Constants/MarkupTag';
 import Markup           from '../Markup';
 import State            from '../State';
@@ -17,7 +15,7 @@ function changeBlockType(
     tag: MarkupTag,
     range: TomeSelection = null
 ): State {
-    const nextState = merge(new State(), prevState, true);
+    const nextState = Object.assign(new State(), prevState);
     const isChangingToList = [MarkupTag.OL, MarkupTag.UL].includes(tag);
 
     let newTag = tag;
@@ -42,10 +40,12 @@ function changeBlockType(
     // paragraph blocks
 
     nextState.markups = prevState.markups.map((prevMarkup, i) => {
-        const nextMarkup = cloneMarkup(prevMarkup);
+        let nextMarkup = prevMarkup;
 
         if (isChangingToList && prevState.activeListMarkup === prevMarkup) {
             // Ensure list tag tracks new block type
+
+            nextMarkup = cloneMarkup(prevMarkup);
 
             nextMarkup[0] = tag;
         }
@@ -60,6 +60,8 @@ function changeBlockType(
             }
 
             // If markup is enveloped, change its tag
+
+            if (nextMarkup === prevMarkup) nextMarkup = cloneMarkup(prevMarkup);
 
             nextMarkup[0] = newTag;
         }
