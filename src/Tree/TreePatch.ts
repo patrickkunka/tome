@@ -80,7 +80,7 @@ class TreePatch {
         currentNode: Node,
         commandIndex: number
     ): void {
-        const nextSibling = currentNode.nextSibling;
+        const {nextSibling} = currentNode;
 
         params.parent.removeChild(currentNode);
 
@@ -93,7 +93,7 @@ class TreePatch {
         commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
-        const nextSibling = currentNode.nextSibling;
+        const {nextSibling} = currentNode;
         const {textPatchCommand} = currentCommand;
 
         if (currentNode.nodeName.toLowerCase() === MarkupTag.BR) {
@@ -120,7 +120,7 @@ class TreePatch {
         commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
-        const nextSibling = currentNode.nextSibling;
+        const {nextSibling} = currentNode;
         const {innerHTML} = currentNode as HTMLElement;
         const updatedTomeNodeEl = TreePatch.renderHtmlToDom(`<${currentCommand.nextTag}/>`) as HTMLElement;
 
@@ -155,13 +155,14 @@ class TreePatch {
         commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
+        const {nextSibling} = currentNode;
         const updatedTomeNode = currentCommand.nextNode;
         const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
         const updatedTomeNodeEl = TreePatch.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
+        TreePatch.patch(params, nextSibling, ++commandIndex);
     }
 
     private static maintainNode(
