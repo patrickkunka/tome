@@ -11,7 +11,7 @@ import insert                      from './insert';
 function insertFromClipboard(
     prevState: State,
     clipboardData: IClipboardData,
-    range: ISelection,
+    range: ISelection
 ): State {
     const clipboardMarkups: Markup[] = parseClipboardToMarkups(clipboardData.text).map(markup => {
         // Increment markup indices by `from` offset

@@ -1,8 +1,6 @@
-import merge from 'helpful-merge';
-
 import Action             from '../Action';
 import MarkupTag          from '../Constants/MarkupTag';
-import Markup             from '../Markup';
+import MarkupsMap         from '../MarkupsMap';
 import State              from '../State';
 import setActiveMarkups   from '../Util/setActiveMarkups';
 import addInlineMarkup    from './addInlineMarkup';
@@ -22,11 +20,13 @@ function toggleInline(prevState: State, action: Action) {
     if (action.range.isCollapsed) {
         // Collapsed selection, create inline markup override
 
-        nextState = merge(new State(), prevState, true);
+        nextState = Object.assign(new State(), prevState);
 
-        nextState.markups = prevState.markups.map(markup => new Markup(markup.toArray()));
+        nextState.activeInlineMarkups = Object.assign(new MarkupsMap(), prevState.activeInlineMarkups);
 
-        nextState.activeInlineMarkups.overrides.push(action.tag);
+        const {overrides} = nextState.activeInlineMarkups;
+
+        if (!overrides.includes(action.tag)) overrides.push(action.tag);
 
         return nextState;
     }

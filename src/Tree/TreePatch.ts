@@ -104,10 +104,15 @@ class TreePatch {
             currentNode = textNode;
         }
 
-        const {replaceStart, replaceCount, text} = textPatchCommand;
+        const {replaceStart, replaceCount, replaceWith, fullText} = textPatchCommand;
         const currentNodeAsCharacterData = currentNode as CharacterData;
+        const isEmptyingNode = fullText === '';
 
-        currentNodeAsCharacterData.replaceData(replaceStart, replaceCount, text);
+        if (isEmptyingNode) {
+            params.parent.innerHTML = `<${MarkupTag.BR}>`;
+        } else {
+            currentNodeAsCharacterData.replaceData(replaceStart, replaceCount, replaceWith);
+        }
 
         TreePatch.reinforceWhitespace(currentNodeAsCharacterData);
 

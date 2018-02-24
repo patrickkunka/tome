@@ -12,8 +12,6 @@ import IValue                  from './Interfaces/IValue';
 import State                   from './State';
 import TomeSelection           from './TomeSelection';
 
-const ACTION_DELAY_OVERRIDE = 500;
-
 class StateManager {
     private lastActionType:   ActionType = null;
     private history:          State[]    = [];
@@ -47,7 +45,7 @@ class StateManager {
 
         this.historyIndex--;
 
-        this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
+        this.tome.eventManager.raiseIsActioningFlag();
 
         this.tome.tree.render(true);
 
@@ -65,7 +63,7 @@ class StateManager {
 
         this.historyIndex++;
 
-        this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
+        this.tome.eventManager.raiseIsActioningFlag();
 
         this.tome.tree.render(true);
 
@@ -144,7 +142,7 @@ class StateManager {
             // A change of block type will trigger a `selectionchange` event. Momentarily
             // raise the `isActioning` flag to prevent it from being handled.
 
-            this.tome.eventManager.raiseIsActioningFlag(ACTION_DELAY_OVERRIDE);
+            this.tome.eventManager.raiseIsActioningFlag();
         }
 
         if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
@@ -221,6 +219,12 @@ class StateManager {
                 const {type} = action.data;
 
                 if (type === 'keydown') {
+                    return HistoryManipulationType.REPLACE;
+                }
+
+                return HistoryManipulationType.PUSH;
+            case ActionType.TOGGLE_INLINE:
+                if (action.range.isCollapsed) {
                     return HistoryManipulationType.REPLACE;
                 }
 

@@ -1,10 +1,11 @@
-import merge from 'helpful-merge';
+// import merge from 'helpful-merge';
 
 import MarkupTag          from '../Constants/MarkupTag';
 import Markup             from '../Markup';
 import State              from '../State';
 import ingestMarkups      from '../Util/ingestMarkups';
 import joinMarkups        from '../Util/joinMarkups';
+import preCloneState      from '../Util/preCloneState';
 
 function addInlineMarkup(
     prevState: State,
@@ -14,10 +15,8 @@ function addInlineMarkup(
     data:      any = null,
     markup:    Markup = null
 ): State {
-    const nextState: State = merge(new State(), prevState, true);
+    const nextState: State = preCloneState(prevState, true);
     const enveloped = prevState.envelopedBlockMarkups || [];
-
-    nextState.markups = prevState.markups.map(prevMarkup => new Markup(prevMarkup.toArray()));
 
     let insertIndex = -1;
 
@@ -25,8 +24,6 @@ function addInlineMarkup(
         let formattedState = nextState;
 
         // Split and delegate the command
-
-        formattedState.envelopedBlockMarkups.length = 0;
 
         enveloped.forEach((envelopedBlockMarkup, i) => {
             const formatFrom = i === 0 ? from : envelopedBlockMarkup.start;

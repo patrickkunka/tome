@@ -11,7 +11,7 @@ import insert             from './insert';
 
 const assert = chai.assert;
 
-describe('insert', () => {
+describe('insert()', () => {
     it('should insert a single character within a markup', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum',

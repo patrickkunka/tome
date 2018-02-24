@@ -9,9 +9,10 @@ class TextDiff {
             indexDivergesFromRight
         ] = TextDiff.getDivergentIndices(prevText, nextText);
 
-        command.text = nextText.slice(indexDivergesFromLeft, nextText.length - indexDivergesFromRight);
+        command.replaceWith = nextText.slice(indexDivergesFromLeft, nextText.length - indexDivergesFromRight);
         command.replaceStart = indexDivergesFromLeft;
         command.replaceCount = (prevText.length - indexDivergesFromRight) - indexDivergesFromLeft;
+        command.fullText = nextText;
 
         return command;
     }

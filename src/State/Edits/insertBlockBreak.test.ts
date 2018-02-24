@@ -12,6 +12,21 @@ chai.use(deepEqual);
 const assert = chai.assert;
 
 describe('insertBlockBreak()', () => {
+    it('should insert a new empty block and select the first character of the block', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const nextState = insertBlockBreak(prevState, new TomeSelection(9, 9));
+
+        assert.equal(nextState.text, 'Line one.\n\n');
+        assert.equal(nextState.selection.from, 11);
+        assert.equal(nextState.selection.to, 11);
+    });
+
     it('should convert the last empty list item of a list into paragraph if a block return is inserted there', () => {
         const emptyListItem = new Markup([MarkupTag.LI, 42, 42]);
 

@@ -9,7 +9,7 @@ import IMEParser    from './IMEParser';
 import debounce     from './Util/debounce';
 
 const SELECTION_DELAY = 10;
-const ACTION_DELAY = 100;
+const ACTION_DELAY = 500;
 const DEBOUNCE_DELAY = 200;
 
 interface IInputEvent extends UIEvent {
@@ -69,7 +69,7 @@ class EventManager {
     }
 
     public raiseIsActioningFlag(delay = ACTION_DELAY) {
-;
+        clearTimeout(this.isActioningTimerId);
 
         this.isActioning = true;
 
@@ -110,6 +110,8 @@ class EventManager {
         const {clipboardData} = e;
         const text = clipboardData.getData('text/plain');
         const html = clipboardData.getData('text/html');
+
+        this.raiseIsActioningFlag();
 
         this.tome.stateManager.applyAction({type: ActionType.PASTE, data: {text, html}});
 

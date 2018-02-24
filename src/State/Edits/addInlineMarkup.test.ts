@@ -71,7 +71,7 @@ describe('addInlineMarkup()', () => {
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.STRONG, 19, 22]));
     });
 
-    it('should add an inline markups accross multiple blocks', () => {
+    it('should add inline markups accross multiple blocks', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor.\n\nSit amet.',
             markups: [

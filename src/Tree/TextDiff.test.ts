@@ -8,7 +8,7 @@ chai.use(deepEqual);
 const assert = chai.assert;
 
 interface IExpectedCommand {
-    text: string;
+    replaceWith: string;
     replaceStart: number;
     replaceCount: number;
 }
@@ -24,7 +24,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: 'fooa',
         patch: {
-            text: 'a',
+            replaceWith: 'a',
             replaceStart: 3,
             replaceCount: 0
         }
@@ -33,7 +33,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: 'afoo',
         patch: {
-            text: 'a',
+            replaceWith: 'a',
             replaceStart: 0,
             replaceCount: 0
         }
@@ -42,7 +42,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: 'foao',
         patch: {
-            text: 'a',
+            replaceWith: 'a',
             replaceStart: 2,
             replaceCount: 0
         }
@@ -51,7 +51,7 @@ const testCases: ITestCase[] = [
         prev: 'fooa',
         next: 'foo',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 3,
             replaceCount: 1
         }
@@ -60,7 +60,7 @@ const testCases: ITestCase[] = [
         prev: 'afoo',
         next: 'foo',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 0,
             replaceCount: 1
         }
@@ -69,7 +69,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: 'bar',
         patch: {
-            text: 'bar',
+            replaceWith: 'bar',
             replaceStart: 0,
             replaceCount: 3
         }
@@ -78,7 +78,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: 'fao',
         patch: {
-            text: 'a',
+            replaceWith: 'a',
             replaceStart: 1,
             replaceCount: 1
         }
@@ -87,7 +87,7 @@ const testCases: ITestCase[] = [
         prev: 'foo',
         next: '',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 0,
             replaceCount: 3
         }
@@ -96,7 +96,7 @@ const testCases: ITestCase[] = [
         prev: '',
         next: 'foo',
         patch: {
-            text: 'foo',
+            replaceWith: 'foo',
             replaceStart: 0,
             replaceCount: 0
         }
@@ -105,7 +105,7 @@ const testCases: ITestCase[] = [
         prev: 'ooo',
         next: 'oooo',
         patch: {
-            text: 'o',
+            replaceWith: 'o',
             replaceStart: 3,
             replaceCount: 0
         }
@@ -114,7 +114,7 @@ const testCases: ITestCase[] = [
         prev: 'fffoobbb',
         next: 'fffoooobbb',
         patch: {
-            text: 'oo',
+            replaceWith: 'oo',
             replaceStart: 5,
             replaceCount: 0
         }
@@ -123,7 +123,7 @@ const testCases: ITestCase[] = [
         prev: 'oooo',
         next: 'ooo',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 3,
             replaceCount: 1
         }
@@ -132,7 +132,7 @@ const testCases: ITestCase[] = [
         prev: 'fffoooobbb',
         next: 'fffoobbb',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 5,
             replaceCount: 2
         }
@@ -141,7 +141,7 @@ const testCases: ITestCase[] = [
         prev: 'fffawdawdawdawdbbb',
         next: 'fffabbb',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 4,
             replaceCount: 11
         }
@@ -150,7 +150,7 @@ const testCases: ITestCase[] = [
         prev: 'foo    bar.',
         next: 'foo bar.',
         patch: {
-            text: '',
+            replaceWith: '',
             replaceStart: 4,
             replaceCount: 3
         }
@@ -164,7 +164,7 @@ describe('TextDiff', () => {
                 const command = TextDiff.diff(prev, next);
 
                 try {
-                    assert.deepEqual(command, patch);
+                    assert.deepEqual(command, {...patch, fullText: next});
                 } catch (err) {
                     console.error(testCases[i]);
 
