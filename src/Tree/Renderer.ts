@@ -38,7 +38,9 @@ class Renderer {
             html += text.length ? text : `<${MarkupTag.BR}>`;
         }
 
-        if (parent && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
+        if (parent && parent.isBlock && parent.childNodes[parent.childNodes.length - 1] === node && html.match(/ $/)) {
+            // if last child of block parent and a trailing space, add an anchor break
+
             html += `<${MarkupTag.BR}>`;
         }
 
