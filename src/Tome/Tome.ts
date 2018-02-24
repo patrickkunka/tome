@@ -1,6 +1,6 @@
 import merge from 'helpful-merge';
 
-import ConfigRoot         from '../Config/ConfigRoot';
+import Config             from '../Config/Root';
 import Dom                from '../Dom/Dom';
 import EventManager       from '../Dom/EventManager';
 import ActionType         from '../State/Constants/ActionType';
@@ -15,7 +15,7 @@ import ITome              from './Interfaces/ITome';
 
 class Tome implements ITome {
     public dom:          Dom          = new Dom();
-    public config:       ConfigRoot   = new ConfigRoot();
+    public config:       Config       = new Config();
     public tree:         Tree         = new Tree(this);
     public stateManager: StateManager = new StateManager(this);
     public eventManager: EventManager = new EventManager(this);

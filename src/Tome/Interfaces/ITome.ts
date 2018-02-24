@@ -1,4 +1,4 @@
-import Config       from '../../Config/ConfigRoot';
+import Config       from '../../Config/Root';
 import Dom          from '../../Dom/Dom';
 import EventManager from '../../Dom/EventManager';
 import State        from '../../State/State';

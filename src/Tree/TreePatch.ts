@@ -205,7 +205,7 @@ class TreePatch {
         }
 
         if (WhitespaceExpression.trailing.test(textContent)) {
-            node.replaceData(textContent.length, 1, NON_BREAKING_SPACE);
+            node.replaceData(textContent.length - 1, 1, NON_BREAKING_SPACE);
         }
     }
 }

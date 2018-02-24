@@ -2,7 +2,7 @@ import IAnchorData from '../Dom/Interfaces/IAnchorData';
 import ActionType  from '../State/Constants/ActionType';
 import State       from '../State/State';
 
-class ConfigCallbacks {
+class Callbacks {
     public onStateChange:  (state: State, actionType: ActionType) => void = null;
     public onAddAnchor:    (handlerCreate: (anchorData: IAnchorData) => void) => void = null;
     public onValueChange:  () => void = null;
@@ -12,4 +12,4 @@ class ConfigCallbacks {
     }
 }
 
-export default ConfigCallbacks;
+export default Callbacks;

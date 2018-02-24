@@ -54,6 +54,10 @@ class StateManager {
         if (typeof fn === 'function') {
             fn(this.state, ActionType.UNDO);
         }
+
+        if (this.tome.config.debug.enable) {
+            console.info(`UNDO (${this.historyIndex})`);
+        }
     }
 
     public redo(): void {
@@ -71,6 +75,10 @@ class StateManager {
 
         if (typeof fn === 'function') {
             fn(this.state, ActionType.REDO);
+        }
+
+        if (this.tome.config.debug.enable) {
+            console.info('REDO (${this.historyIndex})');
         }
     }
 
@@ -103,8 +111,6 @@ class StateManager {
         manipulation = this.getManipulationTypeForActionType(action);
 
         const nextState = createStateFromAction(this.state, action);
-
-        console.info(manipulation);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
@@ -157,6 +163,10 @@ class StateManager {
 
         if (typeof fn === 'function') {
             fn(this.state, action.type);
+        }
+
+        if (this.tome.config.debug.enable) {
+            console.info(`${manipulation} (${this.historyIndex}): ${action.type}`);
         }
     }
 
