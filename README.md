@@ -18,7 +18,6 @@ In progress..
 - additional IME mutation detection work
 - custom blocks
 - ~~~performance optimisations~~~
-- bug: selection changes direction when toggling off an inline markup
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

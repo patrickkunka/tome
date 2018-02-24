@@ -33,9 +33,7 @@ class StateManager {
     }
 
     public init(initialValue: IValue) {
-        this.history.push(new State(initialValue));
-
-        this.historyIndex++;
+        this.pushStateToHistory(new State(initialValue));
     }
 
     public undo(): void {
@@ -131,9 +129,7 @@ class StateManager {
 
         switch (manipulation) {
             case HistoryManipulationType.PUSH:
-                this.history.push(nextState);
-
-                this.historyIndex++;
+                this.pushStateToHistory(nextState);
 
                 break;
             case HistoryManipulationType.REPLACE:
@@ -191,6 +187,19 @@ class StateManager {
 
     private allowPush() {
         this.canPushState = true;
+    }
+
+    private pushStateToHistory(nextState) {
+        const {limit} = this.tome.config.history;
+
+        if (this.historyIndex < limit - 1) {
+            this.history.push(nextState);
+
+            this.historyIndex++;
+        } else {
+            this.history.shift();
+            this.history.push(nextState);
+        }
     }
 
     private getManipulationTypeForActionType(action: Action): HistoryManipulationType {

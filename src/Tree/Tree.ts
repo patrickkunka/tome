@@ -121,7 +121,7 @@ class Tree {
 
         selection.removeAllRanges();
 
-        if (direction === SelectionDirection.LTR) {
+        if (direction === SelectionDirection.RTL) {
             selection.setBaseAndExtent(
                 nodeRight,
                 Math.min(offsetEnd, nodeRight.textContent.length),
