@@ -10,6 +10,7 @@ interface ITreePatchCommand {
     textPatchCommand?: TextPatchCommand;
     nextTag?: MarkupTag;
     nextNode?: TomeNode;
+    prevNode?: TomeNode;
 }
 
 export default ITreePatchCommand;

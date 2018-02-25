@@ -59,8 +59,19 @@ class TreePatch {
         const addedTomeNode = currentCommand.nextNode;
         const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent);
         const addedTomeNodeEl = TreePatch.renderHtmlToDom(addedTomeNodeHtml);
+        const {parent} = params;
 
-        params.parent.insertBefore(addedTomeNodeEl, currentNode);
+        parent.insertBefore(addedTomeNodeEl, currentNode);
+
+        if (
+            addedTomeNode.text === HtmlEntity.LINE_BREAK &&
+            addedTomeNode.parent.lastChild === addedTomeNode &&
+            parent.lastChild.nodeName.toLowerCase() !== MarkupTag.BR
+        ) {
+            // Add safety break after trailing line break to ensure selectable
+
+            parent.innerHTML += `<${MarkupTag.BR}>`;
+        }
 
         TreePatch.patch(params, currentNode, ++commandIndex);
     }
@@ -68,9 +79,21 @@ class TreePatch {
     private static removeNode(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number
+        commandIndex: number,
+        currentCommand: TreePatchCommand
     ): void {
-        const {nextSibling} = currentNode;
+        const {prevNode} = currentCommand;
+        const {parent} = params;
+
+        let {nextSibling} = currentNode;
+
+        if (prevNode.parent.lastChild === prevNode && nextSibling) {
+            // Remove extraneous nextSibling (safety break)
+
+            parent.removeChild(nextSibling);
+
+            nextSibling = null;
+        }
 
         params.parent.removeChild(currentNode);
 

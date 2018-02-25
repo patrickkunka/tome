@@ -12,7 +12,7 @@ class TomeNode {
     public path:       number[]   = [];
 
     get type(): MarkupType {
-        return Util.getMarkupType(this[0]);
+        return Util.getMarkupType(this.tag);
     }
 
     get isBlock(): boolean {
@@ -35,8 +35,12 @@ class TomeNode {
         return this.tag === MarkupTag.BR;
     }
 
-    get length() {
+    get length(): number {
         return this.end - this.start;
+    }
+
+    get lastChild(): TomeNode {
+        return this.childNodes[this.childNodes.length - 1] || null;
     }
 }
 

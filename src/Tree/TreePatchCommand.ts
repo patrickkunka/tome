@@ -9,6 +9,7 @@ class TreePatchCommand {
     public textPatchCommand: TextPatchCommand   = null;
     public nextTag:          MarkupTag          = null;
     public nextNode:         TomeNode           = null;
+    public prevNode:         TomeNode           = null;
 
     get isNone(): boolean {
         return this.type === NodeChangeType.NONE;

@@ -265,7 +265,9 @@ class StateManager {
             // Caret is lodged between a safety <br> and
             // the end of block
 
-            virtualAnchorNode = virtualAnchorNode.childNodes[anchorOffset];
+            const childIndex = Math.min(virtualAnchorNode.childNodes.length - 1, anchorOffset);
+
+            virtualAnchorNode = virtualAnchorNode.childNodes[childIndex];
             anchorOffset = virtualAnchorNode.text.length;
         }
 
@@ -279,9 +281,10 @@ class StateManager {
             extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
             virtualExtentNode = Util.getNodeByPath(extentPath, this.tome.tree.root);
 
-            if (virtualExtentNode.isBlock && extentOffset > 0) {
-                virtualExtentNode = virtualExtentNode.childNodes[extentOffset];
+            if ((virtualExtentNode.isBlock || virtualExtentNode.isListItem) && extentOffset > 0) {
+                const childIndex = Math.min(virtualExtentNode.childNodes.length - 1, extentOffset);
 
+                virtualExtentNode = virtualExtentNode.childNodes[childIndex];
                 extentOffset = virtualExtentNode.text.length;
             }
         }

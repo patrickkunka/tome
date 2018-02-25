@@ -164,7 +164,7 @@ class TreeDiff {
         let matchFound = false;
 
         while (!matchFound && offset <= TreeDiff.MAX_SCAN_OFFSET_REMOVE) {
-            newCommands.push(TreeDiff.createRemoveCommand());
+            newCommands.push(TreeDiff.createRemoveCommand(prevChildren[prevPointer + offset]));
 
             offset++;
 
@@ -184,7 +184,7 @@ class TreeDiff {
 
     private static diffNodes(prevNode: TomeNode = null, nextNode: TomeNode = null): TreePatchCommand {
         if (prevNode && !nextNode) {
-            return TreeDiff.createRemoveCommand();
+            return TreeDiff.createRemoveCommand(prevNode);
         } else if (nextNode && !prevNode) {
             return TreeDiff.createAddCommand(nextNode);
         } else if (
@@ -229,8 +229,8 @@ class TreeDiff {
      * Creates and maps a patch command representing a node to be removed.
      */
 
-    private static createRemoveCommand(): TreePatchCommand {
-        return TreeDiff.createPatchCommand({type: REMOVE});
+    private static createRemoveCommand(prevNode: TomeNode): TreePatchCommand {
+        return TreeDiff.createPatchCommand({type: REMOVE, prevNode});
     }
 
     /**

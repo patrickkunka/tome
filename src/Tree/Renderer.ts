@@ -45,7 +45,7 @@ class Renderer {
         }
 
         if (node.tag !== MarkupTag.TEXT && !node.isSelfClosing) {
-            html += '</' + node.tag + '>';
+            html += `</${node.tag}>`;
         }
 
         return html;
