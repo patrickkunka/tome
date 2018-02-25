@@ -7,7 +7,7 @@ import State              from '../State';
  */
 
 function overrideActiveInlineMarkups(prevState: State, nextState: State, from: number, to: number) {
-    return prevState.activeInlineMarkups.overrides.reduce((_localNextState, tag) => (
+    return prevState.activeInlineMarkups.overrides.reduce((_, tag) => (
         prevState.isTagActive(tag) ?
             removeInlineMarkup(nextState, tag, from, to) :
             addInlineMarkup(nextState, tag, from, to)
