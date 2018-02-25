@@ -21,6 +21,8 @@ class State {
 
             merge(this, rawValue);
 
+            this.selection.from = this.selection.to = 0;
+
             const textLength = this.text.length;
 
             if (this.markups.length < 1) {
@@ -35,11 +37,11 @@ class State {
         Object.seal(this);
     }
 
-    get length() {
+    get length(): number {
         return this.text.length;
     }
 
-    public isTagActive(tag: MarkupTag) {
+    public isTagActive(tag: MarkupTag): boolean {
         return this.activeInlineMarkups.allOfTag(tag).length > 0;
     }
 }

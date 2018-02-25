@@ -18,6 +18,7 @@ In progress..
 - additional IME mutation detection work
 - custom blocks
 - ~~~performance optimisations~~~
+- BUG: does not select new line when inserting line break
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*

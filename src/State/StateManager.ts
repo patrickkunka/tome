@@ -40,14 +40,13 @@ class StateManager {
         if (this.historyIndex === 0) return;
 
         const fn = this.tome.config.callbacks.onStateChange;
+        const prevState = this.state;
 
         this.historyIndex--;
 
         this.tome.eventManager.raiseIsActioningFlag();
 
-        this.tome.tree.render(true);
-
-        this.tome.tree.positionCaret(this.state.selection);
+        this.renderTreeToDom(prevState);
 
         if (typeof fn === 'function') {
             fn(this.state, ActionType.UNDO);
@@ -62,21 +61,20 @@ class StateManager {
         if (this.history.length - 1 === this.historyIndex) return;
 
         const fn = this.tome.config.callbacks.onStateChange;
+        const prevState = this.state;
 
         this.historyIndex++;
 
         this.tome.eventManager.raiseIsActioningFlag();
 
-        this.tome.tree.render(true);
-
-        this.tome.tree.positionCaret(this.state.selection);
+        this.renderTreeToDom(prevState);
 
         if (typeof fn === 'function') {
             fn(this.state, ActionType.REDO);
         }
 
         if (this.tome.config.debug.enable) {
-            console.info('REDO (${this.historyIndex})');
+            console.info(`REDO (${this.historyIndex})`);
         }
     }
 
@@ -108,7 +106,8 @@ class StateManager {
 
         manipulation = this.getManipulationTypeForActionType(action);
 
-        const nextState = createStateFromAction(this.state, action);
+        const prevState = this.state;
+        const nextState = createStateFromAction(prevState, action);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
@@ -148,9 +147,7 @@ class StateManager {
         }
 
         if (action.type !== ActionType.SET_SELECTION && action.type !== ActionType.MUTATE) {
-            this.tome.tree.render(true);
-
-            this.tome.tree.positionCaret(this.state.selection);
+            this.renderTreeToDom(prevState);
         } else if (action.type === ActionType.MUTATE) {
             // Update internal tree only, but do not render.
 
@@ -311,6 +308,20 @@ class StateManager {
         rangeTo = Math.min(to.node.start + to.offset, to.node.end);
 
         return new TomeSelection(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
+    }
+
+    private renderTreeToDom(prevState: State) {
+        try {
+            this.tome.tree.render(true);
+
+            this.tome.tree.positionCaret(this.state.selection);
+        } catch (err) {
+            if (this.tome.config.debug.enable) {
+                console.error('[StateManager] Error while transitioning between states:', prevState, this.state);
+            }
+
+            throw err;
+        }
     }
 }
 

@@ -2,6 +2,8 @@ import HtmlEntity           from '../State/Constants/HtmlEntity';
 import MarkupTag            from '../State/Constants/MarkupTag';
 import NodeChangeType       from './Constants/NodeChangeType';
 import WhitespaceExpression from './Constants/WhitespaceExpression';
+import ITreePatchOperation  from './Interfaces/ITreePatchOperation';
+import ITreePatchParams     from './Interfaces/ITreePatchParams';
 import Renderer             from './Renderer';
 import TreePatchCommand     from './TreePatchCommand';
 
@@ -16,21 +18,9 @@ const {
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
-interface IPatchParams {
-    commands: TreePatchCommand[];
-    parent: HTMLElement;
-}
-
-type IPatchOperation = (
-    params: IPatchParams,
-    currentNode: Node,
-    commandIndex: number,
-    currentCommand: TreePatchCommand
-) => void;
-
 class TreePatch {
     public static patch(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number = 0
     ): void {
@@ -41,7 +31,7 @@ class TreePatch {
         return TreePatch.getOperationForType(currentCommand.type)(params, currentNode, commandIndex, currentCommand);
     }
 
-    private static getOperationForType(type: NodeChangeType): IPatchOperation {
+    private static getOperationForType(type: NodeChangeType): ITreePatchOperation {
         switch (type) {
             case ADD:
                 return TreePatch.addNode;
@@ -61,7 +51,7 @@ class TreePatch {
     }
 
     private static addNode(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
@@ -76,7 +66,7 @@ class TreePatch {
     }
 
     private static removeNode(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number
     ): void {
@@ -88,7 +78,7 @@ class TreePatch {
     }
 
     private static updateText(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
@@ -120,7 +110,7 @@ class TreePatch {
     }
 
     private static updateTag(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
@@ -137,14 +127,14 @@ class TreePatch {
     }
 
     private static updateChildren(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {firstChild} = currentNode;
 
-        const childParams: IPatchParams = {
+        const childParams: ITreePatchParams = {
             ...params,
             commands: currentCommand.childCommands,
             parent: currentNode as HTMLElement
@@ -155,7 +145,7 @@ class TreePatch {
     }
 
     private static replaceNode(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
@@ -171,7 +161,7 @@ class TreePatch {
     }
 
     private static maintainNode(
-        params: IPatchParams,
+        params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number
     ): void {
