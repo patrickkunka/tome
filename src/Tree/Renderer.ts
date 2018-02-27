@@ -1,6 +1,7 @@
-import HtmlEntity from '../State/Constants/HtmlEntity';
-import MarkupTag  from '../State/Constants/MarkupTag';
-import TomeNode   from './TomeNode';
+import HtmlEntity           from '../State/Constants/HtmlEntity';
+import MarkupTag            from '../State/Constants/MarkupTag';
+import TomeNode             from './TomeNode';
+import createAttributesList from './Util/createAttributesList';
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
@@ -13,7 +14,9 @@ class Renderer {
         let html: string = '';
 
         if (node.tag !== MarkupTag.TEXT) {
-            html += `<${node.tag}${node.tag === MarkupTag.A ? ' href=\"javascript:void(0)\"' : ''}>`;
+            const attributesList = createAttributesList(node.tag);
+
+            html += `<${node.tag + (attributesList.length ? ' ' + attributesList.join(' ') : '')}>`;
         }
 
         if (node.childNodes.length) {
@@ -22,8 +25,8 @@ class Renderer {
             // At #text leaf node, or at line break node at end of parent block
 
             let text = node.text
-            // Replace 2 consecutive spaces with visible pattern of alternating
-            // space/non-breaking space
+                // Replace 2 consecutive spaces with visible pattern of alternating
+                // space/non-breaking space
 
                 .replace(/ {2}/g, ` ${NON_BREAKING_SPACE}`)
 

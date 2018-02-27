@@ -93,6 +93,7 @@ class Util {
             case MarkupTag.OL:
             case MarkupTag.UL:
             case MarkupTag.P:
+            case MarkupTag.DIV:
                 return MarkupType.BLOCK;
             case MarkupTag.LI:
                 return MarkupType.LIST_ITEM;

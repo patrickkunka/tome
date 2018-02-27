@@ -9,7 +9,7 @@ import Markup     from '../Markup';
  * markup.
  */
 
-function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
+function splitMarkups(markups: Markup[], splitIndex: number, customTag: MarkupTag = null): Markup[] {
     let listToExtend = null;
     let lastListItem = null;
 
@@ -24,7 +24,7 @@ function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
 
             const newStartIndex = splitIndex + HtmlEntity.BLOCK_BREAK.length;
             const newTag = markup.isBlock && markup.end === newStartIndex ?
-                MarkupTag.P : markup.tag;
+                (customTag || MarkupTag.P) : markup.tag;
 
             let j = i + 1;
             let insertIndex = -1;

@@ -5,6 +5,7 @@ import changeBlockType     from './Edits/changeBlockType';
 import del                 from './Edits/del';
 import insert              from './Edits/insert';
 import insertBlockBreak    from './Edits/insertBlockBreak';
+import insertCustomBlock   from './Edits/insertCustomBlock';
 import insertFromClipboard from './Edits/insertFromClipboard';
 import insertLineBreak     from './Edits/insertLineBreak';
 import replaceValue        from './Edits/replaceValue';
@@ -28,6 +29,8 @@ function createStateFromAction(prevState: State, action: Action): State {
             return insert(prevState, action.range, action.content);
         case ActionType.INSERT_BLOCK_BREAK:
             return insertBlockBreak(prevState, action.range);
+        case ActionType.INSERT_CUSTOM_BLOCK:
+            return insertCustomBlock(prevState, action.range);
         case ActionType.INSERT_LINE_BREAK:
             return insertLineBreak(prevState, action.range);
         case ActionType.TOGGLE_INLINE:

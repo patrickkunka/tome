@@ -20,7 +20,8 @@ function insert(
     prevState: State,
     range: ISelection,
     content: string = '',
-    isPasting: boolean = false
+    isPasting: boolean = false,
+    insertWithTag: MarkupTag = null
 ): State {
     const totalDeleted      = range.to - range.from;
     const before            = prevState.text.slice(0, range.from);
@@ -46,7 +47,7 @@ function insert(
     );
 
     if (isBlockBreaking) {
-        nextState.markups = splitMarkups(nextState.markups, range.from);
+        nextState.markups = splitMarkups(nextState.markups, range.from, insertWithTag);
 
         // TODO: make whitespace trimming available via config
 

@@ -76,6 +76,10 @@ class Tome implements ITome {
         this.stateManager.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
     }
 
+    public insertCustomBlock() {
+        this.stateManager.applyAction({type: ActionType.INSERT_CUSTOM_BLOCK});
+    }
+
     private init(el: HTMLElement, config: any): void {
         merge(this.config, config, {
             deep: true,

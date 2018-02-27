@@ -6,6 +6,7 @@ enum ActionType {
     DELETE              = 'DELETE',
     INSERT              = 'INSERT',
     INSERT_BLOCK_BREAK  = 'INSERT_BLOCK_BREAK',
+    INSERT_CUSTOM_BLOCK = 'INSERT_CUSTOM_BLOCK',
     INSERT_LINE_BREAK   = 'INSERT_LINE_BREAK',
     MUTATE              = 'MUTATE',
     NONE                = 'NONE',
