@@ -6,6 +6,7 @@ import EventManager       from '../Dom/EventManager';
 import ActionType         from '../State/Constants/ActionType';
 import MarkupTag          from '../State/Constants/MarkupTag';
 import MarkupType         from '../State/Constants/MarkupType';
+import ICustomBlock       from '../State/Interfaces/ICustomBlock';
 import IValue             from '../State/Interfaces/IValue';
 import State              from '../State/State';
 import StateManager       from '../State/StateManager';
@@ -76,8 +77,21 @@ class Tome implements ITome {
         this.stateManager.applyAction({type: ActionType.CHANGE_BLOCK_TYPE, tag});
     }
 
-    public insertCustomBlock() {
-        this.stateManager.applyAction({type: ActionType.INSERT_CUSTOM_BLOCK});
+    public insertCustomBlock(type: string, data = {}) {
+        if (!type || typeof type !== 'string') {
+            throw new TypeError(`[Tome] A valid custom block type must be provided`);
+        }
+
+        if (typeof this.config.customBlocks[type] !== 'function') {
+            throw new TypeError(`[Tome] No custom block registered of type "${type}"`);
+        }
+
+        const customBlock: ICustomBlock = {
+            type,
+            data
+        };
+
+        this.stateManager.applyAction({type: ActionType.INSERT_CUSTOM_BLOCK, data: customBlock});
     }
 
     private init(el: HTMLElement, config: any): void {

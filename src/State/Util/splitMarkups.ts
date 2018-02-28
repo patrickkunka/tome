@@ -1,6 +1,8 @@
-import HtmlEntity from '../Constants/HtmlEntity';
-import MarkupTag  from '../Constants/MarkupTag';
-import Markup     from '../Markup';
+import HtmlEntity   from '../Constants/HtmlEntity';
+import MarkupTag    from '../Constants/MarkupTag';
+import ICustomBlock from '../Interfaces/ICustomBlock';
+import IMarkup      from '../Interfaces/IMarkup';
+import Markup       from '../Markup';
 
 /**
  * Splits a markup at the provided index, creating a new markup
@@ -9,7 +11,7 @@ import Markup     from '../Markup';
  * markup.
  */
 
-function splitMarkups(markups: Markup[], splitIndex: number, customTag: MarkupTag = null): Markup[] {
+function splitMarkups(markups: Markup[], splitIndex: number, customBlock: ICustomBlock = null): Markup[] {
     let listToExtend = null;
     let lastListItem = null;
 
@@ -22,9 +24,11 @@ function splitMarkups(markups: Markup[], splitIndex: number, customTag: MarkupTa
         if (markup.start <= splitIndex && markup.end > splitIndex) {
             // Iterate through any markup that envelops the split index
 
+            const customBlockTag = customBlock ? (customBlock.type as MarkupTag) : null;
+
             const newStartIndex = splitIndex + HtmlEntity.BLOCK_BREAK.length;
             const newTag = markup.isBlock && markup.end === newStartIndex ?
-                (customTag || MarkupTag.P) : markup.tag;
+                (customBlockTag || MarkupTag.P) : markup.tag;
 
             let j = i + 1;
             let insertIndex = -1;
@@ -50,7 +54,13 @@ function splitMarkups(markups: Markup[], splitIndex: number, customTag: MarkupTa
                 continue;
             }
 
-            newMarkup = new Markup([newTag, newStartIndex, originalMarkupEnd]);
+            const markupArgs: IMarkup = [newTag, newStartIndex, originalMarkupEnd];
+
+            if (customBlock && customBlock.data) {
+                markupArgs[3] = customBlock.data;
+            }
+
+            newMarkup = new Markup(markupArgs);
 
             // Find appropriate insertion index
 

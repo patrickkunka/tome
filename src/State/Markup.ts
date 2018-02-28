@@ -50,7 +50,7 @@ class Markup {
     }
 
     get isBlock(): boolean {
-        return this.type === MarkupType.BLOCK;
+        return [MarkupType.BLOCK, MarkupType.CUSTOM_BLOCK].includes(this.type);
     }
 
     get isInline(): boolean {

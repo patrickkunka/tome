@@ -12,11 +12,15 @@ import TreePatch          from './TreePatch';
 class Tree {
     public root: TomeNode = null;
 
-    private tome: Tome = null;
-    private lastRender: string = '';
+    private tome:       Tome      = null;
+    private renderer:   Renderer  = null;
+    private treePatch:  TreePatch = null;
+    private lastRender: string    = '';
 
     constructor(tome) {
         this.tome = tome;
+        this.renderer = new Renderer(tome);
+        this.treePatch = new TreePatch(this.renderer);
     }
 
     public render(shouldUpdateDom: boolean = false): void {
@@ -27,14 +31,14 @@ class Tree {
         if (!this.lastRender) {
             // Initial render
 
-            const nextRender = Renderer.renderNodes(nextRoot.childNodes);
+            const nextRender = this.renderer.renderNodes(nextRoot.childNodes);
 
             rootEl.innerHTML = this.lastRender = nextRender;
         } else if (shouldUpdateDom) {
             const treePatchCommand = TreeDiff.diff(prevRoot, nextRoot);
 
             if (!treePatchCommand.isNone) {
-                TreePatch.patch({
+                this.treePatch.patch({
                     parent: rootEl,
                     commands: treePatchCommand.childCommands
                 }, rootEl.childNodes[0]);

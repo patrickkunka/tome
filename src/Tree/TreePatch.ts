@@ -19,7 +19,13 @@ const {
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
 class TreePatch {
-    public static patch(
+    private renderer: Renderer = null;
+
+    constructor(renderer) {
+        this.renderer = renderer;
+    }
+
+    public patch(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number = 0
@@ -28,37 +34,38 @@ class TreePatch {
 
         if (!currentCommand) return;
 
-        return TreePatch.getOperationForType(currentCommand.type)(params, currentNode, commandIndex, currentCommand);
+        return this.getOperationForType(currentCommand.type)
+            .call(this, params, currentNode, commandIndex, currentCommand);
     }
 
-    private static getOperationForType(type: NodeChangeType): ITreePatchOperation {
+    private getOperationForType(type: NodeChangeType): ITreePatchOperation {
         switch (type) {
             case ADD:
-                return TreePatch.addNode;
+                return this.addNode;
             case REMOVE:
-                return TreePatch.removeNode;
+                return this.removeNode;
             case UPDATE_TEXT:
-                return TreePatch.updateText;
+                return this.updateText;
             case UPDATE_TAG:
-                return TreePatch.updateTag;
+                return this.updateTag;
             case UPDATE_CHILDREN:
-                return TreePatch.updateChildren;
+                return this.updateChildren;
             case UPDATE_NODE:
-                return TreePatch.replaceNode;
+                return this.replaceNode;
             default:
-                return TreePatch.maintainNode;
+                return this.maintainNode;
         }
     }
 
-    private static addNode(
+    private addNode(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const addedTomeNode = currentCommand.nextNode;
-        const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent);
-        const addedTomeNodeEl = TreePatch.renderHtmlToDom(addedTomeNodeHtml);
+        const addedTomeNodeHtml = this.renderer.renderNode(addedTomeNode, addedTomeNode.parent);
+        const addedTomeNodeEl = this.renderHtmlToDom(addedTomeNodeHtml);
         const {parent} = params;
 
         parent.insertBefore(addedTomeNodeEl, currentNode);
@@ -73,10 +80,10 @@ class TreePatch {
             parent.innerHTML += `<${MarkupTag.BR}>`;
         }
 
-        TreePatch.patch(params, currentNode, ++commandIndex);
+        this.patch(params, currentNode, ++commandIndex);
     }
 
-    private static removeNode(
+    private removeNode(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
@@ -97,10 +104,10 @@ class TreePatch {
 
         params.parent.removeChild(currentNode);
 
-        TreePatch.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, ++commandIndex);
     }
 
-    private static updateText(
+    private updateText(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
@@ -127,12 +134,12 @@ class TreePatch {
             currentNodeAsCharacterData.replaceData(replaceStart, replaceCount, replaceWith);
         }
 
-        TreePatch.reinforceWhitespace(currentNodeAsCharacterData);
+        this.reinforceWhitespace(currentNodeAsCharacterData);
 
-        TreePatch.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, ++commandIndex);
     }
 
-    private static updateTag(
+    private updateTag(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
@@ -140,16 +147,16 @@ class TreePatch {
     ): void {
         const {nextSibling} = currentNode;
         const {innerHTML} = currentNode as HTMLElement;
-        const updatedTomeNodeEl = TreePatch.renderHtmlToDom(`<${currentCommand.nextTag}/>`) as HTMLElement;
+        const updatedTomeNodeEl = this.renderHtmlToDom(`<${currentCommand.nextTag}/>`) as HTMLElement;
 
         updatedTomeNodeEl.innerHTML = innerHTML;
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        TreePatch.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, ++commandIndex);
     }
 
-    private static updateChildren(
+    private updateChildren(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
@@ -163,11 +170,11 @@ class TreePatch {
             parent: currentNode as HTMLElement
         };
 
-        TreePatch.patch(childParams, firstChild);
-        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
+        this.patch(childParams, firstChild);
+        this.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
-    private static replaceNode(
+    private replaceNode(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number,
@@ -175,23 +182,23 @@ class TreePatch {
     ): void {
         const {nextSibling} = currentNode;
         const updatedTomeNode = currentCommand.nextNode;
-        const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
-        const updatedTomeNodeEl = TreePatch.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
+        const updatedTomeNodeHtml = this.renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
+        const updatedTomeNodeEl = this.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        TreePatch.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, ++commandIndex);
     }
 
-    private static maintainNode(
+    private maintainNode(
         params: ITreePatchParams,
         currentNode: Node,
         commandIndex: number
     ): void {
-        TreePatch.patch(params, currentNode.nextSibling, ++commandIndex);
+        this.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
-    private static renderHtmlToDom(html: string): Node {
+    private renderHtmlToDom(html: string): Node {
         const temp = document.createElement('div');
 
         temp.innerHTML = html;
@@ -199,7 +206,7 @@ class TreePatch {
         return temp.firstChild;
     }
 
-    private static reinforceWhitespace(node: CharacterData): void {
+    private reinforceWhitespace(node: CharacterData): void {
         const {textContent} = node;
 
         let matches: RegExpExecArray;

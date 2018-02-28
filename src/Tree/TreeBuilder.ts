@@ -41,7 +41,7 @@ class TreeBuilder {
 
                 // Open a new markup at index
 
-                const newNode = TreeBuilder.createNode(markup.tag, node, characterIndex, markup.end);
+                const newNode = TreeBuilder.createNode(markup.tag, node, characterIndex, markup.end, markup.data);
 
                 node.childNodes.push(newNode);
 
@@ -153,7 +153,13 @@ class TreeBuilder {
         return null;
     }
 
-    private static createNode(tag: MarkupTag, parent: TomeNode, start: number, end: number): TomeNode {
+    private static createNode(
+        tag: MarkupTag,
+        parent: TomeNode,
+        start: number,
+        end: number,
+        data: any = null
+    ): TomeNode {
         const node = new TomeNode();
 
         node.tag    = tag;
@@ -161,6 +167,7 @@ class TreeBuilder {
         node.start  = start;
         node.end    = end;
         node.path   = parent.path.slice();
+        node.data   = data;
 
         node.path.push(parent.childNodes.length);
 

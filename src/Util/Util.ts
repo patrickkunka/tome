@@ -93,14 +93,18 @@ class Util {
             case MarkupTag.OL:
             case MarkupTag.UL:
             case MarkupTag.P:
-            case MarkupTag.DIV:
                 return MarkupType.BLOCK;
             case MarkupTag.LI:
                 return MarkupType.LIST_ITEM;
             case MarkupTag.TEXT:
                 return MarkupType.TEXT;
-            default:
+            case MarkupTag.EM:
+            case MarkupTag.A:
+            case MarkupTag.STRONG:
+            case MarkupTag.BR:
                 return MarkupType.INLINE;
+            default:
+                return MarkupType.CUSTOM_BLOCK;
         }
     }
 

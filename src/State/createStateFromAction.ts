@@ -30,7 +30,7 @@ function createStateFromAction(prevState: State, action: Action): State {
         case ActionType.INSERT_BLOCK_BREAK:
             return insertBlockBreak(prevState, action.range);
         case ActionType.INSERT_CUSTOM_BLOCK:
-            return insertCustomBlock(prevState, action.range);
+            return insertCustomBlock(prevState, action.range, action.data);
         case ActionType.INSERT_LINE_BREAK:
             return insertLineBreak(prevState, action.range);
         case ActionType.TOGGLE_INLINE:
