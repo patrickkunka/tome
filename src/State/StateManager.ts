@@ -139,9 +139,14 @@ class StateManager {
 
         this.lastActionType = action.type;
 
-        if (action.type === ActionType.CHANGE_BLOCK_TYPE) {
-            // A change of block type will trigger a `selectionchange` event. Momentarily
-            // raise the `isActioning` flag to prevent it from being handled.
+        if (
+            [
+                ActionType.CHANGE_BLOCK_TYPE,
+                ActionType.INSERT_CUSTOM_BLOCK
+            ].includes(action.type)
+        ) {
+            // Theses events will trigger `selectionchange` or `mutations` events.
+            // Momentarily raise the `isActioning` flag to prevent it from being handled.
 
             this.tome.eventManager.raiseIsActioningFlag();
         }

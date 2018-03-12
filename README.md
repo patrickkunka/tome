@@ -16,8 +16,11 @@ In progress..
 - ~~~Move all history related actions out of `Tome` and into to a new state manager class~~~
 - ~~~lists~~~
 - additional IME mutation detection work
-- custom blocks
 - ~~~performance optimisations~~~
+- if at character after a custom block and backspacing, delete the custom block (trigger warn callback)
+- if at character before a custom block and deleting, delete the custom block (trigger warn callback)
+- if in an empty <p> and inserting a custom block, replace the <p> with it
+- if changing block type or toggling inline markup over an inline block, ignore it
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*
