@@ -6,6 +6,7 @@ import Markup                 from '../Markup';
 import State                  from '../State';
 import TomeSelection          from '../TomeSelection';
 import getMarkupOfTypeAtIndex from '../Util/getMarkupOfTypeAtIndex';
+import getNextMarkupOfType    from '../Util/getNextMarkupOfType';
 import insert                 from './insert';
 
 function insertCustomBlock(
@@ -13,12 +14,19 @@ function insertCustomBlock(
     range: TomeSelection,
     customBlock: ICustomBlock
 ): State {
-    let content = '';
+    let nextState = prevState;
+    let replaceIndex = 0;
 
-    const nextState = insert(
-        prevState,
-        range
-    );
+    if (!range.isCollapsed) {
+        nextState = insert(
+            prevState,
+            range
+        );
+    } else {
+        nextState = Object.assign(new State(), prevState);
+        nextState.markups = prevState.markups.slice();
+        nextState.selection = range;
+    }
 
     const {selection} = nextState;
 
@@ -30,26 +38,68 @@ function insertCustomBlock(
 
     if (!markupAtIndex) return nextState;
 
+    const markupIndex = nextState.markups.indexOf(markupAtIndex);
+
     if (
         markupAtIndex.end === selection.from &&
         markupAtIndex.start === selection.from
     ) {
-        const replaceIndex = nextState.markups.indexOf(markupAtIndex);
+        // At empty block, replace with custom block
 
-        const newMarkup = new Markup([
-            customBlock.type as MarkupTag,
-            markupAtIndex.start,
-            markupAtIndex.end,
-            customBlock.data
-        ]);
+        replaceIndex = markupIndex;
+    } else if (
+        markupAtIndex.start < selection.from &&
+        markupAtIndex.end > selection.from
+    ) {
+        // Within block, block break twice to create an empty
+        // block and replace
 
-        nextState.markups[replaceIndex] = newMarkup;
-    } else if (markupAtIndex.end === selection.from) {
-        console.log('end of block');
-    } else if (markupAtIndex.start === selection.from) {
-        console.log('start of block');
+        let i = 2;
+
+        while (i--) {
+            nextState = insert(
+                nextState,
+                nextState.selection,
+                HtmlEntity.BLOCK_BREAK
+            );
+        }
+
+        replaceIndex = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, markupIndex).index;
     } else {
-        console.log('within block');
+        nextState = insert(
+            nextState,
+            nextState.selection,
+            HtmlEntity.BLOCK_BREAK
+        );
+
+        if (markupAtIndex.end === selection.from) {
+            // At end of markup
+
+            replaceIndex = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, markupIndex).index;
+        } else if (markupAtIndex.start === selection.from) {
+            // At start of markup
+
+            replaceIndex = markupIndex;
+        }
+    }
+
+    const {start, end} = nextState.markups[replaceIndex];
+
+    const newMarkup = new Markup([
+        customBlock.type as MarkupTag,
+        start,
+        end,
+        customBlock.data
+    ]);
+
+    nextState.markups[replaceIndex] = newMarkup;
+
+    const nextBlockLocator = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, replaceIndex);
+
+    if (nextBlockLocator) {
+        nextState.selection.from = nextState.selection.to = nextBlockLocator.markup.start;
+    } else {
+        // TODO: set carat at safety break
     }
 
     return nextState;

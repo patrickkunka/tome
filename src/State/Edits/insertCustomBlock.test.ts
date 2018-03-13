@@ -14,7 +14,7 @@ const assert = chai.assert;
 const customTag = 'foo' as MarkupTag;
 
 describe('insertCustomBlock()', () => {
-    it('inserts a block break before a custom block', () => {
+    it('inserts a custom block at the end of a block', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.',
             markups: [
@@ -34,7 +34,27 @@ describe('insertCustomBlock()', () => {
         assert.equal(nextState.markups[1].tag, 'foo');
     });
 
-    it('inserts a block break on either side of a custom block', () => {
+    it('inserts a custom block at the start of a block', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const nextState = insertCustomBlock(prevState, new TomeSelection(0, 0), {
+            type: 'foo',
+            data: {}
+        });
+
+        assert.equal(nextState.text, '\n\nLine one.');
+        assert.equal(nextState.selection.from, 2);
+        assert.equal(nextState.selection.to, 2);
+        assert.equal(nextState.markups.length, 2);
+        assert.equal(nextState.markups[0].tag, 'foo');
+    });
+
+    it('inserts a custom block within a block', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.',
             markups: [
@@ -48,9 +68,31 @@ describe('insertCustomBlock()', () => {
         });
 
         assert.equal(nextState.text, 'Line \n\n\n\none.');
-        assert.equal(nextState.selection.from, 7);
-        assert.equal(nextState.selection.to, 7);
+        assert.equal(nextState.selection.from, 9);
+        assert.equal(nextState.selection.to, 9);
         assert.equal(nextState.markups.length, 3);
-        assert.deepEqual(nextState.markups[1], new Markup([customTag, 7, 7]));
+        assert.deepEqual(nextState.markups[1], new Markup([customTag, 7, 7, {}]));
+    });
+
+    it('replaces an empty block with a custom block', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n\n\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.P, 11, 11]),
+                new Markup([MarkupTag.P, 13, 22])
+            ]
+        });
+
+        const nextState = insertCustomBlock(prevState, new TomeSelection(11, 11), {
+            type: customTag,
+            data: {}
+        });
+
+        assert.equal(nextState.text, 'Line one.\n\n\n\nLine two.');
+        assert.equal(nextState.selection.from, 13);
+        assert.equal(nextState.selection.to, 13);
+        assert.equal(nextState.markups.length, 3);
+        assert.deepEqual(nextState.markups[1], new Markup([customTag, 11, 11, {}]));
     });
 });

@@ -1,6 +1,5 @@
 import HtmlEntity   from '../Constants/HtmlEntity';
 import MarkupTag    from '../Constants/MarkupTag';
-import ICustomBlock from '../Interfaces/ICustomBlock';
 import IMarkup      from '../Interfaces/IMarkup';
 import Markup       from '../Markup';
 
@@ -11,7 +10,7 @@ import Markup       from '../Markup';
  * markup.
  */
 
-function splitMarkups(markups: Markup[], splitIndex: number, customBlock: ICustomBlock = null): Markup[] {
+function splitMarkups(markups: Markup[], splitIndex: number): Markup[] {
     let listToExtend = null;
     let lastListItem = null;
 
@@ -24,11 +23,9 @@ function splitMarkups(markups: Markup[], splitIndex: number, customBlock: ICusto
         if (markup.start <= splitIndex && markup.end > splitIndex) {
             // Iterate through any markup that envelops the split index
 
-            const customBlockTag = customBlock ? (customBlock.type as MarkupTag) : null;
-
             const newStartIndex = splitIndex + HtmlEntity.BLOCK_BREAK.length;
             const newTag = markup.isBlock && markup.end === newStartIndex ?
-                (customBlockTag || MarkupTag.P) : markup.tag;
+                MarkupTag.P : markup.tag;
 
             let j = i + 1;
             let insertIndex = -1;
@@ -55,10 +52,6 @@ function splitMarkups(markups: Markup[], splitIndex: number, customBlock: ICusto
             }
 
             const markupArgs: IMarkup = [newTag, newStartIndex, originalMarkupEnd];
-
-            if (customBlock && customBlock.data) {
-                markupArgs[3] = customBlock.data;
-            }
 
             newMarkup = new Markup(markupArgs);
 

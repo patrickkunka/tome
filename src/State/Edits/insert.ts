@@ -1,6 +1,5 @@
 import HtmlEntity                  from '../Constants/HtmlEntity';
 import MarkupTag                   from '../Constants/MarkupTag';
-import ICustomBlock                from '../Interfaces/ICustomBlock';
 import ISelection                  from '../Interfaces/ISelection';
 import State                       from '../State';
 import adjustMarkups               from '../Util/adjustMarkups';
@@ -21,8 +20,7 @@ function insert(
     prevState: State,
     range: ISelection,
     content: string = '',
-    isPasting: boolean = false,
-    customBlock: ICustomBlock = null
+    isPasting: boolean = false
 ): State {
     const totalDeleted      = range.to - range.from;
     const before            = prevState.text.slice(0, range.from);
@@ -48,11 +46,7 @@ function insert(
     );
 
     if (isBlockBreaking) {
-        nextState.markups = splitMarkups(nextState.markups, range.from, customBlock);
-
-        // TODO: make whitespace trimming available via config
-
-        // totalTrimmed = trimWhitespace(nextState, range.from);
+        nextState.markups = splitMarkups(nextState.markups, range.from);
     } else if (isLineBreaking) {
         nextState = addInlineMarkup(nextState, MarkupTag.BR, range.from, range.from);
     } else if (isDeleting) {
