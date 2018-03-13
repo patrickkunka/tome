@@ -5,7 +5,7 @@ import Markup     from '../Markup';
  * Returns the first markup of the provided type at the provided index.
  */
 
-function getMarkupOfType(markups: Markup[], type: MarkupType, index: number): Markup {
+function getMarkupOfTypeAtIndex(markups: Markup[], type: MarkupType, index: number): Markup {
     // TODO: could be improved with quick sort
 
     for (const markup of markups) {
@@ -21,4 +21,4 @@ function getMarkupOfType(markups: Markup[], type: MarkupType, index: number): Ma
     return null;
 }
 
-export default getMarkupOfType;
+export default getMarkupOfTypeAtIndex;

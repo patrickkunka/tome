@@ -6,6 +6,10 @@ import TomeSelection          from '../TomeSelection';
 import getMarkupOfTypeAtIndex from '../Util/getMarkupOfTypeAtIndex';
 import setActiveMarkups       from '../Util/setActiveMarkups';
 
+/**
+ * Updates the selection in response to caret movement.
+ */
+
 function setSelection(prevState: State, range: ISelection): State {
     const nextState = Object.assign(new State(), prevState);
     const markupAtIndex = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.CUSTOM_BLOCK, range.from);

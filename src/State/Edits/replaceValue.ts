@@ -1,6 +1,10 @@
 import IValue from '../Interfaces/IValue';
 import State  from '../State';
 
+/**
+ * Replaces the entire value of the editor, and moves the caret to the end.
+ */
+
 function replaceValue(data: IValue): State {
     const nextState = new State(data);
 

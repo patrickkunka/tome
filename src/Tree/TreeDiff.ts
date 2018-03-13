@@ -1,3 +1,5 @@
+import MarkupType        from '../State/Constants/MarkupType';
+import Util              from '../Util/Util';
 import NodeChangeType    from './Constants/NodeChangeType';
 import ITreePatchCommand from './Interfaces/ITreePatchCommand';
 import TextDiff          from './TextDiff';
@@ -202,9 +204,11 @@ class TreeDiff {
 
         const childCommands = TreeDiff.diffChildren(prevNode.childNodes, nextNode.childNodes);
         const hasChildChanges = TreeDiff.hasChildChanges(childCommands);
+        const nextMarkupType = Util.getMarkupType(nextNode.tag);
+        const isCustomBlock = nextMarkupType === MarkupType.CUSTOM_BLOCK;
 
         if (prevNode.tag !== nextNode.tag) {
-            return hasChildChanges ?
+            return hasChildChanges || isCustomBlock ?
                 TreeDiff.createUpdateNodeCommand(nextNode) :
                 TreeDiff.createUpdateTagCommand(nextNode);
         }

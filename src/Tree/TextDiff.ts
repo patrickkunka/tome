@@ -33,7 +33,7 @@ class TextDiff {
      * Receives two strings and returns a tuple indicating the left and right indices
      * at which the strings first diverge.
      *
-     * The right index is taken from the end of the string.
+     * NB: The right index is calcuated from the end of the string.
      */
 
     private static getDivergentIndices(prevText, nextText): [number, number] {
