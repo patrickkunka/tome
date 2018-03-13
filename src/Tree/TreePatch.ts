@@ -18,12 +18,22 @@ const {
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
+/**
+ * A static class for patching the editor DOM in response to a change in state and a
+ * tree of diff commands.
+ */
+
 class TreePatch {
     private renderer: Renderer = null;
 
     constructor(renderer) {
         this.renderer = renderer;
     }
+
+    /**
+     * Receives a patch parameter object, and an initial node (the root), and recursively patches
+     * the DOM until it is reconsiled with the virtual tree.
+     */
 
     public patch(
         params: ITreePatchParams,
@@ -37,6 +47,10 @@ class TreePatch {
         return this.getOperationForType(currentCommand.type)
             .call(this, params, currentNode, commandIndex, currentCommand);
     }
+
+    /**
+     * Returns the appropiate patch function for the provided command type.
+     */
 
     private getOperationForType(type: NodeChangeType): ITreePatchOperation {
         switch (type) {
@@ -56,6 +70,10 @@ class TreePatch {
                 return this.maintainNode;
         }
     }
+
+    /**
+     * Renders and adds a node to the DOM.
+     */
 
     private addNode(
         params: ITreePatchParams,
@@ -83,6 +101,10 @@ class TreePatch {
         this.patch(params, currentNode, ++commandIndex);
     }
 
+    /**
+     * Removes a node from the DOM.
+     */
+
     private removeNode(
         params: ITreePatchParams,
         currentNode: Node,
@@ -106,6 +128,12 @@ class TreePatch {
 
         this.patch(params, nextSibling, ++commandIndex);
     }
+
+    /**
+     * Patches the text content of a DOM node using the `CharacterData`
+     * API to reduce visible repaint on text change (avoids spellcheck
+     * underline flicker, etc).
+     */
 
     private updateText(
         params: ITreePatchParams,
@@ -139,6 +167,10 @@ class TreePatch {
         this.patch(params, nextSibling, ++commandIndex);
     }
 
+    /**
+     * Replaces a node with a similar node of identical content but a different tag.
+     */
+
     private updateTag(
         params: ITreePatchParams,
         currentNode: Node,
@@ -155,6 +187,10 @@ class TreePatch {
 
         this.patch(params, nextSibling, ++commandIndex);
     }
+
+    /**
+     * Recursively patches the children of a provided node.
+     */
 
     private updateChildren(
         params: ITreePatchParams,
@@ -174,6 +210,10 @@ class TreePatch {
         this.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
+    /**
+     * Replaces a node with a different node.
+     */
+
     private replaceNode(
         params: ITreePatchParams,
         currentNode: Node,
@@ -190,6 +230,10 @@ class TreePatch {
         this.patch(params, nextSibling, ++commandIndex);
     }
 
+    /**
+     * Skips over a node when no changes are required.
+     */
+
     private maintainNode(
         params: ITreePatchParams,
         currentNode: Node,
@@ -198,6 +242,10 @@ class TreePatch {
         this.patch(params, currentNode.nextSibling, ++commandIndex);
     }
 
+    /**
+     * Recieves an DOM string and returns an DOM node.
+     */
+
     private renderHtmlToDom(html: string): Node {
         const temp = document.createElement('div');
 
@@ -205,6 +253,10 @@ class TreePatch {
 
         return temp.firstChild;
     }
+
+    /**
+     * Ensures irregular whitespace is visible and selectable.
+     */
 
     private reinforceWhitespace(node: CharacterData): void {
         const {textContent} = node;

@@ -1,6 +1,18 @@
 import TextPatchCommand from './TextPatchCommand';
 
+/**
+ * A static class for comparing two strings and constructing a
+ * command object representing the least expensive mutation
+ * to patch the previous version of the string into the next
+ * one.
+ */
+
 class TextDiff {
+    /**
+     * Receives two versions of a string, compares them and and returns a
+     * mapped `TextPatchCommand` object containing patch instructions.
+     */
+
     public static diff(prevText: string, nextText: string): TextPatchCommand {
         const command = new TextPatchCommand();
 
@@ -16,6 +28,13 @@ class TextDiff {
 
         return command;
     }
+
+    /**
+     * Receives two strings and returns a tuple indicating the left and right indices
+     * at which the strings first diverge.
+     *
+     * The right index is taken from the end of the string.
+     */
 
     private static getDivergentIndices(prevText, nextText): [number, number] {
         const prevLength = prevText.length;

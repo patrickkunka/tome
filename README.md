@@ -19,8 +19,11 @@ In progress..
 - ~~~performance optimisations~~~
 - if at character after a custom block and backspacing, delete the custom block (trigger warn callback)
 - if at character before a custom block and deleting, delete the custom block (trigger warn callback)
+- if enveloping a custom block and deleting, trigger warn callback
 - if in an empty <p> and inserting a custom block, replace the <p> with it
-- if changing block type or toggling inline markup over an inline block, ignore it
+- if changing block type or toggling inline markup over a custom block, ignore it
+- if carat is within a custom block and an action is triggered, block it
+- if custom block inserted at end of editor, render empty p tag afterwards so that we can get behind it
 
 ---
 *&copy; 2017 Patrick Kunka / KunkaLabs Ltd*
