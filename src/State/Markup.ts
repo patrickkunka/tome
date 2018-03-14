@@ -53,6 +53,10 @@ class Markup {
         return [MarkupType.BLOCK, MarkupType.CUSTOM_BLOCK].includes(this.type);
     }
 
+    get isCustomBlock(): boolean {
+        return this.type === MarkupType.CUSTOM_BLOCK;
+    }
+
     get isInline(): boolean {
         return this.type === MarkupType.INLINE;
     }

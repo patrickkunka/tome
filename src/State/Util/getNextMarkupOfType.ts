@@ -1,18 +1,21 @@
-import MarkupType     from '../Constants/MarkupType';
 import IMarkupLocator from '../Interfaces/IMarkupLocator';
 import Markup         from '../Markup';
 
 /**
- * Finds the next markup of the provided type, starting from the
+ * Finds the next markup passing the provided test, starting from the
  * provided index.
  *
  * Returns a locator object containing the markup
  * and its index or `null`.
  */
 
-function getNextMarkupOfType(markups: Markup[], markupType: MarkupType, markupIndex: number): IMarkupLocator {
+function getNextMarkupOfType(
+    markups: Markup[],
+    test: (markup: Markup) => boolean,
+    markupIndex: number
+): IMarkupLocator {
     for (let i = markupIndex + 1, markup; (markup = markups[i]); i++) {
-        if (markup.type === markupType) return {
+        if (test(markup)) return {
             markup,
             index: i
         };

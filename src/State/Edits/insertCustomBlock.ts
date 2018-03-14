@@ -64,7 +64,7 @@ function insertCustomBlock(
             );
         }
 
-        replaceIndex = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, markupIndex).index;
+        replaceIndex = getNextMarkupOfType(nextState.markups, markup => markup.isBlock, markupIndex).index;
     } else {
         nextState = insert(
             nextState,
@@ -75,7 +75,7 @@ function insertCustomBlock(
         if (markupAtIndex.end === selection.from) {
             // At end of markup
 
-            replaceIndex = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, markupIndex).index;
+            replaceIndex = getNextMarkupOfType(nextState.markups, markup => markup.isBlock, markupIndex).index;
         } else if (markupAtIndex.start === selection.from) {
             // At start of markup
 
@@ -94,7 +94,15 @@ function insertCustomBlock(
 
     nextState.markups[replaceIndex] = newMarkup;
 
-    const nextBlockLocator = getNextMarkupOfType(nextState.markups, MarkupType.BLOCK, replaceIndex);
+    const nextBlockLocator = getNextMarkupOfType(nextState.markups, markup => markup.isBlock, replaceIndex);
+    const nextBlockIndexOrEnd = nextBlockLocator ? nextBlockLocator.index : nextState.markups.length;
+    const totalRedundantInlineMarkups = nextBlockIndexOrEnd - (replaceIndex + 1);
+
+    if (totalRedundantInlineMarkups > 0) {
+        // Remove any subsequent redundant inline markups
+
+        nextState.markups.splice(replaceIndex + 1, totalRedundantInlineMarkups);
+    }
 
     if (nextBlockLocator) {
         nextState.selection.from = nextState.selection.to = nextBlockLocator.markup.start;

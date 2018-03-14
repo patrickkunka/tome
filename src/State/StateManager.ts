@@ -259,10 +259,11 @@ class StateManager {
 
     private getRangeFromSelection(selection: Selection): TomeSelection {
         const anchorPath = this.tome.dom.getPathFromDomNode(selection.anchorNode);
+        const {root} = this.tome.tree;
         const from = new Caret();
         const to = new Caret();
 
-        let virtualAnchorNode = Util.getNodeByPath(anchorPath, this.tome.tree.root);
+        let virtualAnchorNode = Util.getNodeByPath(anchorPath, root);
         let anchorOffset = selection.anchorOffset;
         let extentOffset = selection.extentOffset;
 
@@ -276,6 +277,15 @@ class StateManager {
             anchorOffset = virtualAnchorNode.text.length;
         }
 
+        if (virtualAnchorNode.isText && virtualAnchorNode.parent === root && anchorOffset > 0) {
+            // Caret is lodged in a block break between blocks
+
+            const [index] = anchorPath;
+
+            virtualAnchorNode = root.childNodes[index + 1];
+            anchorOffset = 0;
+        }
+
         let extentPath = anchorPath;
         let virtualExtentNode: TomeNode = virtualAnchorNode;
         let isRtl = false;
@@ -284,7 +294,7 @@ class StateManager {
 
         if (!selection.isCollapsed) {
             extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
-            virtualExtentNode = Util.getNodeByPath(extentPath, this.tome.tree.root);
+            virtualExtentNode = Util.getNodeByPath(extentPath, root);
 
             if ((virtualExtentNode.isBlock || virtualExtentNode.isListItem) && extentOffset > 0) {
                 const childIndex = Math.min(virtualExtentNode.childNodes.length - 1, extentOffset);

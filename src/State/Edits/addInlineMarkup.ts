@@ -29,6 +29,8 @@ function addInlineMarkup(
             const formatFrom = i === 0 ? from : envelopedBlockMarkup.start;
             const formatTo   = i === enveloped.length - 1 ? to : envelopedBlockMarkup.end;
 
+            if (envelopedBlockMarkup.isCustomBlock) return;
+
             formattedState = addInlineMarkup(
                 formattedState,
                 tag,

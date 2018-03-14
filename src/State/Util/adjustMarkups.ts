@@ -33,6 +33,7 @@ function adjustMarkups(
                 removeMarkup = true;
             } else if (
                 markup.start === fromIndex &&
+                !markup.isCustomBlock &&
                 (markup.isBlock || markup.isListItem || (markup.isInline && totalAdded > 0))
             ) {
                 // Markup should be preserved is a) is block element or list item,
@@ -47,7 +48,7 @@ function adjustMarkups(
                 newMarkup = cloneMarkup(markup);
 
                 newMarkup[1] = newMarkup[2] = markup.start + adjustment;
-            } else if (markup.isInline || markup.start > fromIndex) {
+            } else if (markup.isInline || markup.isCustomBlock || markup.start > fromIndex) {
                 removeMarkup = true;
             }
         } else if (markup.start <= fromIndex && markup.end >= toIndex) {
@@ -63,7 +64,7 @@ function adjustMarkups(
                 newMarkup[1] += adjustment;
             }
         } else if (markup.start >= toIndex) {
-            // Markup starts after Selection
+            // Markup starts after selection
 
             newMarkup = cloneMarkup(markup);
 

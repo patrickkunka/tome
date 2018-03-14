@@ -46,13 +46,11 @@ function backspace(prevState: State, range: TomeSelection): State {
         return prevState;
     }
 
-    if (range.isCollapsed) {
-        // If previous character is a block break, ingest previous two characters, else one
+    // If previous character is a block break, ingest previous two characters, else one
 
-        const precedingSample = prevState.text.slice(range.from - 2, range.from);
+    const precedingSample = prevState.text.slice(range.from - 2, range.from);
 
-        fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? range.from - 2 : range.from - 1;
-    }
+    fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? range.from - 2 : range.from - 1;
 
     return insert(prevState, {from: fromIndex, to: range.to});
 }
