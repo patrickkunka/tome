@@ -81,11 +81,7 @@ class Tome implements ITome {
 
     public insertCustomBlock(type: string, data = {}) {
         if (!type || typeof type !== 'string') {
-            throw new TypeError(`[Tome] A valid custom block type must be provided`);
-        }
-
-        if (typeof this.config.customBlocks[type] !== 'function') {
-            throw new TypeError(`[Tome] No custom block registered of type "${type}"`);
+            throw new TypeError('[Tome] A valid custom block type must be provided');
         }
 
         const customBlock: ICustomBlock = {
@@ -94,6 +90,20 @@ class Tome implements ITome {
         };
 
         this.stateManager.applyAction({type: ActionType.INSERT_CUSTOM_BLOCK, data: customBlock});
+    }
+
+    public updateCustomBlock(container: HTMLElement, data = {}) {
+        const path = this.dom.getPathFromDomNode(container);
+        const node = Util.getNodeByPath(path, this.tree.root);
+
+        if (!node) throw new Error('[Tome] No custom block found for provided container');
+
+        const {index} = node;
+        const markup = this.stateManager.state.markups[index];
+
+        if (!markup.isCustomBlock) throw new TypeError('[Tome] The provided element is not a custom block container');
+
+        markup[3] = data;
     }
 
     private init(el: HTMLElement, config: any): void {

@@ -24,12 +24,6 @@ const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
  */
 
 class TreePatch {
-    private renderer: Renderer = null;
-
-    constructor(renderer) {
-        this.renderer = renderer;
-    }
-
     /**
      * Receives a patch parameter object, and an initial node (the root), and recursively patches
      * the DOM until it is reconsiled with the virtual tree.
@@ -82,7 +76,7 @@ class TreePatch {
         currentCommand: TreePatchCommand
     ): void {
         const addedTomeNode = currentCommand.nextNode;
-        const addedTomeNodeHtml = this.renderer.renderNode(addedTomeNode, addedTomeNode.parent);
+        const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent);
         const addedTomeNodeEl = this.renderHtmlToDom(addedTomeNodeHtml);
         const {parent} = params;
 
@@ -222,7 +216,7 @@ class TreePatch {
     ): void {
         const {nextSibling} = currentNode;
         const updatedTomeNode = currentCommand.nextNode;
-        const updatedTomeNodeHtml = this.renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
+        const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
         const updatedTomeNodeEl = this.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);

@@ -8,7 +8,6 @@ class Root {
     public debug        = new Debug();
     public history      = new History();
     public value        = new State();
-    public customBlocks = {};
 
     constructor() {
         Object.seal(this);

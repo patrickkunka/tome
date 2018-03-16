@@ -11,6 +11,7 @@ class TomeNode {
     public text:       string     = '';
     public path:       number[]   = [];
     public data:       any        = null;
+    public index:      number     = -1;
 
     get type(): MarkupType {
         return Util.getMarkupType(this.tag);

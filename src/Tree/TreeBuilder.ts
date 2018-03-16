@@ -43,6 +43,10 @@ class TreeBuilder {
 
                 const newNode = TreeBuilder.createNode(markup.tag, node, characterIndex, markup.end, markup.data);
 
+                // Add the markup's index to the virtual node
+
+                newNode.index = j;
+
                 node.childNodes.push(newNode);
 
                 openMarkups.push(markup);

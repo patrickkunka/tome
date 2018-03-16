@@ -13,25 +13,23 @@ class Tree {
     public root: TomeNode = null;
 
     private tome:       Tome      = null;
-    private renderer:   Renderer  = null;
     private treePatch:  TreePatch = null;
     private lastRender: string    = '';
 
     constructor(tome) {
         this.tome = tome;
-        this.renderer = new Renderer(tome);
-        this.treePatch = new TreePatch(this.renderer);
+        this.treePatch = new TreePatch();
     }
 
     public render(shouldUpdateDom: boolean = false): void {
         const nextRoot = Tree.buildFromState(this.tome.stateManager.state);
         const prevRoot = this.root;
-        const rootEl = this.tome.dom.root;
+        const rootEl   = this.tome.dom.root;
 
         if (!this.lastRender) {
             // Initial render
 
-            const nextRender = this.renderer.renderNodes(nextRoot.childNodes);
+            const nextRender = Renderer.renderNodes(nextRoot.childNodes);
 
             rootEl.innerHTML = this.lastRender = nextRender;
         } else if (shouldUpdateDom) {

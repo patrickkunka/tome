@@ -1,36 +1,21 @@
 import HtmlEntity           from '../State/Constants/HtmlEntity';
 import MarkupTag            from '../State/Constants/MarkupTag';
 import MarkupType           from '../State/Constants/MarkupType';
-import Tome                 from '../Tome/Tome';
 import TomeNode             from './TomeNode';
 import createAttributesList from './Util/createAttributesList';
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
 class Renderer {
-    private tome: Tome = null;
-
-    constructor(tome: Tome) {
-        this.tome = tome;
+    public static renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
+        return nodes.map(node => Renderer.renderNode(node, parent)).join('');
     }
 
-    public renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
-        return nodes.map(node => this.renderNode(node, parent)).join('');
-    }
-
-    public renderNode(node: TomeNode, parent: TomeNode): string {
+    public static renderNode(node: TomeNode, parent: TomeNode): string {
         let html: string = '';
 
         if (node.type === MarkupType.CUSTOM_BLOCK) {
-            const customBlockRenderer = this.tome.config.customBlocks[node.tag] || null;
-
-            html = (
-                `<${MarkupTag.DIV} contenteditable="false">
-                    ${customBlockRenderer ? customBlockRenderer(node.data) : ''}
-                </${MarkupTag.DIV}>`
-            );
-
-            return html;
+            return `<${MarkupTag.DIV} contenteditable="false"></${MarkupTag.DIV}>`;
         }
 
         if (node.tag !== MarkupTag.TEXT) {
@@ -40,7 +25,7 @@ class Renderer {
         }
 
         if (node.childNodes.length) {
-            html += this.renderNodes(node.childNodes, node);
+            html += Renderer.renderNodes(node.childNodes, node);
         } else if (!node.isSelfClosing || node.end === parent.end - 1) {
             // At #text leaf node, or at line break node at end of parent block
 
