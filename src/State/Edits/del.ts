@@ -1,6 +1,7 @@
-import HtmlEntity             from '../Constants/HtmlEntity';
+import MarkupType             from '../Constants/MarkupType';
 import State                  from '../State';
 import TomeSelection          from '../TomeSelection';
+import getMarkupOfTypeAtIndex from '../Util/getMarkupOfTypeAtIndex';
 import insert                 from './insert';
 
 function del(prevState: State, range: TomeSelection): State {
@@ -11,11 +12,15 @@ function del(prevState: State, range: TomeSelection): State {
     if (range.from === prevState.text.length) return prevState;
 
     if (range.isCollapsed) {
-        // If succeeding characer is a block break, ingest following two characers, else one
+        // If at the start of a block ingest previous two characters, else one
 
-        const succeedingSample = prevState.text.slice(range.to, range.to + 2);
+        const currentBlock = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.BLOCK, range.from).markup;
 
-        toIndex = succeedingSample === HtmlEntity.BLOCK_BREAK ? range.to + 2 : range.to + 1;
+        if (currentBlock && currentBlock.end === range.from) {
+            toIndex = range.from + 2;
+        } else {
+            toIndex = range.from + 1;
+        }
     }
 
     return insert(prevState, {from: range.from, to: toIndex});

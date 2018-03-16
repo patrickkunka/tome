@@ -45,6 +45,7 @@ class EventManager {
         this.root.addEventListener('compositionend', this.boundDelegator);
         this.root.addEventListener('mousedown', this.boundDelegator);
         this.root.addEventListener('paste', this.boundDelegator);
+        this.root.addEventListener('cut', this.boundDelegator);
 
         window.addEventListener('mouseup', this.boundDelegator);
         document.addEventListener('selectionchange', this.debouncedBoundDelegator);
@@ -114,6 +115,16 @@ class EventManager {
         this.raiseIsActioningFlag();
 
         this.tome.stateManager.applyAction({type: ActionType.PASTE, data: {text, html}});
+
+        e.preventDefault();
+    }
+
+    protected handleCut(e: ClipboardEvent): void {
+        document.execCommand('copy');
+
+        this.raiseIsActioningFlag();
+
+        this.tome.stateManager.applyAction({type: ActionType.CUT});
 
         e.preventDefault();
     }
@@ -204,15 +215,17 @@ class EventManager {
 
                     break;
                 case Keypress.X:
-                    action = {type: ActionType.CUT, tag: MarkupTag.EM};
+                    action = {type: ActionType.CUT};
+
+                    e.preventDefault();
 
                     break;
                 case Keypress.C:
-                    action = {type: ActionType.COPY, tag: MarkupTag.EM};
+                    action = {type: ActionType.COPY};
 
                     break;
                 case Keypress.S:
-                    action = {type: ActionType.SAVE, tag: MarkupTag.EM};
+                    action = {type: ActionType.SAVE};
 
                     e.preventDefault();
 
