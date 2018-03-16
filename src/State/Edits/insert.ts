@@ -2,6 +2,7 @@ import HtmlEntity                  from '../Constants/HtmlEntity';
 import MarkupTag                   from '../Constants/MarkupTag';
 import ISelection                  from '../Interfaces/ISelection';
 import State                       from '../State';
+import addTrailingParagraph        from '../Util/addTrailingParagraph';
 import adjustMarkups               from '../Util/adjustMarkups';
 import joinMarkups                 from '../Util/joinMarkups';
 import overrideActiveInlineMarkups from '../Util/overrideActiveInlineMarkups';
@@ -70,6 +71,8 @@ function insert(
 
         nextState.activeInlineMarkups.overrides = prevState.activeInlineMarkups.overrides;
     }
+
+    addTrailingParagraph(nextState);
 
     return nextState;
 }

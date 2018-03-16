@@ -5,6 +5,7 @@ import ICustomBlock           from '../Interfaces/ICustomBlock';
 import Markup                 from '../Markup';
 import State                  from '../State';
 import TomeSelection          from '../TomeSelection';
+import addTrailingParagraph   from '../Util/addTrailingParagraph';
 import getMarkupOfTypeAtIndex from '../Util/getMarkupOfTypeAtIndex';
 import getNextMarkupOfType    from '../Util/getNextMarkupOfType';
 import insert                 from './insert';
@@ -30,15 +31,16 @@ function insertCustomBlock(
 
     const {selection} = nextState;
 
-    const markupAtIndex = getMarkupOfTypeAtIndex(
+    const markupLocatorAtIndex = getMarkupOfTypeAtIndex(
         nextState.markups,
         MarkupType.BLOCK,
         nextState.selection.from
     );
 
-    if (!markupAtIndex) return nextState;
+    const markupAtIndex = markupLocatorAtIndex.markup;
+    const markupIndex = markupLocatorAtIndex.index;
 
-    const markupIndex = nextState.markups.indexOf(markupAtIndex);
+    if (!markupAtIndex) return nextState;
 
     if (
         markupAtIndex.end === selection.from &&
@@ -94,8 +96,10 @@ function insertCustomBlock(
 
     nextState.markups[replaceIndex] = newMarkup;
 
+    addTrailingParagraph(nextState);
+
     const nextBlockLocator = getNextMarkupOfType(nextState.markups, markup => markup.isBlock, replaceIndex);
-    const nextBlockIndexOrEnd = nextBlockLocator ? nextBlockLocator.index : nextState.markups.length;
+    const nextBlockIndexOrEnd = nextBlockLocator.index > -1 ? nextBlockLocator.index : nextState.markups.length;
     const totalRedundantInlineMarkups = nextBlockIndexOrEnd - (replaceIndex + 1);
 
     if (totalRedundantInlineMarkups > 0) {
@@ -104,11 +108,7 @@ function insertCustomBlock(
         nextState.markups.splice(replaceIndex + 1, totalRedundantInlineMarkups);
     }
 
-    if (nextBlockLocator) {
-        nextState.selection.from = nextState.selection.to = nextBlockLocator.markup.start;
-    } else {
-        // TODO: set carat at safety break
-    }
+    nextState.selection.from = nextState.selection.to = nextBlockLocator.markup.start;
 
     return nextState;
 }

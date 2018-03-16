@@ -18,6 +18,8 @@ function adjustMarkups(
     const toRemove: Markup[] = [];
     const isCollapsedRange = fromIndex === toIndex;
 
+    let preserveNextBlock = false;
+
     for (let i = 0, markup: Markup; (markup = markups[i]); i++) {
         let newMarkup = null;
         let removeMarkup = false;
@@ -44,12 +46,24 @@ function adjustMarkups(
                 newMarkup[2] = markup.start + totalAdded;
 
                 if (markup.isSelfClosing) newMarkup[1] = newMarkup.end;
-            } else if (markup.isSelfClosing && markup.start === toIndex) {
+            } else if (
+                (markup.isSelfClosing || preserveNextBlock) &&
+                markup.start === toIndex &&
+                markup.end === toIndex
+            ) {
+                // Self closing markup or empty block markup to be preserved after custom block deletion
+
                 newMarkup = cloneMarkup(markup);
 
                 newMarkup[1] = newMarkup[2] = markup.start + adjustment;
+
+                preserveNextBlock = false;
             } else if (markup.isInline || markup.isCustomBlock || markup.start > fromIndex) {
                 removeMarkup = true;
+
+                if (markup.isCustomBlock) {
+                    preserveNextBlock = true;
+                }
             }
         } else if (markup.start <= fromIndex && markup.end >= toIndex) {
             // Selection within markup or equal to markup

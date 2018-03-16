@@ -1,6 +1,7 @@
 enum MarkupTag {
     A      = 'a',
     BR     = 'br',
+    CODE   = 'code',
     DIV    = 'div',
     EM     = 'em',
     H1     = 'h1',
@@ -12,7 +13,10 @@ enum MarkupTag {
     LI     = 'li',
     OL     = 'ol',
     P      = 'p',
+    DEL    = 'del',
     STRONG = 'strong',
+    SUB    = 'sub',
+    SUP    = 'sup',
     TEXT   = '#text',
     UL     = 'ul'
 }

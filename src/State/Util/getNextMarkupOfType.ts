@@ -14,14 +14,21 @@ function getNextMarkupOfType(
     test: (markup: Markup) => boolean,
     markupIndex: number
 ): IMarkupLocator {
+    const locator = {
+        markup: null,
+        index: -1
+    };
+
     for (let i = markupIndex + 1, markup; (markup = markups[i]); i++) {
-        if (test(markup)) return {
-            markup,
-            index: i
-        };
+        if (test(markup)) {
+            locator.markup = markup;
+            locator.index = i;
+
+            return locator;
+        }
     }
 
-    return null;
+    return locator;
 }
 
 export default getNextMarkupOfType;

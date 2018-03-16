@@ -98,10 +98,14 @@ class Util {
                 return MarkupType.LIST_ITEM;
             case MarkupTag.TEXT:
                 return MarkupType.TEXT;
-            case MarkupTag.EM:
             case MarkupTag.A:
-            case MarkupTag.STRONG:
             case MarkupTag.BR:
+            case MarkupTag.CODE:
+            case MarkupTag.DEL:
+            case MarkupTag.EM:
+            case MarkupTag.STRONG:
+            case MarkupTag.SUB:
+            case MarkupTag.SUP:
                 return MarkupType.INLINE;
             default:
                 return MarkupType.CUSTOM_BLOCK;

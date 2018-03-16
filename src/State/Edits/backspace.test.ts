@@ -11,6 +11,8 @@ chai.use(deepEqual);
 
 const assert = chai.assert;
 
+const customTag = 'foo' as MarkupTag;
+
 describe('backspace()', () => {
     it(
         'should convert the first list item of a list into a paragraph ' +
@@ -49,7 +51,7 @@ describe('backspace()', () => {
             text: 'Line one.\n\n\n\nLine two.',
             markups: [
                 new Markup([MarkupTag.P, 0, 9]),
-                new Markup(['foo' as MarkupTag, 11, 11]),
+                new Markup([customTag, 11, 11]),
                 new Markup([MarkupTag.P, 13, 22])
             ]
         });
@@ -71,18 +73,19 @@ describe('backspace()', () => {
             text: 'Line one.\n\n\n\n',
             markups: [
                 new Markup([MarkupTag.P, 0, 9]),
-                new Markup(['foo' as MarkupTag, 11, 11]),
+                new Markup([customTag, 11, 11]),
                 new Markup([MarkupTag.P, 13, 13])
             ]
         });
 
-        const {markups} = backspace(prevState, new TomeSelection(13, 13));
+        const {markups, text} = backspace(prevState, new TomeSelection(13, 13));
 
         assert.equal(markups.length, 2);
+        assert.equal(text, 'Line one.\n\n');
 
         const [firstMarkup, secondMarkup] = markups;
 
-        assert.equal(firstMarkup.tag, MarkupTag.P);
-        assert.deepEqual(secondMarkup, new Markup([MarkupTag.P, 13, 13]));
+        assert.deepEqual(firstMarkup, new Markup([MarkupTag.P, 0, 9]));
+        assert.deepEqual(secondMarkup, new Markup([MarkupTag.P, 11, 11]));
     });
 });

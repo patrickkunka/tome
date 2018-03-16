@@ -19,7 +19,7 @@ function backspace(prevState: State, range: TomeSelection): State {
             prevState.markups,
             MarkupType.BLOCK,
             range.to
-        );
+        ).markup;
 
         if (blockAtIndex && blockAtIndex.isList && blockAtIndex.start === range.to) {
             // TODO: implement a linked list for this type of operation
@@ -28,7 +28,7 @@ function backspace(prevState: State, range: TomeSelection): State {
                 prevState.markups,
                 MarkupType.BLOCK,
                 blockAtIndex.start - HtmlEntity.BLOCK_BREAK.length
-            );
+            ).markup;
 
             if (!precedingBlock || !precedingBlock.isList) {
                 const nextState = changeBlockType(prevState, MarkupTag.P);
@@ -46,11 +46,13 @@ function backspace(prevState: State, range: TomeSelection): State {
         return prevState;
     }
 
-    // If previous character is a block break, ingest previous two characters, else one
+    if (range.isCollapsed) {
+        // If previous character is a block break, ingest previous two characters, else one
 
-    const precedingSample = prevState.text.slice(range.from - 2, range.from);
+        const precedingSample = prevState.text.slice(range.from - 2, range.from);
 
-    fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? range.from - 2 : range.from - 1;
+        fromIndex = precedingSample === HtmlEntity.BLOCK_BREAK ? range.from - 2 : range.from - 1;
+    }
 
     return insert(prevState, {from: fromIndex, to: range.to});
 }

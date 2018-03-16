@@ -58,12 +58,14 @@ class Tome implements ITome {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid inline markup`);
         }
 
-        const isLinkActive = this.stateManager.state.isTagActive(MarkupTag.A);
+        if (tag === MarkupTag.A) {
+            const isLinkActive = this.stateManager.state.isTagActive(MarkupTag.A);
 
-        if (!isLinkActive) {
-            Util.addInlineLink(this);
+            if (!isLinkActive) {
+                Util.addInlineLink(this);
 
-            return;
+                return;
+            }
         }
 
         this.stateManager.applyAction({type: ActionType.TOGGLE_INLINE, tag});

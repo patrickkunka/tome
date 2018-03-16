@@ -27,10 +27,10 @@ describe('insertCustomBlock()', () => {
             data: {}
         });
 
-        assert.equal(nextState.text, 'Line one.\n\n');
+        assert.equal(nextState.text, 'Line one.\n\n\n\n');
         assert.equal(nextState.selection.from, 13);
         assert.equal(nextState.selection.to, 13);
-        assert.equal(nextState.markups.length, 2);
+        assert.equal(nextState.markups.length, 3);
         assert.equal(nextState.markups[1].tag, 'foo');
     });
 
