@@ -50,7 +50,7 @@ function changeBlockType(
             nextMarkup[0] = tag;
         }
 
-        if (prevState.envelopedBlockMarkups.includes(prevMarkup)) {
+        if (prevState.envelopedBlockMarkups.includes(prevMarkup) && !prevMarkup.isCustomBlock) {
             if (prevMarkup.isListItem) {
                 isListAffected = true;
             }
