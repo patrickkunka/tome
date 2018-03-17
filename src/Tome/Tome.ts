@@ -1,18 +1,19 @@
 import merge from 'helpful-merge';
 
-import Config             from '../Config/Root';
-import Dom                from '../Dom/Dom';
-import EventManager       from '../Dom/EventManager';
-import ActionType         from '../State/Constants/ActionType';
-import MarkupTag          from '../State/Constants/MarkupTag';
-import MarkupType         from '../State/Constants/MarkupType';
-import ICustomBlock       from '../State/Interfaces/ICustomBlock';
-import IValue             from '../State/Interfaces/IValue';
-import State              from '../State/State';
-import StateManager       from '../State/StateManager';
-import Tree               from '../Tree/Tree';
-import Util               from '../Util/Util';
-import ITome              from './Interfaces/ITome';
+import Config         from '../Config/Root';
+import Dom            from '../Dom/Dom';
+import EventManager   from '../Dom/EventManager';
+import ActionType     from '../State/Constants/ActionType';
+import MarkupTag      from '../State/Constants/MarkupTag';
+import MarkupType     from '../State/Constants/MarkupType';
+import ICustomBlock   from '../State/Interfaces/ICustomBlock';
+import IMarkupLocator from '../State/Interfaces/IMarkupLocator';
+import IValue         from '../State/Interfaces/IValue';
+import State          from '../State/State';
+import StateManager   from '../State/StateManager';
+import Tree           from '../Tree/Tree';
+import Util           from '../Util/Util';
+import ITome          from './Interfaces/ITome';
 
 class Tome implements ITome {
     public dom:          Dom          = new Dom();
@@ -92,18 +93,26 @@ class Tome implements ITome {
         this.stateManager.applyAction({type: ActionType.INSERT_CUSTOM_BLOCK, data: customBlock});
     }
 
-    public updateCustomBlock(container: HTMLElement, data = {}) {
-        const path = this.dom.getPathFromDomNode(container);
-        const node = Util.getNodeByPath(path, this.tree.root);
-
-        if (!node) throw new Error('[Tome] No custom block found for provided container');
-
-        const {index} = node;
-        const markup = this.stateManager.state.markups[index];
-
-        if (!markup.isCustomBlock) throw new TypeError('[Tome] The provided element is not a custom block container');
+    public updateCustomBlock(container: HTMLElement, data = {}): void {
+        const {markup} = this.getMarkupFromDomNode(container);
 
         markup[3] = data;
+    }
+
+    public removeCustomBlock(container: HTMLElement): void {
+        const markup = this.getMarkupFromDomNode(container).markup;
+
+        this.stateManager.applyAction({type: ActionType.REMOVE_CUSTOM_BLOCK, data: {markup}});
+    }
+
+    public moveCustomBlock(container: HTMLElement, offset: number): void {
+        const {markup, index} = this.getMarkupFromDomNode(container);
+
+        this.stateManager.applyAction({type: ActionType.MOVE_CUSTOM_BLOCK, data: {
+            markup,
+            index,
+            offset
+        }});
     }
 
     private init(el: HTMLElement, config: any): void {
@@ -130,6 +139,23 @@ class Tome implements ITome {
         this.eventManager.root = this.dom.root;
 
         this.eventManager.bindEvents();
+    }
+
+    private getMarkupFromDomNode(container: HTMLElement): IMarkupLocator {
+        const path = this.dom.getPathFromDomNode(container);
+        const node = Util.getNodeByPath(path, this.tree.root);
+
+        if (!node) throw new Error('[Tome] No custom block found for provided container');
+
+        const {index} = node;
+        const markup = this.stateManager.state.markups[index];
+
+        if (!markup.isCustomBlock) throw new TypeError('[Tome] The provided element is not a custom block container');
+
+        return {
+            markup,
+            index
+        };
     }
 }
 

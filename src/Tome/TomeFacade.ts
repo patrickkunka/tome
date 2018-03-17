@@ -13,15 +13,8 @@ class TomeFacade {
     public toggleInlineMarkup: (markupTag: MarkupTag) => void;
     public insertCustomBlock:  (type: string, data: any) => void;
     public updateCustomBlock:  (container: HTMLElement, data: any) => void;
-
-    // TODO: implement:
-
-    public removeCustomBlock: (container: HTMLElement) => void;
-    public moveCustomBlock: (container: HTMLElement, offset: number) => void;
-
-    public cut: () => string;
-    public copy: () => string;
-    public paste: () => void;
+    public removeCustomBlock:  (container: HTMLElement) => void;
+    public moveCustomBlock:    (container: HTMLElement, offset: number) => void;
 
     constructor(el: HTMLElement, config: any) {
         const _ = new Tome(el, config);
@@ -35,6 +28,8 @@ class TomeFacade {
         this.toggleInlineMarkup = _.toggleInlineMarkup.bind(_);
         this.insertCustomBlock  = _.insertCustomBlock.bind(_);
         this.updateCustomBlock  = _.updateCustomBlock.bind(_);
+        this.removeCustomBlock  = _.removeCustomBlock.bind(_);
+        this.moveCustomBlock    = _.moveCustomBlock.bind(_);
 
         Object.seal(this);
     }

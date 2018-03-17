@@ -12,7 +12,7 @@ function del(prevState: State, range: TomeSelection): State {
     if (range.from === prevState.text.length) return prevState;
 
     if (range.isCollapsed) {
-        // If at the start of a block ingest previous two characters, else one
+        // If at the end of a block ingest previous two characters, else one
 
         const currentBlock = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.BLOCK, range.from).markup;
 
