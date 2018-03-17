@@ -1,8 +1,8 @@
+import {pascalCase} from '../Shared/Util';
 import ActionType   from '../State/Constants/ActionType';
 import MarkupTag    from '../State/Constants/MarkupTag';
 import IAction      from '../State/Interfaces/IAction';
 import ITome        from '../Tome/Interfaces/ITome';
-import Util         from '../Util/Util';
 import Keypress     from './Constants/Keypress';
 import MutationType from './Constants/MutationType';
 import IMEParser    from './IMEParser';
@@ -249,7 +249,7 @@ class EventManager {
                     e.preventDefault();
 
                     if (!isLinkActive) {
-                        Util.addInlineLink(this.tome);
+                        this.tome.addInlineLink();
 
                         return;
                     }
@@ -298,7 +298,7 @@ class EventManager {
 
     private delegator(e: Event): void {
         const eventType = e.type;
-        const fn = this['handle' + Util.pascalCase(eventType)];
+        const fn = this['handle' + pascalCase(eventType)];
 
         if (typeof fn !== 'function') {
             throw new Error(`[EventManager] No handler found for event "${eventType}"`);

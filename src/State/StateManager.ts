@@ -1,7 +1,6 @@
 import ITome                   from '../Tome/Interfaces/ITome';
 import Caret                   from '../Tree/Caret';
 import TomeNode                from '../Tree/TomeNode';
-import Util                    from '../Util/Util';
 import Action                  from './Action';
 import ActionType              from './Constants/ActionType';
 import HistoryManipulationType from './Constants/HistoryManipulationType';
@@ -11,6 +10,11 @@ import IAction                 from './Interfaces/IAction';
 import IValue                  from './Interfaces/IValue';
 import State                   from './State';
 import TomeSelection           from './TomeSelection';
+
+import {
+    getNodeByPath,
+    isGreaterPath
+} from '../Shared/Util';
 
 class StateManager {
     private lastActionType:   ActionType = null;
@@ -263,7 +267,7 @@ class StateManager {
         const from = new Caret();
         const to = new Caret();
 
-        let virtualAnchorNode = Util.getNodeByPath(anchorPath, root);
+        let virtualAnchorNode = getNodeByPath(anchorPath, root);
         let anchorOffset = selection.anchorOffset;
         let extentOffset = selection.extentOffset;
 
@@ -294,7 +298,7 @@ class StateManager {
 
         if (!selection.isCollapsed) {
             extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
-            virtualExtentNode = Util.getNodeByPath(extentPath, root);
+            virtualExtentNode = getNodeByPath(extentPath, root);
 
             if ((virtualExtentNode.isBlock || virtualExtentNode.isListItem) && extentOffset > 0) {
                 const childIndex = Math.min(virtualExtentNode.childNodes.length - 1, extentOffset);
@@ -309,8 +313,8 @@ class StateManager {
         // should be considered "RTL"
 
         isRtl =
-            Util.isGreaterPath(anchorPath, extentPath) ||
-            (!Util.isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
+            isGreaterPath(anchorPath, extentPath) ||
+            (!isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
 
         from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
         from.offset = to.offset = isRtl ? extentOffset : anchorOffset;

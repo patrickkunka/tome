@@ -1,4 +1,4 @@
-import Util from '../Util/Util';
+import getIndex from '../Shared/Util/getIndex';
 
 class Dom {
     public root: HTMLElement = null;
@@ -9,7 +9,7 @@ class Dom {
         while (domNode) {
             if (domNode instanceof HTMLElement && domNode === this.root) break;
 
-            path.unshift(Util.index(domNode, true));
+            path.unshift(getIndex(domNode, true));
 
             domNode = domNode.parentElement;
         }

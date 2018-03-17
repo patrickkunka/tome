@@ -1,6 +1,6 @@
-import MarkupTag  from '../State/Constants/MarkupTag';
-import MarkupType from '../State/Constants/MarkupType';
-import Util       from '../Util/Util';
+import {getMarkupType} from '../Shared/Util';
+import MarkupTag       from '../State/Constants/MarkupTag';
+import MarkupType      from '../State/Constants/MarkupType';
 
 class TomeNode {
     public childNodes: TomeNode[] = [];
@@ -14,7 +14,7 @@ class TomeNode {
     public index:      number     = -1;
 
     get type(): MarkupType {
-        return Util.getMarkupType(this.tag);
+        return getMarkupType(this.tag);
     }
 
     get isBlock(): boolean {

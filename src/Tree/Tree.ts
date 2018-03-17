@@ -1,9 +1,9 @@
+import {getNodeByPath}      from '../Shared/Util';
 import MarkupTag            from '../State/Constants/MarkupTag';
 import SelectionDirection   from '../State/Constants/SelectionDirection';
 import ISelection           from '../State/interfaces/ISelection';
 import State                from '../State/State';
 import Tome                 from '../Tome/Tome';
-import Util                 from '../Util/Util';
 import ICustomBlockInstance from './Interfaces/ICustomBlockInstance';
 import Renderer             from './Renderer';
 import TomeNode             from './TomeNode';
@@ -86,7 +86,7 @@ class Tree {
             break;
         }
 
-        nodeLeft = Util.getNodeByPath(virtualNode.path, this.tome.dom.root);
+        nodeLeft = getNodeByPath(virtualNode.path, this.tome.dom.root);
 
         // Account for #text nodes representing a block break, but with only 1 character rendered
 
@@ -122,7 +122,7 @@ class Tree {
             break;
         }
 
-        nodeRight = Util.getNodeByPath(virtualNode.path, this.tome.dom.root);
+        nodeRight = getNodeByPath(virtualNode.path, this.tome.dom.root);
 
         range.setEnd(nodeRight, Math.min(offsetEnd, nodeRight.textContent.length));
 
@@ -146,7 +146,7 @@ class Tree {
     }
 
     public mountCustomBlock(instance: ICustomBlockInstance): void {
-        const container = Util.getNodeByPath(instance.path, this.tome.dom.root);
+        const container = getNodeByPath(instance.path, this.tome.dom.root);
         const callback = this.tome.config.callbacks.onAddCustomBlock;
 
         if (typeof callback !== 'function') return;

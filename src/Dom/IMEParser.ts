@@ -1,11 +1,11 @@
-import ActionType   from '../State/Constants/ActionType';
-import HtmlEntity   from '../State/Constants/HtmlEntity';
-import MarkupTag    from '../State/Constants/MarkupTag';
-import IAction      from '../State/Interfaces/IAction';
-import ITome        from '../Tome/Interfaces/ITome';
-import TomeNode     from '../Tree/TomeNode';
-import Util         from '../Util/Util';
-import MutationType from './Constants/MutationType';
+import {getNodeByPath} from '../Shared/Util';
+import ActionType      from '../State/Constants/ActionType';
+import HtmlEntity      from '../State/Constants/HtmlEntity';
+import MarkupTag       from '../State/Constants/MarkupTag';
+import IAction         from '../State/Interfaces/IAction';
+import ITome           from '../Tome/Interfaces/ITome';
+import TomeNode        from '../Tree/TomeNode';
+import MutationType    from './Constants/MutationType';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
@@ -38,7 +38,7 @@ class IMEParser {
             path = tome.dom.getPathFromDomNode(node);
         }
 
-        const virtualNode: TomeNode = Util.getNodeByPath(path, tome.tree.root);
+        const virtualNode: TomeNode = getNodeByPath(path, tome.tree.root);
         const prevValue:   string   = virtualNode.text;
         const nextValue:   string   = node.textContent;
         const action:      IAction  = IMEParser.diffStringValues(prevValue, nextValue);
@@ -62,7 +62,7 @@ class IMEParser {
 
         path[path.length - 1]++;
 
-        const virtualNode = Util.getNodeByPath(path, tome.tree.root);
+        const virtualNode = getNodeByPath(path, tome.tree.root);
 
         // If node is not a block break, ignore
 

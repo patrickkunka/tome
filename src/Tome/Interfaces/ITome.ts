@@ -12,6 +12,7 @@ interface ITome {
     stateManager: StateManager;
     tree: Tree;
 
+    addInlineLink(): void;
     redo(): void;
     undo(): void;
     getState(): State;

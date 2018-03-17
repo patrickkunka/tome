@@ -3,6 +3,7 @@ import merge from 'helpful-merge';
 import Config         from '../Config/Root';
 import Dom            from '../Dom/Dom';
 import EventManager   from '../Dom/EventManager';
+import IAnchorData    from '../Dom/Interfaces/IAnchorData';
 import ActionType     from '../State/Constants/ActionType';
 import MarkupTag      from '../State/Constants/MarkupTag';
 import MarkupType     from '../State/Constants/MarkupType';
@@ -12,8 +13,13 @@ import IValue         from '../State/Interfaces/IValue';
 import State          from '../State/State';
 import StateManager   from '../State/StateManager';
 import Tree           from '../Tree/Tree';
-import Util           from '../Util/Util';
 import ITome          from './Interfaces/ITome';
+
+import {
+    getMarkupType,
+    getNodeByPath,
+    mapMarkupToArray
+} from '../Shared/Util';
 
 class Tome implements ITome {
     public dom:          Dom          = new Dom();
@@ -50,12 +56,12 @@ class Tome implements ITome {
 
         return {
             text: state.text,
-            markups: state.markups.map(Util.mapMarkupToArray)
+            markups: state.markups.map(mapMarkupToArray)
         };
     }
 
     public toggleInlineMarkup(tag: MarkupTag) {
-        if (Util.getMarkupType(tag) !== MarkupType.INLINE) {
+        if (getMarkupType(tag) !== MarkupType.INLINE) {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid inline markup`);
         }
 
@@ -63,7 +69,7 @@ class Tome implements ITome {
             const isLinkActive = this.stateManager.state.isTagActive(MarkupTag.A);
 
             if (!isLinkActive) {
-                Util.addInlineLink(this);
+                this.addInlineLink();
 
                 return;
             }
@@ -73,7 +79,7 @@ class Tome implements ITome {
     }
 
     public changeBlockType(tag: MarkupTag) {
-        if (Util.getMarkupType(tag) !== MarkupType.BLOCK) {
+        if (getMarkupType(tag) !== MarkupType.BLOCK) {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid block markup`);
         }
 
@@ -115,6 +121,22 @@ class Tome implements ITome {
         }});
     }
 
+    public addInlineLink(): void {
+        const callback = this.config.callbacks.onAddAnchor;
+
+        if (typeof callback !== 'function') {
+            throw new TypeError('[Tome] No `onAddAnchor` callback function provided');
+        }
+
+        const handlerAccept = (data: IAnchorData) => {
+            const action = {type: ActionType.TOGGLE_INLINE, tag: MarkupTag.A, data};
+
+            this.stateManager.applyAction(action);
+        };
+
+        callback(handlerAccept);
+    }
+
     private init(el: HTMLElement, config: any): void {
         merge(this.config, config, {
             deep: true,
@@ -143,7 +165,7 @@ class Tome implements ITome {
 
     private getMarkupFromDomNode(container: HTMLElement): IMarkupLocator {
         const path = this.dom.getPathFromDomNode(container);
-        const node = Util.getNodeByPath(path, this.tree.root);
+        const node = getNodeByPath(path, this.tree.root);
 
         if (!node) throw new Error('[Tome] No custom block found for provided container');
 

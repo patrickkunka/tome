@@ -1,4 +1,4 @@
-import Util            from '../Util/Util';
+import {getMarkupType} from '../Shared/Util';
 import MarkupTag       from './Constants/MarkupTag';
 import MarkupType      from './Constants/MarkupType';
 import IMarkup         from './interfaces/IMarkup';
@@ -46,7 +46,7 @@ class Markup {
     }
 
     get type(): MarkupType {
-        return Util.getMarkupType(this[0]);
+        return getMarkupType(this[0]);
     }
 
     get isBlock(): boolean {
