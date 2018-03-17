@@ -50,11 +50,13 @@
 
         const editor = tome(document.querySelector('.editor'), {
             value: {
-                text: 'Line one.\n\nLine two.\n\nLine three.',
+                text: 'Line one.\n\nLine two.\n\nLine three.\n\n\n\n',
                 markups: [
                     ['p', 0, 9],
                     ['p', 11, 20],
-                    ['p', 22, 33]
+                    ['p', 22, 33],
+                    ['test', 35, 35, {foo: 'bar'}],
+                    ['p', 37, 37],
                 ]
             },
             callbacks: {
@@ -66,13 +68,12 @@
                         href: 'https://www.kunkalabs.com',
                         target: '_blank'
                     });
-                }
+                },
+                onAddCustomBlock: handleAddCustomBlock,
+                onRemoveCustomBlock: handleRemoveCustomBlock
             },
             debug: {
                 enable: true
-            },
-            customBlocks: {
-                test: data => 'Hello!'
             }
         });
 
@@ -84,6 +85,14 @@
                 JSON.stringify(state.markups.map(markup => markup.toArray()), null, 4) +
                 '\n\n' +
                 JSON.stringify(state.activeInlineMarkups.tags, null, 4);
+        }
+
+        function handleAddCustomBlock(container, type, data) {
+            container.innerHTML = type + JSON.stringify(data);
+        }
+
+        function handleRemoveCustomBlock(container) {
+            console.log('remove:', container);
         }
     </script>
 </html>

@@ -4,10 +4,10 @@ import Debug     from './Debug';
 import History   from './History';
 
 class Root {
-    public callbacks    = new Callbacks();
-    public debug        = new Debug();
-    public history      = new History();
-    public value        = new State();
+    public callbacks = new Callbacks();
+    public debug     = new Debug();
+    public history   = new History();
+    public value     = new State();
 
     constructor() {
         Object.seal(this);

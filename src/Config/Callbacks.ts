@@ -6,8 +6,8 @@ class Callbacks {
     public onStateChange:       (state: State, actionType: ActionType) => void = null;
     public onAddAnchor:         (handlerCreate: (anchorData: IAnchorData) => void) => void = null;
     public onValueChange:       () => void = null;
-    public onAddCustomBlock:    (container: HTMLElement, type: string, data: any) => void;
-    public onRemoveCustomBlock: (container: HTMLElement) => void;
+    public onAddCustomBlock:    (container: HTMLElement, type: string, data: any) => void = null;
+    public onRemoveCustomBlock: (container: HTMLElement) => void = null;
 
     constructor() {
         Object.seal(this);

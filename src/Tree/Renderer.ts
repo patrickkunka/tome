@@ -1,20 +1,37 @@
 import HtmlEntity           from '../State/Constants/HtmlEntity';
 import MarkupTag            from '../State/Constants/MarkupTag';
 import MarkupType           from '../State/Constants/MarkupType';
+import ICustomBlockInstance from './Interfaces/ICustomBlockInstance';
 import TomeNode             from './TomeNode';
 import createAttributesList from './Util/createAttributesList';
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
 class Renderer {
-    public static renderNodes(nodes: TomeNode[], parent: TomeNode = null): string {
-        return nodes.map(node => Renderer.renderNode(node, parent)).join('');
+    public static renderNodes(
+        nodes: TomeNode[],
+        parent: TomeNode,
+        customBlockInstances: ICustomBlockInstance[] = []
+    ): string {
+        return nodes.map(node => Renderer.renderNode(node, parent, customBlockInstances)).join('');
     }
 
-    public static renderNode(node: TomeNode, parent: TomeNode): string {
+    public static renderNode(
+        node: TomeNode,
+        parent: TomeNode,
+        customBlockInstances: ICustomBlockInstance[] = []
+    ): string {
         let html: string = '';
 
         if (node.type === MarkupType.CUSTOM_BLOCK) {
+            const instance: ICustomBlockInstance = {
+                path: node.path,
+                type: node.tag,
+                data: node.data
+            };
+
+            customBlockInstances.push(instance);
+
             return `<${MarkupTag.DIV} contenteditable="false"></${MarkupTag.DIV}>`;
         }
 
@@ -25,7 +42,7 @@ class Renderer {
         }
 
         if (node.childNodes.length) {
-            html += Renderer.renderNodes(node.childNodes, node);
+            html += Renderer.renderNodes(node.childNodes, node, customBlockInstances);
         } else if (!node.isSelfClosing || node.end === parent.end - 1) {
             // At #text leaf node, or at line break node at end of parent block
 

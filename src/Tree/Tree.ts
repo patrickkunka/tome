@@ -1,13 +1,15 @@
-import SelectionDirection from '../State/Constants/SelectionDirection';
-import ISelection         from '../State/interfaces/ISelection';
-import State              from '../State/State';
-import Tome               from '../Tome/Tome';
-import Util               from '../Util/Util';
-import Renderer           from './Renderer';
-import TomeNode           from './TomeNode';
-import TreeBuilder        from './TreeBuilder';
-import TreeDiff           from './TreeDiff';
-import TreePatch          from './TreePatch';
+import MarkupTag            from '../State/Constants/MarkupTag';
+import SelectionDirection   from '../State/Constants/SelectionDirection';
+import ISelection           from '../State/interfaces/ISelection';
+import State                from '../State/State';
+import Tome                 from '../Tome/Tome';
+import Util                 from '../Util/Util';
+import ICustomBlockInstance from './Interfaces/ICustomBlockInstance';
+import Renderer             from './Renderer';
+import TomeNode             from './TomeNode';
+import TreeBuilder          from './TreeBuilder';
+import TreeDiff             from './TreeDiff';
+import TreePatch            from './TreePatch';
 
 class Tree {
     public root: TomeNode = null;
@@ -18,7 +20,7 @@ class Tree {
 
     constructor(tome) {
         this.tome = tome;
-        this.treePatch = new TreePatch();
+        this.treePatch = new TreePatch(this);
     }
 
     public render(shouldUpdateDom: boolean = false): void {
@@ -29,9 +31,12 @@ class Tree {
         if (!this.lastRender) {
             // Initial render
 
-            const nextRender = Renderer.renderNodes(nextRoot.childNodes);
+            const customBlockInstances = [];
+            const nextRender = Renderer.renderNodes(nextRoot.childNodes, null, customBlockInstances);
 
             rootEl.innerHTML = this.lastRender = nextRender;
+
+            customBlockInstances.forEach(this.mountCustomBlock.bind(this));
         } else if (shouldUpdateDom) {
             const treePatchCommand = TreeDiff.diff(prevRoot, nextRoot);
 
@@ -138,6 +143,29 @@ class Tree {
                 Math.min(offsetEnd, nodeRight.textContent.length)
             );
         }
+    }
+
+    public mountCustomBlock(instance: ICustomBlockInstance): void {
+        const container = Util.getNodeByPath(instance.path, this.tome.dom.root);
+        const callback = this.tome.config.callbacks.onAddCustomBlock;
+
+        if (typeof callback !== 'function') return;
+
+        callback(container, instance.type, instance.data);
+    }
+
+    public unmountCustomBlock(container: Node): void {
+        if (!(container instanceof HTMLElement)) return;
+
+        const tag = container.tagName.toLowerCase();
+
+        if (tag !== MarkupTag.DIV) return;
+
+        const callback = this.tome.config.callbacks.onRemoveCustomBlock;
+
+        if (typeof callback !== 'function') return;
+
+        callback(container);
     }
 
     private static buildFromState(state: State): TomeNode {

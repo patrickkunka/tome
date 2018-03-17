@@ -5,6 +5,7 @@ import WhitespaceExpression from './Constants/WhitespaceExpression';
 import ITreePatchOperation  from './Interfaces/ITreePatchOperation';
 import ITreePatchParams     from './Interfaces/ITreePatchParams';
 import Renderer             from './Renderer';
+import Tree                 from './Tree';
 import TreePatchCommand     from './TreePatchCommand';
 
 const {
@@ -24,6 +25,12 @@ const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
  */
 
 class TreePatch {
+    public tree: Tree;
+
+    constructor(tree: Tree) {
+        this.tree = tree;
+    }
+
     /**
      * Receives a patch parameter object, and an initial node (the root), and recursively patches
      * the DOM until it is reconsiled with the virtual tree.
@@ -76,11 +83,14 @@ class TreePatch {
         currentCommand: TreePatchCommand
     ): void {
         const addedTomeNode = currentCommand.nextNode;
-        const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent);
+        const customBlockInstances = [];
+        const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent, customBlockInstances);
         const addedTomeNodeEl = this.renderHtmlToDom(addedTomeNodeHtml);
         const {parent} = params;
 
         parent.insertBefore(addedTomeNodeEl, currentNode);
+
+        customBlockInstances.forEach(this.tree.mountCustomBlock.bind(this.tree));
 
         if (
             addedTomeNode.text === HtmlEntity.LINE_BREAK &&
@@ -117,6 +127,8 @@ class TreePatch {
 
             nextSibling = null;
         }
+
+        this.tree.unmountCustomBlock(currentNode);
 
         params.parent.removeChild(currentNode);
 
@@ -216,10 +228,21 @@ class TreePatch {
     ): void {
         const {nextSibling} = currentNode;
         const updatedTomeNode = currentCommand.nextNode;
-        const updatedTomeNodeHtml = Renderer.renderNode(updatedTomeNode, updatedTomeNode.parent);
+        const customBlockInstances = [];
+
+        const updatedTomeNodeHtml = Renderer.renderNode(
+            updatedTomeNode,
+            updatedTomeNode.parent,
+            customBlockInstances
+        );
+
         const updatedTomeNodeEl = this.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);
+
+        this.tree.unmountCustomBlock(currentNode);
+
+        customBlockInstances.forEach(this.tree.mountCustomBlock.bind(this.tree));
 
         this.patch(params, nextSibling, ++commandIndex);
     }
