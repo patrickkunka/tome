@@ -1,7 +1,7 @@
-import MarkupTag  from '../State/Constants/MarkupTag';
-import IValue     from '../State/Interfaces/IValue';
-import State      from '../State/State';
-import Tome       from './Tome';
+import MarkupTag      from '../State/Constants/MarkupTag';
+import IValue         from '../State/Interfaces/IValue';
+import State          from '../State/State';
+import Tome           from './Tome';
 
 class TomeFacade {
     public getState:           () => State;

@@ -249,6 +249,8 @@ class EventManager {
                     e.preventDefault();
 
                     if (!isLinkActive) {
+                        this.raiseIsActioningFlag();
+
                         this.tome.addInlineLink();
 
                         return;

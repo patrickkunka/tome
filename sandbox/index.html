@@ -50,13 +50,46 @@
 
         const editor = tome(document.querySelector('.editor'), {
             value: {
-                text: 'Line one.\n\nLine two.\n\nLine three.\n\n\n\n',
+                text: 'On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammeled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided.\n\nLine two.\n\nLine three.\n\n\n\nawd',
                 markups: [
-                    ['p', 0, 9],
-                    ['p', 11, 20],
-                    ['p', 22, 33],
-                    ['test', 35, 35, {foo: 'bar'}],
-                    ['p', 37, 37],
+                    [
+                        'p',
+                        0,
+                        628
+                    ],
+                    [
+                        'strong',
+                        154,
+                        161
+                    ],
+                    [
+                        'strong',
+                        437,
+                        448
+                    ],
+                    [
+                        'p',
+                        630,
+                        639
+                    ],
+                    [
+                        'p',
+                        641,
+                        652
+                    ],
+                    [
+                        'test',
+                        654,
+                        654,
+                        {
+                            foo: 'bar'
+                        }
+                    ],
+                    [
+                        'p',
+                        656,
+                        659
+                    ]
                 ]
             },
             callbacks: {

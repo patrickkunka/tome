@@ -16,10 +16,13 @@ class Renderer {
         return nodes.map(node => Renderer.renderNode(node, parent, customBlockInstances)).join('');
     }
 
+    // TODO: break out optional params into parameter object
+
     public static renderNode(
         node: TomeNode,
         parent: TomeNode,
-        customBlockInstances: ICustomBlockInstance[] = []
+        customBlockInstances: ICustomBlockInstance[] = [],
+        renderInnerHtml: boolean = false
     ): string {
         let html: string = '';
 
@@ -35,7 +38,7 @@ class Renderer {
             return `<${MarkupTag.DIV} contenteditable="false"></${MarkupTag.DIV}>`;
         }
 
-        if (node.tag !== MarkupTag.TEXT) {
+        if (node.tag !== MarkupTag.TEXT && !renderInnerHtml) {
             const attributesList = createAttributesList(node.tag);
 
             html += `<${node.tag + (attributesList.length ? ' ' + attributesList.join(' ') : '')}>`;
@@ -69,7 +72,7 @@ class Renderer {
             html += `<${MarkupTag.BR}>`;
         }
 
-        if (node.tag !== MarkupTag.TEXT && !node.isSelfClosing) {
+        if (node.tag !== MarkupTag.TEXT && !node.isSelfClosing && !renderInnerHtml) {
             html += `</${node.tag}>`;
         }
 
