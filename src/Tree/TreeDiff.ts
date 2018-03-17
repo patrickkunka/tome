@@ -196,7 +196,7 @@ class TreeDiff {
             // Text nodes
 
             return prevNode.text === nextNode.text ?
-                TreeDiff.createPatchCommand() :
+                TreeDiff.createMaintainNodeCommand() :
                 TreeDiff.createUpdateTextCommand(prevNode.text, nextNode.text);
         }
 
@@ -204,18 +204,24 @@ class TreeDiff {
 
         const childCommands = TreeDiff.diffChildren(prevNode.childNodes, nextNode.childNodes);
         const hasChildChanges = TreeDiff.hasChildChanges(childCommands);
+        const prevMarkupType = getMarkupType(prevNode.tag);
         const nextMarkupType = getMarkupType(nextNode.tag);
-        const isCustomBlock = nextMarkupType === MarkupType.CUSTOM_BLOCK;
+        const isPrevNodeCustomBlock = prevMarkupType === MarkupType.CUSTOM_BLOCK;
+        const isNextNodeCustomBlock = nextMarkupType === MarkupType.CUSTOM_BLOCK;
 
         if (prevNode.tag !== nextNode.tag) {
-            return hasChildChanges || isCustomBlock ?
+            return hasChildChanges || isNextNodeCustomBlock ?
                 TreeDiff.createUpdateNodeCommand(nextNode) :
                 TreeDiff.createUpdateTagCommand(nextNode);
+        } else if (isPrevNodeCustomBlock && isNextNodeCustomBlock && prevNode.data !== nextNode.data) {
+            // Two custom blocks of same type, but different data
+
+            return TreeDiff.createUpdateNodeCommand(nextNode);
         }
 
         return hasChildChanges ?
             TreeDiff.createUpdateChildrenCommand(childCommands) :
-            TreeDiff.createPatchCommand();
+            TreeDiff.createMaintainNodeCommand();
     }
 
     /**
@@ -281,6 +287,14 @@ class TreeDiff {
             type: UPDATE_NODE,
             nextNode
         });
+    }
+
+    /**
+     * An alias for `createPatchCommand()` when a node persists.
+     */
+
+    private static createMaintainNodeCommand(): TreePatchCommand {
+        return TreeDiff.createPatchCommand();
     }
 
     /**

@@ -3,6 +3,7 @@ import ActionType          from './Constants/ActionType';
 import backspace           from './Edits/backspace';
 import changeBlockType     from './Edits/changeBlockType';
 import del                 from './Edits/del';
+import editAnchor          from './Edits/editAnchor';
 import insert              from './Edits/insert';
 import insertBlockBreak    from './Edits/insertBlockBreak';
 import insertCustomBlock   from './Edits/insertCustomBlock';
@@ -27,6 +28,8 @@ function createStateFromAction(prevState: State, action: Action): State {
             return insert(prevState, action.range);
         case ActionType.DELETE:
             return del(prevState, action.range);
+        case ActionType.EDIT_ANCHOR:
+            return editAnchor(prevState, action.data);
         case ActionType.INSERT:
             return insert(prevState, action.range, action.content);
         case ActionType.INSERT_BLOCK_BREAK:

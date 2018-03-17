@@ -11,6 +11,7 @@ class TomeFacade {
     public undo:               () => void;
     public changeBlockType:    (markupTag: MarkupTag) => void;
     public toggleInlineMarkup: (markupTag: MarkupTag) => void;
+    public editAnchor:         () => void;
     public insertCustomBlock:  (type: string, data: any) => void;
     public updateCustomBlock:  (container: HTMLElement, data: any) => void;
     public removeCustomBlock:  (container: HTMLElement) => void;
@@ -26,6 +27,7 @@ class TomeFacade {
         this.undo               = _.undo.bind(_);
         this.changeBlockType    = _.changeBlockType.bind(_);
         this.toggleInlineMarkup = _.toggleInlineMarkup.bind(_);
+        this.editAnchor         = _.editAnchor.bind(_);
         this.insertCustomBlock  = _.insertCustomBlock.bind(_);
         this.updateCustomBlock  = _.updateCustomBlock.bind(_);
         this.removeCustomBlock  = _.removeCustomBlock.bind(_);

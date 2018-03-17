@@ -61,7 +61,7 @@ function adjustMarkups(
             } else if (markup.isInline || markup.isCustomBlock || markup.start > fromIndex) {
                 removeMarkup = true;
 
-                if (markup.isCustomBlock) {
+                if (markup.isCustomBlock && fromIndex === markup.start) {
                     preserveNextBlock = true;
                 }
             }

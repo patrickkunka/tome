@@ -78,6 +78,26 @@ class Tome implements ITome {
         this.stateManager.applyAction({type: ActionType.TOGGLE_INLINE, tag});
     }
 
+    public editAnchor() {
+        const isLinkActive = this.stateManager.state.isTagActive(MarkupTag.A);
+
+        if (!isLinkActive) throw new Error('[Tome] No inline link selected');
+
+        const callback = this.config.callbacks.onEditAnchor;
+        const anchor = this.stateManager.state.activeInlineMarkups.allOfTag(MarkupTag.A)[0];
+        const currentAnchorData = anchor.data;
+
+        if (typeof callback !== 'function') {
+            throw new TypeError('[Tome] No `onAddAnchor` callback function provided');
+        }
+
+        const handlerUpdate = (data: IAnchorData) => {
+            this.stateManager.applyAction({type: ActionType.EDIT_ANCHOR, data});
+        };
+
+        callback(handlerUpdate, currentAnchorData);
+    }
+
     public changeBlockType(tag: MarkupTag) {
         if (getMarkupType(tag) !== MarkupType.BLOCK) {
             throw new TypeError(`[Tome] Markup tag "${tag}" is not a valid block markup`);

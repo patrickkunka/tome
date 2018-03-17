@@ -4,6 +4,7 @@ enum ActionType {
     CHANGE_BLOCK_TYPE   = 'CHANGE_BLOCK_TYPE',
     CUT                 = 'CUT',
     DELETE              = 'DELETE',
+    EDIT_ANCHOR         = 'EDIT_ANCHOR',
     INSERT              = 'INSERT',
     INSERT_BLOCK_BREAK  = 'INSERT_BLOCK_BREAK',
     INSERT_CUSTOM_BLOCK = 'INSERT_CUSTOM_BLOCK',
