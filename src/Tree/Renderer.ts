@@ -53,6 +53,7 @@ class Renderer {
         node: TomeNode,
         parent: TomeNode
     ): string {
+        const isEditorMode = params.mode === RenderMode.EDITOR;
         const isCustomBlock = node.isCustomBlock;
         const isLastChild = node === parent.childNodes[parent.childNodes.length - 1];
         const isText = node.isText;
@@ -61,7 +62,7 @@ class Renderer {
 
         if (isCustomBlock) {
             return this.renderCustomBlockToHtml(params, node);
-        } else if (node.isBlock && isLastChild && node.length === 0) {
+        } else if (!isEditorMode && node.isBlock && isLastChild && node.length === 0) {
             // Don't render trailing empty <p> tags
 
             return html;
