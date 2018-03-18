@@ -4,6 +4,7 @@ import SelectionDirection   from '../State/Constants/SelectionDirection';
 import ISelection           from '../State/interfaces/ISelection';
 import State                from '../State/State';
 import Tome                 from '../Tome/Tome';
+import RenderMode           from './Constants/RenderMode';
 import ICustomBlockInstance from './Interfaces/ICustomBlockInstance';
 import Renderer             from './Renderer';
 import TomeNode             from './TomeNode';
@@ -12,7 +13,8 @@ import TreeDiff             from './TreeDiff';
 import TreePatch            from './TreePatch';
 
 class Tree {
-    public root: TomeNode = null;
+    public root:     TomeNode = null;
+    public renderer: Renderer  = new Renderer();
 
     private tome:       Tome      = null;
     private treePatch:  TreePatch = null;
@@ -32,7 +34,11 @@ class Tree {
             // Initial render
 
             const customBlockInstances = [];
-            const nextRender = Renderer.renderNodes(nextRoot.childNodes, null, customBlockInstances);
+
+            const nextRender = this.renderer.renderNodesToHtml({
+                mode: RenderMode.EDITOR,
+                customBlockInstances
+            }, nextRoot.childNodes, nextRoot);
 
             rootEl.innerHTML = this.lastRender = nextRender;
 

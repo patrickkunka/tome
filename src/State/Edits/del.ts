@@ -15,8 +15,11 @@ function del(prevState: State, range: TomeSelection): State {
         // If at the end of a block ingest previous two characters, else one
 
         const currentBlock = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.BLOCK, range.from).markup;
+        const currentListItem = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.LIST_ITEM, range.from).markup;
+        const isAtEndOfBlock = currentBlock && currentBlock.end === range.from;
+        const isAtEndOfListItem = currentListItem && currentListItem.end === range.from;
 
-        if (currentBlock && currentBlock.end === range.from) {
+        if (isAtEndOfBlock || isAtEndOfListItem) {
             toIndex = range.from + 2;
         } else {
             toIndex = range.from + 1;

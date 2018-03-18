@@ -1,10 +1,10 @@
-import TomeFacade     from './Tome/TomeFacade';
-import IModule        from './Tree/Interfaces/IModule';
-import valueToModules from './Tree/Renderers/valueToModules';
+import TomeFacade            from './Tome/TomeFacade';
+import ICustomBlockRenderers from './Tree/Interfaces/ICustomBlockRenderers';
+import RendererFacade        from './Tree/RendererFacade';
 
 interface IFactory {
     (el: HTMLElement, config: any): TomeFacade;
-    valueToModules: (IValue) => IModule[];
+    createRenderer(customBlocks: ICustomBlockRenderers): RendererFacade;
 }
 
 const factory = (el: HTMLElement, config: any = {}) => {
@@ -13,6 +13,12 @@ const factory = (el: HTMLElement, config: any = {}) => {
     return tome;
 };
 
-(factory as IFactory).valueToModules = valueToModules;
+(factory as IFactory).createRenderer = (
+    customBlocks: ICustomBlockRenderers = {}
+): RendererFacade => {
+    const renderer = new RendererFacade(customBlocks);
+
+    return renderer;
+};
 
 module.exports = factory;

@@ -47,11 +47,14 @@ function backspace(prevState: State, range: TomeSelection): State {
     }
 
     if (range.isCollapsed) {
-        // If at the start of a block ingest previous two characters, else one
+        // If at the start of a block or list item ingest previous two characters, else one
 
         const currentBlock = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.BLOCK, range.from).markup;
+        const currentListItem = getMarkupOfTypeAtIndex(prevState.markups, MarkupType.LIST_ITEM, range.from).markup;
+        const isAtStartOfBlock = currentBlock && currentBlock.start === range.from;
+        const isAtStartOfListItem = currentListItem && currentListItem.start === range.from;
 
-        if (currentBlock && currentBlock.start === range.from) {
+        if (isAtStartOfBlock || isAtStartOfListItem) {
             fromIndex = range.from - 2;
         } else {
             fromIndex = range.from - 1;

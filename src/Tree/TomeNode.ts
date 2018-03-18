@@ -21,6 +21,10 @@ class TomeNode {
         return [MarkupType.BLOCK, MarkupType.CUSTOM_BLOCK].includes(this.type);
     }
 
+    get isCustomBlock(): boolean {
+        return this.type === MarkupType.CUSTOM_BLOCK;
+    }
+
     get isListItem(): boolean {
         return this.type === MarkupType.LIST_ITEM;
     }

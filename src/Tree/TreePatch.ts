@@ -1,10 +1,10 @@
 import HtmlEntity           from '../State/Constants/HtmlEntity';
 import MarkupTag            from '../State/Constants/MarkupTag';
 import NodeChangeType       from './Constants/NodeChangeType';
+import RenderMode           from './Constants/RenderMode';
 import WhitespaceExpression from './Constants/WhitespaceExpression';
 import ITreePatchOperation  from './Interfaces/ITreePatchOperation';
 import ITreePatchParams     from './Interfaces/ITreePatchParams';
-import Renderer             from './Renderer';
 import Tree                 from './Tree';
 import TreePatchCommand     from './TreePatchCommand';
 
@@ -84,7 +84,12 @@ class TreePatch {
     ): void {
         const addedTomeNode = currentCommand.nextNode;
         const customBlockInstances = [];
-        const addedTomeNodeHtml = Renderer.renderNode(addedTomeNode, addedTomeNode.parent, customBlockInstances);
+
+        const addedTomeNodeHtml = this.tree.renderer.renderNodeToHtml({
+            mode: RenderMode.EDITOR,
+            customBlockInstances
+        }, addedTomeNode, addedTomeNode.parent);
+
         const addedTomeNodeEl = this.renderHtmlToDom(addedTomeNodeHtml);
         const {parent} = params;
 
@@ -130,7 +135,15 @@ class TreePatch {
 
         this.tree.unmountCustomBlock(currentNode);
 
-        params.parent.removeChild(currentNode);
+        parent.removeChild(currentNode);
+
+        const isEmptyNode = prevNode.isText && parent.childNodes.length === 1 && parent.lastChild.textContent === '';
+
+        if (isEmptyNode) {
+            // Deleted the last text node of a block, add anchor break
+
+            parent.innerHTML = `<${MarkupTag.BR}>`;
+        }
 
         this.patch(params, nextSibling, ++commandIndex);
     }
@@ -149,21 +162,22 @@ class TreePatch {
     ): void {
         const {nextSibling} = currentNode;
         const {textPatchCommand} = currentCommand;
+        const {parent} = params;
 
         if (currentNode.nodeName.toLowerCase() === MarkupTag.BR) {
             const textNode = document.createTextNode('');
 
-            params.parent.replaceChild(textNode, currentNode);
+            parent.replaceChild(textNode, currentNode);
 
             currentNode = textNode;
         }
 
         const {replaceStart, replaceCount, replaceWith, fullText} = textPatchCommand;
         const currentNodeAsCharacterData = currentNode as CharacterData;
-        const isEmptyingNode = fullText === '';
+        const isEmptyingNode = parent.firstChild === currentNode && parent.lastChild === currentNode && fullText === '';
 
         if (isEmptyingNode) {
-            params.parent.innerHTML = `<${MarkupTag.BR}>`;
+            parent.innerHTML = `<${MarkupTag.BR}>`;
         } else {
             currentNodeAsCharacterData.replaceData(replaceStart, replaceCount, replaceWith);
         }
@@ -230,11 +244,10 @@ class TreePatch {
         const updatedTomeNode = currentCommand.nextNode;
         const customBlockInstances = [];
 
-        const updatedTomeNodeHtml = Renderer.renderNode(
-            updatedTomeNode,
-            updatedTomeNode.parent,
+        const updatedTomeNodeHtml = this.tree.renderer.renderNodeToHtml({
+            mode: RenderMode.EDITOR,
             customBlockInstances
-        );
+        }, updatedTomeNode, updatedTomeNode.parent);
 
         const updatedTomeNodeEl = this.renderHtmlToDom(updatedTomeNodeHtml) as HTMLElement;
 
