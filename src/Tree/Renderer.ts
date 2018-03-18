@@ -1,15 +1,15 @@
-import HtmlEntity            from '../State/Constants/HtmlEntity';
-import MarkupTag             from '../State/Constants/MarkupTag';
-import MarkupType            from '../State/Constants/MarkupType';
-import IValue                from '../State/Interfaces/IValue';
-import RenderMode            from './Constants/RenderMode';
-import ICustomBlockInstance  from './Interfaces/ICustomBlockInstance';
-import ICustomBlockRenderers from './Interfaces/ICustomBlockRenderers';
-import IModule               from './Interfaces/IModule';
-import IRendererParams       from './Interfaces/IRendererParams';
-import TomeNode              from './TomeNode';
-import buildTreeFromValue    from './Util/buildTreeFromValue';
-import createAttributesList  from './Util/createAttributesList';
+import HtmlEntity                from '../State/Constants/HtmlEntity';
+import MarkupTag                 from '../State/Constants/MarkupTag';
+import MarkupType                from '../State/Constants/MarkupType';
+import IValue                    from '../State/Interfaces/IValue';
+import RenderMode                from './Constants/RenderMode';
+import ICustomBlockInstance      from './Interfaces/ICustomBlockInstance';
+import ICustomBlockRenderers     from './Interfaces/ICustomBlockRenderers';
+import IModule                   from './Interfaces/IModule';
+import IRendererParams           from './Interfaces/IRendererParams';
+import TomeNode                  from './TomeNode';
+import buildTreeFromValue        from './Util/buildTreeFromValue';
+import createAttributesDomString from './Util/createAttributesDomString';
 
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
@@ -69,13 +69,13 @@ class Renderer {
         }
 
         if (!isText) {
-            const attributesList = createAttributesList(
+            const attributesList = createAttributesDomString(
                 params.mode,
                 node.tag,
                 node.data
             );
 
-            html += `<${node.tag + (attributesList.length ? ' ' + attributesList.join(' ') : '')}>`;
+            html += `<${node.tag + attributesList}>`;
         }
 
         html += this.renderNodeContent(params, node, parent);
