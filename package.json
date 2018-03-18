@@ -7,7 +7,32 @@
     "lint": "tslint --project tsconfig.json -c tslint.json './src/**/*.ts'",
     "test": "mocha -r ts-node/register **/*.test.ts",
     "watch": "webpack --watch",
-    "build": "npm run lint && npm run test && webpack"
+    "build": "npm run lint && npm run test && webpack",
+    "cover": "nyc mocha **/*.test.ts"
+  },
+  "nyc": {
+    "require": [
+      "ts-node/register",
+      "source-map-support/register"
+    ],
+    "reporter": [
+      "lcov",
+      "text"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "include": [
+      "src"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "**/**.test.ts",
+      "**/Interfaces",
+      "dist",
+      "coverage"
+    ],
+    "all": true
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
@@ -19,6 +44,7 @@
     "json-loader": "^0.5.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
+    "nyc": "^11.6.0",
     "ts-loader": "^3.1.1",
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1",

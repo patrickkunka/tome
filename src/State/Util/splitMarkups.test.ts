@@ -6,7 +6,7 @@ import splitMarkups from './splitMarkups';
 
 const assert = chai.assert;
 
-describe('splitMarkups', () => {
+describe('splitMarkups()', () => {
     it('should split a block markup by creating a new one a block break later', () => {
         const markups = [
             new Markup([MarkupTag.P, 0, 10])

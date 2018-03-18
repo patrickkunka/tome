@@ -58,7 +58,9 @@ function adjustMarkups(
                 newMarkup[1] = newMarkup[2] = markup.start + adjustment;
 
                 preserveNextBlock = false;
-            } else if (markup.isInline || markup.isCustomBlock || markup.start > fromIndex) {
+            } else {
+                // Remove all other enveloped markups
+
                 removeMarkup = true;
 
                 if (markup.isCustomBlock && fromIndex === markup.start) {
@@ -109,12 +111,14 @@ function adjustMarkups(
                 // adjustment, closing markup will be removed in
                 // subsequent iteration
 
-                if (closingBlockMarkup) {
-                    newMarkup = cloneMarkup(markup);
+                newMarkup = cloneMarkup(markup);
 
+                if (closingBlockMarkup) {
                     newMarkup[2] = closingBlockMarkup.end + adjustment;
 
                     toRemove.push(closingBlockMarkup);
+                } else {
+                    newMarkup[2] += adjustment;
                 }
             }
         } else {

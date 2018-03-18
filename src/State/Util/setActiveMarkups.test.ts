@@ -9,7 +9,7 @@ import setActiveMarkups   from './setActiveMarkups';
 
 const assert = chai.assert;
 
-describe('setActiveMarkupts', () => {
+describe('setActiveMarkups()', () => {
     it('should detect an active inline markup', () => {
         const state = Object.assign(new State(), {
             text: 'Line one.',
