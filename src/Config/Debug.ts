@@ -1,4 +1,6 @@
-class Debug {
+import IDebug from './Interfaces/IDebug';
+
+class Debug implements IDebug {
     public enable = false;
 
     constructor() {

@@ -1,5 +1,6 @@
 import merge from 'helpful-merge';
 
+import IConfig        from '../Config/Interfaces/IConfig';
 import Config         from '../Config/Root';
 import Dom            from '../Dom/Dom';
 import EventManager   from '../Dom/EventManager';
@@ -28,7 +29,7 @@ class Tome implements ITome {
     public stateManager: StateManager = new StateManager(this);
     public eventManager: EventManager = new EventManager(this);
 
-    constructor(el: HTMLElement, config: any) {
+    constructor(el: HTMLElement, config: IConfig) {
         this.init(el, config);
     }
 
@@ -157,7 +158,7 @@ class Tome implements ITome {
         callback(handlerAccept);
     }
 
-    private init(el: HTMLElement, config: any): void {
+    private init(el: HTMLElement, config: IConfig): void {
         merge(this.config, config, {
             deep: true,
             errorMessage: (offender, suggestion = '') => {

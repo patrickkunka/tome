@@ -1,13 +1,14 @@
+import IConfig               from './Config/Interfaces/IConfig';
 import TomeFacade            from './Tome/TomeFacade';
 import ICustomBlockRenderers from './Tree/Interfaces/ICustomBlockRenderers';
 import RendererFacade        from './Tree/RendererFacade';
 
 interface IFactory {
-    (el: HTMLElement, config: any): TomeFacade;
+    (el: HTMLElement, config: IConfig): TomeFacade;
     createRenderer(customBlocks: ICustomBlockRenderers): RendererFacade;
 }
 
-const factory = (el: HTMLElement, config: any = {}): TomeFacade => {
+const factory = (el: HTMLElement, config: IConfig = {}): TomeFacade => {
     const tome = new TomeFacade(el, config);
 
     return tome;

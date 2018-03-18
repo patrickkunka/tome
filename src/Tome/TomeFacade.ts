@@ -1,3 +1,4 @@
+import IConfig        from '../Config/Interfaces/IConfig';
 import MarkupTag      from '../State/Constants/MarkupTag';
 import IValue         from '../State/Interfaces/IValue';
 import State          from '../State/State';
@@ -17,7 +18,7 @@ class TomeFacade {
     public removeCustomBlock:  (container: HTMLElement) => void;
     public moveCustomBlock:    (container: HTMLElement, offset: number) => void;
 
-    constructor(el: HTMLElement, config: any) {
+    constructor(el: HTMLElement, config: IConfig) {
         const _ = new Tome(el, config);
 
         this.getState           = _.getState.bind(_);

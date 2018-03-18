@@ -1,17 +1,18 @@
-import IAnchorData from '../Dom/Interfaces/IAnchorData';
-import ActionType  from '../State/Constants/ActionType';
-import State       from '../State/State';
+import ICallbacks           from './Interfaces/ICallbacks';
+import IOnAddAnchor         from './Interfaces/IOnAddAnchor';
+import IOnAddCustomBlock    from './Interfaces/IOnAddCustomBlock';
+import IOnEditAnchor        from './Interfaces/IOnEditAnchor';
+import IOnRemoveCustomBlock from './Interfaces/IOnRemoveCustomBlock';
+import IOnStateChange       from './Interfaces/IOnStateChange';
+import IOnValueChange       from './Interfaces/IOnValueChange';
 
-class Callbacks {
-    public onStateChange:       (state: State, actionType: ActionType) => void = null;
-    public onAddAnchor:         (handlerCreate: (anchorData: IAnchorData) => void) => void = null;
-    public onValueChange:       () => void = null;
-    public onAddCustomBlock:    (container: HTMLElement, type: string, data: any) => void = null;
-    public onRemoveCustomBlock: (container: HTMLElement) => void = null;
-    public onEditAnchor: (
-        handlerUpdate: (anchorData: IAnchorData) => void,
-        currentAnchorData: IAnchorData
-    ) => void = null;
+class Callbacks implements ICallbacks {
+    public onStateChange:       IOnStateChange       = null;
+    public onAddAnchor:         IOnAddAnchor         = null;
+    public onValueChange:       IOnValueChange       = null;
+    public onAddCustomBlock:    IOnAddCustomBlock    = null;
+    public onRemoveCustomBlock: IOnRemoveCustomBlock = null;
+    public onEditAnchor:        IOnEditAnchor        = null;
 
     constructor() {
         Object.seal(this);
