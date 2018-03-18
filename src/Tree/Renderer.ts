@@ -69,7 +69,11 @@ class Renderer {
         }
 
         if (!isText) {
-            const attributesList = createAttributesList(node.tag);
+            const attributesList = createAttributesList(
+                params.mode,
+                node.tag,
+                node.data
+            );
 
             html += `<${node.tag + (attributesList.length ? ' ' + attributesList.join(' ') : '')}>`;
         }

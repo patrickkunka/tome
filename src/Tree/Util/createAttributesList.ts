@@ -1,12 +1,28 @@
-import MarkupTag from '../../State/Constants/MarkupTag';
+import IAnchorData from '../../Dom/Interfaces/IAnchorData';
+import MarkupTag   from '../../State/Constants/MarkupTag';
+import RenderMode  from '../Constants/RenderMode';
 
-function createAttributesList(tag: MarkupTag): string[] {
+function createAttributesList(mode: RenderMode, tag: MarkupTag, data: any): string[] {
     const attributesMap: any = {};
     const attributesList: string[] = [];
 
     switch (tag) {
         case MarkupTag.A:
-            attributesMap.href = 'javascript:void(0)';
+            if (mode === RenderMode.CONSUMER) {
+                const {href, target, title}: IAnchorData = data;
+
+                attributesMap.href = href;
+
+                if (target) {
+                    attributesMap.target = target;
+                }
+
+                if (title) {
+                    attributesMap.title = title;
+                }
+            } else {
+                attributesMap.href = 'javascript:void(0)';
+            }
 
             break;
         case MarkupTag.DIV:
