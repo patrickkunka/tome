@@ -1,15 +1,7 @@
+import TypedArray from '../Shared/Util/TypedArray';
 import TreePatchCommand from './TreePatchCommand';
 
-class TypedArray {
-    public length: number;
-
-    public map<U>(_: (value: any, index: number, array: any[]) => U): U[] { return []; }
-    public push(..._): number { return 0; }
-}
-
-TypedArray.prototype = new Array<TreePatchCommand>();
-
-class TreePatchCommandList extends TypedArray {
+class TreePatchCommandList extends TypedArray<TreePatchCommand> {
     public last: TreePatchCommand = null;
 
     public push(...items): number {
