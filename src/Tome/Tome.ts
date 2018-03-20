@@ -2,9 +2,8 @@ import merge from 'helpful-merge';
 
 import IConfig        from '../Config/Interfaces/IConfig';
 import Config         from '../Config/Root';
-import Dom            from '../Dom/Dom';
-import EventManager   from '../Dom/EventManager';
-import IAnchorData    from '../Dom/Interfaces/IAnchorData';
+import EventManager   from '../Events/EventManager';
+import IAnchorData    from '../Shared/Interfaces/IAnchorData';
 import ActionType     from '../State/Constants/ActionType';
 import MarkupTag      from '../State/Constants/MarkupTag';
 import MarkupType     from '../State/Constants/MarkupType';
@@ -14,11 +13,13 @@ import IValue         from '../State/Interfaces/IValue';
 import State          from '../State/State';
 import StateManager   from '../State/StateManager';
 import Tree           from '../Tree/Tree';
+import Dom            from './Dom';
 import ITome          from './Interfaces/ITome';
 
 import {
     getMarkupType,
     getNodeByPath,
+    getPathFromDomNode,
     mapMarkupToArray
 } from '../Shared/Util';
 
@@ -185,7 +186,7 @@ class Tome implements ITome {
     }
 
     private getMarkupFromDomNode(container: HTMLElement): IMarkupLocator {
-        const path = this.dom.getPathFromDomNode(container);
+        const path = getPathFromDomNode(container, this.dom.root);
         const node = getNodeByPath(path, this.tree.root);
 
         if (!node) throw new Error('[Tome] No custom block found for provided container');

@@ -13,6 +13,7 @@ import TomeSelection           from './TomeSelection';
 
 import {
     getNodeByPath,
+    getPathFromDomNode,
     isGreaterPath
 } from '../Shared/Util';
 
@@ -262,7 +263,7 @@ class StateManager {
     }
 
     private getRangeFromSelection(selection: Selection): TomeSelection {
-        const anchorPath = this.tome.dom.getPathFromDomNode(selection.anchorNode);
+        const anchorPath = getPathFromDomNode(selection.anchorNode, this.tome.dom.root);
         const {root} = this.tome.tree;
         const from = new Caret();
         const to = new Caret();
@@ -297,7 +298,7 @@ class StateManager {
         let rangeTo = -1;
 
         if (!selection.isCollapsed) {
-            extentPath = this.tome.dom.getPathFromDomNode(selection.extentNode);
+            extentPath = getPathFromDomNode(selection.extentNode, this.tome.dom.root);
             virtualExtentNode = getNodeByPath(extentPath, root);
 
             if ((virtualExtentNode.isBlock || virtualExtentNode.isListItem) && extentOffset > 0) {

@@ -1,9 +1,9 @@
 import Config       from '../../Config/Root';
-import Dom          from '../../Dom/Dom';
-import EventManager from '../../Dom/EventManager';
+import EventManager from '../../Events/EventManager';
 import State        from '../../State/State';
 import StateManager from '../../State/StateManager';
 import Tree         from '../../Tree/Tree';
+import Dom          from '../Dom';
 
 interface ITome {
     config: Config;

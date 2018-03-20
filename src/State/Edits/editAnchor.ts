@@ -1,4 +1,4 @@
-import IAnchorData from '../../Dom/Interfaces/IAnchorData';
+import IAnchorData from '../../Shared/Interfaces/IAnchorData';
 import MarkupTag   from '../Constants/MarkupTag';
 import State       from '../State';
 import cloneMarkup from '../Util/cloneMarkup';

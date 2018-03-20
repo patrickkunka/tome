@@ -1,4 +1,4 @@
-import IAnchorData    from '../../Dom/Interfaces/IAnchorData';
+import IAnchorData    from '../../Shared/Interfaces/IAnchorData';
 import RenderMode     from '../Constants/RenderMode';
 import IAttributesMap from '../Interfaces/IAttributesMap';
 

@@ -1,4 +1,4 @@
-import INodeLike from '../../Tome/Interfaces/INodeLike';
+import INodeLike from '../Interfaces/INodeLike';
 
 /**
  * Returns a child node of a provided `INodeLike` based on a provided path.

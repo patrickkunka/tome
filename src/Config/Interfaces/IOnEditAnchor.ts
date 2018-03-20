@@ -1,4 +1,4 @@
-import IAnchorData from '../../Dom/Interfaces/IAnchorData';
+import IAnchorData from '../../Shared/Interfaces/IAnchorData';
 
 type IOnEditAnchor = (
     handlerUpdate: (anchorData: IAnchorData) => void,

@@ -1,11 +1,15 @@
-import {getNodeByPath} from '../Shared/Util';
-import ActionType      from '../State/Constants/ActionType';
-import HtmlEntity      from '../State/Constants/HtmlEntity';
-import MarkupTag       from '../State/Constants/MarkupTag';
-import IAction         from '../State/Interfaces/IAction';
-import ITome           from '../Tome/Interfaces/ITome';
-import TomeNode        from '../Tree/TomeNode';
-import MutationType    from './Constants/MutationType';
+import ActionType         from '../State/Constants/ActionType';
+import HtmlEntity         from '../State/Constants/HtmlEntity';
+import MarkupTag          from '../State/Constants/MarkupTag';
+import IAction            from '../State/Interfaces/IAction';
+import ITome              from '../Tome/Interfaces/ITome';
+import TomeNode           from '../Tree/TomeNode';
+import MutationType       from './Constants/MutationType';
+
+import {
+    getNodeByPath,
+    getPathFromDomNode
+} from '../Shared/Util';
 
 class IMEParser {
     public static handleCharacterMutation(mutation: MutationRecord, mutations: MutationRecord[], tome: ITome): IAction {
@@ -31,11 +35,11 @@ class IMEParser {
                 break;
             }
 
-            const parentPath = tome.dom.getPathFromDomNode(parentBlock);
+            const parentPath = getPathFromDomNode(parentBlock, tome.dom.root);
 
             path = parentPath.concat(0);
         } else {
-            path = tome.dom.getPathFromDomNode(node);
+            path = getPathFromDomNode(node, tome.dom.root);
         }
 
         const virtualNode: TomeNode = getNodeByPath(path, tome.tree.root);
@@ -56,7 +60,7 @@ class IMEParser {
         // tslint:enable variable-name
 
         const beforeRemoved = mutation.previousSibling;
-        const path = tome.dom.getPathFromDomNode(beforeRemoved);
+        const path = getPathFromDomNode(beforeRemoved, tome.dom.root);
 
         // Increment previous sibling path to find own path
 
