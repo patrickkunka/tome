@@ -5,6 +5,7 @@ import ITreePatchCommand from './Interfaces/ITreePatchCommand';
 import TextDiff          from './TextDiff';
 import TomeNode          from './TomeNode';
 import TreePatchCommand  from './TreePatchCommand';
+import TreePatchCommandList from './TreePatchCommandList';
 
 const {
     NONE,
@@ -53,10 +54,10 @@ class TreeDiff {
     private static diffChildren(
         prevChildren:   TomeNode[],
         nextChildren:   TomeNode[],
-        commands:       TreePatchCommand[] = [],
-        prevPointer:    number             = 0,
-        nextPointer:    number             = 0
-    ): TreePatchCommand[] {
+        commands:       TreePatchCommandList = new TreePatchCommandList(),
+        prevPointer:    number               = 0,
+        nextPointer:    number               = 0
+    ): TreePatchCommandList {
         const prevChild = prevChildren[prevPointer];
         const nextChild = nextChildren[nextPointer];
 
@@ -122,7 +123,7 @@ class TreeDiff {
     private static detectAddedNodes(
         prevChild: TomeNode,
         nextChildren: TomeNode[],
-        commands: TreePatchCommand[],
+        commands: TreePatchCommandList,
         nextPointer: number
     ): number {
         const newCommands = [];
@@ -157,7 +158,7 @@ class TreeDiff {
     private static detectRemovedNodes(
         nextChild: TomeNode,
         prevChildren: TomeNode[],
-        commands: TreePatchCommand[],
+        commands: TreePatchCommandList,
         prevPointer: number
     ): number {
         const newCommands = [];
@@ -271,7 +272,7 @@ class TreeDiff {
      * Returns a mapped patch command representing a node with changes to its children.
      */
 
-    private static createUpdateChildrenCommand(childCommands: TreePatchCommand[]): TreePatchCommand {
+    private static createUpdateChildrenCommand(childCommands: TreePatchCommandList): TreePatchCommand {
         return TreeDiff.createPatchCommand({
             type: UPDATE_CHILDREN,
             childCommands

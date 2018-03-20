@@ -98,7 +98,10 @@ describe('TreeDiff', () => {
                 const command = TreeDiff.diff(prevNode, nextNode);
 
                 try {
-                    assert.deepEqual(command.childCommands.map(childCommand => childCommand.type), diffs);
+                    assert.deepEqual(
+                        command.childCommands.map(childCommand => childCommand.type),
+                        diffs
+                    );
                 } catch (err) {
                     console.error(testCases[i]);
 

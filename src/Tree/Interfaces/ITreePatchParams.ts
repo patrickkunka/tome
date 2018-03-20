@@ -1,7 +1,7 @@
-import TreePatchCommand from '../TreePatchCommand';
+import TreePatchCommandList from '../TreePatchCommandList';
 
 interface ITreePatchParams {
-    commands: TreePatchCommand[];
+    commands: TreePatchCommandList;
     parent: HTMLElement;
 }
 

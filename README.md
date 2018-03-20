@@ -5,6 +5,7 @@ In progress..
 
 #### Todos
 
+- toggle inline bug while selection across blocks
 - additional IME mutation detection work
 
 ---

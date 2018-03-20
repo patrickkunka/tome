@@ -39,18 +39,16 @@ class TreePatch {
     public patch(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number = 0
+        currentCommand: TreePatchCommand = params.commands[0]
     ): void {
-        const currentCommand = params.commands[commandIndex] || null;
-
         if (!currentCommand) return;
 
-        return this.getOperationForType(currentCommand.type)
-            .call(this, params, currentNode, commandIndex, currentCommand);
+        this.getOperationForType(currentCommand.type)
+            .call(this, params, currentNode, currentCommand);
     }
 
     /**
-     * Returns the appropiate patch function for the provided command type.
+     * Returns the appropriate patch function for the provided command type.
      */
 
     private getOperationForType(type: NodeChangeType): ITreePatchOperation {
@@ -79,7 +77,6 @@ class TreePatch {
     private addNode(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const addedTomeNode = currentCommand.nextNode;
@@ -107,7 +104,7 @@ class TreePatch {
             parent.innerHTML += `<${MarkupTag.BR}>`;
         }
 
-        this.patch(params, currentNode, ++commandIndex);
+        this.patch(params, currentNode, currentCommand.followingCommand);
     }
 
     /**
@@ -117,7 +114,6 @@ class TreePatch {
     private removeNode(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {prevNode} = currentCommand;
@@ -145,7 +141,7 @@ class TreePatch {
             parent.innerHTML = `<${MarkupTag.BR}>`;
         }
 
-        this.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, currentCommand.followingCommand);
     }
 
     /**
@@ -157,7 +153,6 @@ class TreePatch {
     private updateText(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {nextSibling} = currentNode;
@@ -184,7 +179,7 @@ class TreePatch {
 
         this.reinforceWhitespace(currentNodeAsCharacterData);
 
-        this.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, currentCommand.followingCommand);
     }
 
     /**
@@ -194,7 +189,6 @@ class TreePatch {
     private updateTag(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {nextSibling} = currentNode;
@@ -205,7 +199,7 @@ class TreePatch {
 
         params.parent.replaceChild(updatedTomeNodeEl, currentNode);
 
-        this.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, currentCommand.followingCommand);
     }
 
     /**
@@ -215,7 +209,6 @@ class TreePatch {
     private updateChildren(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {firstChild} = currentNode;
@@ -227,7 +220,7 @@ class TreePatch {
         };
 
         this.patch(childParams, firstChild);
-        this.patch(params, currentNode.nextSibling, ++commandIndex);
+        this.patch(params, currentNode.nextSibling, currentCommand.followingCommand);
     }
 
     /**
@@ -237,7 +230,6 @@ class TreePatch {
     private replaceNode(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number,
         currentCommand: TreePatchCommand
     ): void {
         const {nextSibling} = currentNode;
@@ -257,7 +249,7 @@ class TreePatch {
 
         customBlockInstances.forEach(this.tree.mountCustomBlock.bind(this.tree));
 
-        this.patch(params, nextSibling, ++commandIndex);
+        this.patch(params, nextSibling, currentCommand.followingCommand);
     }
 
     /**
@@ -267,9 +259,9 @@ class TreePatch {
     private maintainNode(
         params: ITreePatchParams,
         currentNode: Node,
-        commandIndex: number
+        currentCommand: TreePatchCommand
     ): void {
-        this.patch(params, currentNode.nextSibling, ++commandIndex);
+        this.patch(params, currentNode.nextSibling, currentCommand.followingCommand);
     }
 
     /**
