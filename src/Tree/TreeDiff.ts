@@ -6,6 +6,7 @@ import TextDiff          from './TextDiff';
 import TomeNode          from './TomeNode';
 import TreePatchCommand  from './TreePatchCommand';
 import TreePatchCommandList from './TreePatchCommandList';
+import IScanOffsets from './Interfaces/IScanOffsets';
 
 const {
     NONE,
@@ -44,6 +45,59 @@ class TreeDiff {
     }
 
     /**
+     * Compares two provided nodes in order to determine the differences, if any, between them.
+     */
+
+    private static diffNodes(prevNode: TomeNode = null, nextNode: TomeNode = null): TreePatchCommand {
+        if (prevNode && !nextNode) {
+            return TreeDiff.createRemoveCommand(prevNode);
+        } else if (nextNode && !prevNode) {
+            return TreeDiff.createAddCommand(nextNode);
+        } else if (
+            prevNode && nextNode &&
+            prevNode.childNodes.length === 0 && nextNode.childNodes.length === 0
+        ) {
+            // Text nodes
+
+            return prevNode.text === nextNode.text ?
+                TreeDiff.createMaintainNodeCommand() :
+                TreeDiff.createUpdateTextCommand(prevNode.text, nextNode.text);
+        }
+
+        // HTML elements
+
+        const difference = nextNode.childNodes.length - prevNode.childNodes.length;
+
+        const scanOffsets: IScanOffsets = {
+            add: difference > 0 ?
+                Math.max(difference * -1, TreeDiff.MAX_SCAN_OFFSET_ADD) : TreeDiff.MAX_SCAN_OFFSET_ADD,
+            remove: difference < 0 ?
+                Math.max(difference, TreeDiff.MAX_SCAN_OFFSET_REMOVE) : TreeDiff.MAX_SCAN_OFFSET_REMOVE
+        };
+
+        const childCommands = TreeDiff.diffChildren(prevNode.childNodes, nextNode.childNodes, scanOffsets);
+        const hasChildChanges = TreeDiff.hasChildChanges(childCommands);
+        const prevMarkupType = getMarkupType(prevNode.tag);
+        const nextMarkupType = getMarkupType(nextNode.tag);
+        const isPrevNodeCustomBlock = prevMarkupType === MarkupType.CUSTOM_BLOCK;
+        const isNextNodeCustomBlock = nextMarkupType === MarkupType.CUSTOM_BLOCK;
+
+        if (prevNode.tag !== nextNode.tag) {
+            return hasChildChanges || isNextNodeCustomBlock ?
+                TreeDiff.createUpdateNodeCommand(nextNode) :
+                TreeDiff.createUpdateTagCommand(nextNode);
+        } else if (isPrevNodeCustomBlock && isNextNodeCustomBlock && prevNode.data !== nextNode.data) {
+            // Two custom blocks of same type, but different data
+
+            return TreeDiff.createUpdateNodeCommand(nextNode);
+        }
+
+        return hasChildChanges ?
+            TreeDiff.createUpdateChildrenCommand(childCommands) :
+            TreeDiff.createMaintainNodeCommand();
+    }
+
+    /**
      * Receives the previous and next `childNodes` arrays for a given node and determines
      * if any nodes have been added, removed or updated.
      *
@@ -54,6 +108,7 @@ class TreeDiff {
     private static diffChildren(
         prevChildren:   TomeNode[],
         nextChildren:   TomeNode[],
+        scanOffsets:    IScanOffsets,
         commands:       TreePatchCommandList = new TreePatchCommandList(),
         prevPointer:    number               = 0,
         nextPointer:    number               = 0
@@ -75,14 +130,26 @@ class TreeDiff {
             // have been added or removed before assuming the node has been
             // updated
 
-            const totalAddedNodes = TreeDiff.detectAddedNodes(prevChild, nextChildren, commands, nextPointer);
+            const totalAddedNodes = TreeDiff.detectAddedNodes(
+                prevChild,
+                nextChildren,
+                scanOffsets.add,
+                commands,
+                nextPointer
+            );
 
             if (totalAddedNodes > 0) {
                 // Nodes added, increment the next pointer only
 
                 nextPointer = nextPointer + totalAddedNodes;
             } else {
-                const totalRemovedNodes = TreeDiff.detectRemovedNodes(nextChild, prevChildren, commands, prevPointer);
+                const totalRemovedNodes = TreeDiff.detectRemovedNodes(
+                    nextChild,
+                    prevChildren,
+                    scanOffsets.remove,
+                    commands,
+                    prevPointer
+                );
 
                 if (totalRemovedNodes > 0) {
                     // Nodes removed, increment the previous pointer only
@@ -108,7 +175,7 @@ class TreeDiff {
 
         // Proceed to next pair
 
-        return TreeDiff.diffChildren(prevChildren, nextChildren, commands, prevPointer, nextPointer);
+        return TreeDiff.diffChildren(prevChildren, nextChildren, scanOffsets, commands, prevPointer, nextPointer);
     }
 
     /**
@@ -123,6 +190,7 @@ class TreeDiff {
     private static detectAddedNodes(
         prevChild: TomeNode,
         nextChildren: TomeNode[],
+        scanOffsetAdd: number,
         commands: TreePatchCommandList,
         nextPointer: number
     ): number {
@@ -131,7 +199,7 @@ class TreeDiff {
         let offset = 0;
         let matchFound = false;
 
-        while (!matchFound && offset <= TreeDiff.MAX_SCAN_OFFSET_ADD) {
+        while (!matchFound && offset <= scanOffsetAdd) {
             newCommands.push(TreeDiff.createAddCommand(nextChildren[nextPointer + offset]));
 
             offset++;
@@ -150,7 +218,7 @@ class TreeDiff {
      * Compares the provided node from the parent node's next children with
      * a range of nodes from the parent node's previous children.
      *
-     * If node matches a previous child up to an offset of `MAX_SCAN_OFFSET_REMOVE`,
+     * If node matches a previous child up to the provided scan offset
      * the corresponding `REMOVE` patch commands are pushed into the `commands`
      * array, and the offset is returned in order to balance the next diff.
      */
@@ -158,6 +226,7 @@ class TreeDiff {
     private static detectRemovedNodes(
         nextChild: TomeNode,
         prevChildren: TomeNode[],
+        scanOffsetRemove: number,
         commands: TreePatchCommandList,
         prevPointer: number
     ): number {
@@ -166,7 +235,7 @@ class TreeDiff {
         let offset = 0;
         let matchFound = false;
 
-        while (!matchFound && offset <= TreeDiff.MAX_SCAN_OFFSET_REMOVE) {
+        while (!matchFound && offset <= scanOffsetRemove) {
             newCommands.push(TreeDiff.createRemoveCommand(prevChildren[prevPointer + offset]));
 
             offset++;
@@ -179,50 +248,6 @@ class TreeDiff {
         commands.push(...newCommands);
 
         return offset;
-    }
-
-    /**
-     * Compares two provided nodes in order to determine the differences, if any, between them.
-     */
-
-    private static diffNodes(prevNode: TomeNode = null, nextNode: TomeNode = null): TreePatchCommand {
-        if (prevNode && !nextNode) {
-            return TreeDiff.createRemoveCommand(prevNode);
-        } else if (nextNode && !prevNode) {
-            return TreeDiff.createAddCommand(nextNode);
-        } else if (
-            prevNode && nextNode &&
-            prevNode.childNodes.length === 0 && nextNode.childNodes.length === 0
-        ) {
-            // Text nodes
-
-            return prevNode.text === nextNode.text ?
-                TreeDiff.createMaintainNodeCommand() :
-                TreeDiff.createUpdateTextCommand(prevNode.text, nextNode.text);
-        }
-
-        // HTML elements
-
-        const childCommands = TreeDiff.diffChildren(prevNode.childNodes, nextNode.childNodes);
-        const hasChildChanges = TreeDiff.hasChildChanges(childCommands);
-        const prevMarkupType = getMarkupType(prevNode.tag);
-        const nextMarkupType = getMarkupType(nextNode.tag);
-        const isPrevNodeCustomBlock = prevMarkupType === MarkupType.CUSTOM_BLOCK;
-        const isNextNodeCustomBlock = nextMarkupType === MarkupType.CUSTOM_BLOCK;
-
-        if (prevNode.tag !== nextNode.tag) {
-            return hasChildChanges || isNextNodeCustomBlock ?
-                TreeDiff.createUpdateNodeCommand(nextNode) :
-                TreeDiff.createUpdateTagCommand(nextNode);
-        } else if (isPrevNodeCustomBlock && isNextNodeCustomBlock && prevNode.data !== nextNode.data) {
-            // Two custom blocks of same type, but different data
-
-            return TreeDiff.createUpdateNodeCommand(nextNode);
-        }
-
-        return hasChildChanges ?
-            TreeDiff.createUpdateChildrenCommand(childCommands) :
-            TreeDiff.createMaintainNodeCommand();
     }
 
     /**
