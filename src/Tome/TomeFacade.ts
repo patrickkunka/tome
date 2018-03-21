@@ -17,6 +17,7 @@ class TomeFacade {
     public updateCustomBlock:  (container: HTMLElement, data: any) => void;
     public removeCustomBlock:  (container: HTMLElement) => void;
     public moveCustomBlock:    (container: HTMLElement, offset: number) => void;
+    public destroy:            () => void;
 
     constructor(el: HTMLElement, config: IConfig) {
         const _ = new Tome(el, config);
@@ -33,6 +34,7 @@ class TomeFacade {
         this.updateCustomBlock  = _.updateCustomBlock.bind(_);
         this.removeCustomBlock  = _.removeCustomBlock.bind(_);
         this.moveCustomBlock    = _.moveCustomBlock.bind(_);
+        this.destroy            = _.destroy.bind(_);
 
         Object.seal(this);
     }

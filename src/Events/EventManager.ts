@@ -1,70 +1,64 @@
-import {pascalCase} from '../Shared/Util';
-import ActionType   from '../State/Constants/ActionType';
-import MarkupTag    from '../State/Constants/MarkupTag';
-import IAction      from '../State/Interfaces/IAction';
-import ITome        from '../Tome/Interfaces/ITome';
-import Keypress     from './Constants/Keypress';
-import MutationType from './Constants/MutationType';
-import IMEParser    from './IMEParser';
-import debounce     from './Util/debounce';
+import ActionType    from '../State/Constants/ActionType';
+import MarkupTag     from '../State/Constants/MarkupTag';
+import IAction       from '../State/Interfaces/IAction';
+import ITome         from '../Tome/Interfaces/ITome';
+import Keypress      from './Constants/Keypress';
+import MutationType  from './Constants/MutationType';
+import EventBinding  from './EventBinding';
+import IMEParser     from './IMEParser';
+import IEventBinding from './Interfaces/IEventBinding';
+import IInputEvent   from './Interfaces/IInputEvent';
+import bindEvent     from './Util/bindEvent';
 
 const SELECTION_DELAY = 10;
 const ACTION_DELAY = 500;
-const DEBOUNCE_DELAY = 200;
 
-interface IInputEvent extends UIEvent {
-    data: string;
-}
-
-type IEventHandler = (Event) => void;
+const EVENTS: Array<string|IEventBinding> = [
+    'keypress',
+    'keydown',
+    'textInput',
+    'compositionstart',
+    'compositionupdate',
+    'compositionend',
+    'mousedown',
+    'paste',
+    'cut',
+    {
+        type: 'mouseup',
+        target: window
+    },
+    {
+        type: 'selectionchange',
+        target: document,
+        debounce: 200
+    }
+];
 
 class EventManager {
-    public root: HTMLElement = null;
+    private tome:               ITome            = null;
+    private observer:           MutationObserver = null;
+    private isComposing:        boolean          = false;
+    private isActioning:        boolean          = false;
+    private isActioningTimerId: number           = -1;
+    private bindings:           EventBinding[]   = [];
 
-    private tome:                    ITome               = null;
-    private boundDelegator:          IEventHandler       = null;
-    private debouncedBoundDelegator: IEventHandler       = null;
-    private observer:                MutationObserver    = null;
-    private isComposing:             boolean             = false;
-    private isActioning:             boolean             = false;
-    private isActioningTimerId:      number              = -1;
+    public get root() {
+        return this.tome.dom.root;
+    }
 
     constructor(tome: ITome) {
         this.tome = tome;
-        this.boundDelegator = this.delegator.bind(this);
-        this.debouncedBoundDelegator = debounce(this.boundDelegator, DEBOUNCE_DELAY, true);
         this.observer = new MutationObserver((this.handleMutation.bind(this)));
     }
 
     public bindEvents(): void {
-        this.root.addEventListener('keypress', this.boundDelegator);
-        this.root.addEventListener('keydown', this.boundDelegator);
-        this.root.addEventListener('textInput', this.boundDelegator);
-        this.root.addEventListener('compositionstart', this.boundDelegator);
-        this.root.addEventListener('compositionupdate', this.boundDelegator);
-        this.root.addEventListener('compositionend', this.boundDelegator);
-        this.root.addEventListener('mousedown', this.boundDelegator);
-        this.root.addEventListener('paste', this.boundDelegator);
-        this.root.addEventListener('cut', this.boundDelegator);
-
-        window.addEventListener('mouseup', this.boundDelegator);
-        document.addEventListener('selectionchange', this.debouncedBoundDelegator);
+        this.bindings = EVENTS.map(bindEvent.bind(null, this, this.root));
 
         this.connectMutationObserver();
     }
 
     public unbindEvents(): void {
-        this.root.removeEventListener('keypress', this.boundDelegator);
-        this.root.removeEventListener('keydown', this.boundDelegator);
-        this.root.removeEventListener('textInput', this.boundDelegator);
-        this.root.removeEventListener('compositionstart', this.boundDelegator);
-        this.root.removeEventListener('compositionupdate', this.boundDelegator);
-        this.root.removeEventListener('compositionend', this.boundDelegator);
-        this.root.removeEventListener('mousedown', this.boundDelegator);
-        this.root.removeEventListener('paste', this.boundDelegator);
-
-        window.removeEventListener('mouseup', this.boundDelegator);
-        document.removeEventListener('selectionchange', this.debouncedBoundDelegator);
+        this.bindings.forEach(binding => binding.unbind());
 
         this.disconnectMutationObserver();
     }
@@ -296,17 +290,6 @@ class EventManager {
         this.raiseIsActioningFlag();
 
         setTimeout(() => this.tome.stateManager.applyAction(action), SELECTION_DELAY);
-    }
-
-    private delegator(e: Event): void {
-        const eventType = e.type;
-        const fn = this['handle' + pascalCase(eventType)];
-
-        if (typeof fn !== 'function') {
-            throw new Error(`[EventManager] No handler found for event "${eventType}"`);
-        }
-
-        fn.call(this, e);
     }
 
     private connectMutationObserver() {

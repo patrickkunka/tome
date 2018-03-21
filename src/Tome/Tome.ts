@@ -159,6 +159,10 @@ class Tome implements ITome {
         callback(handlerAccept);
     }
 
+    public destroy() {
+        this.eventManager.unbindEvents();
+    }
+
     private init(el: HTMLElement, config: IConfig): void {
         merge(this.config, config, {
             deep: true,
@@ -179,8 +183,6 @@ class Tome implements ITome {
         this.stateManager.init(this.config.value);
 
         this.tree.render(true);
-
-        this.eventManager.root = this.dom.root;
 
         this.eventManager.bindEvents();
     }
