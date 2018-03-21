@@ -1,12 +1,12 @@
-import {getMarkupType}   from '../Shared/Util';
-import MarkupType        from '../State/Constants/MarkupType';
-import NodeChangeType    from './Constants/NodeChangeType';
-import ITreePatchCommand from './Interfaces/ITreePatchCommand';
-import TextDiff          from './TextDiff';
-import TomeNode          from './TomeNode';
-import TreePatchCommand  from './TreePatchCommand';
+import {getMarkupType}      from '../Shared/Util';
+import MarkupType           from '../State/Constants/MarkupType';
+import NodeChangeType       from './Constants/NodeChangeType';
+import IScanOffsets         from './Interfaces/IScanOffsets';
+import ITreePatchCommand    from './Interfaces/ITreePatchCommand';
+import TextDiff             from './TextDiff';
+import TomeNode             from './TomeNode';
+import TreePatchCommand     from './TreePatchCommand';
 import TreePatchCommandList from './TreePatchCommandList';
-import IScanOffsets from './Interfaces/IScanOffsets';
 
 const {
     NONE,
