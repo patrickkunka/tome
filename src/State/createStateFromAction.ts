@@ -16,7 +16,24 @@ import setSelection        from './Edits/setSelection';
 import toggleInline        from './Edits/toggleInline';
 import State               from './State';
 
-function createStateFromAction(prevState: State, action: Action): State {
+const createBoundCreateStateFromAction = (
+    // tslint:disable:no-shadowed-variable
+    backspace,
+    changeBlockType,
+    del,
+    editAnchor,
+    insert,
+    insertBlockBreak,
+    insertCustomBlock,
+    insertFromClipboard,
+    insertLineBreak,
+    moveCustomBlock,
+    removeCustomBlock,
+    replaceValue,
+    setSelection,
+    toggleInline
+    // tslint:enable:no-shadowed-variable
+) => (prevState: State, action: Action): State => {
     switch (action.type) {
         case ActionType.BACKSPACE:
             return backspace(prevState, action.range);
@@ -57,6 +74,26 @@ function createStateFromAction(prevState: State, action: Action): State {
         default:
             return prevState;
     }
-}
+};
 
-export default createStateFromAction;
+const createStateFromAction = createBoundCreateStateFromAction(
+    backspace,
+    changeBlockType,
+    del,
+    editAnchor,
+    insert,
+    insertBlockBreak,
+    insertCustomBlock,
+    insertFromClipboard,
+    insertLineBreak,
+    moveCustomBlock,
+    removeCustomBlock,
+    replaceValue,
+    setSelection,
+    toggleInline
+);
+
+export {
+    createStateFromAction as default,
+    createBoundCreateStateFromAction
+};

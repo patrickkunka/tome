@@ -4,8 +4,8 @@ import MarkupsMap    from '../MarkupsMap';
 import State         from '../State';
 
 /**
- * Determines which block and inline markups should be "active"
- * or "enveloped" for a particular selection.
+ * Updates the provided state to indicate which block and inline
+ * markups are "active" or "enveloped" for a given selection.
  */
 
 function setActiveMarkups(state: State, selection: ISelection): void {
