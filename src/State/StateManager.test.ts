@@ -22,6 +22,7 @@ interface ITestContext {
     stateManager: StateManager;
     initialValue: IValue;
     nextValue: IValue;
+    getSelectionSpy: sinon.SinonSpy;
     mockInit();
     mockPushState(nextState?: State);
     mockUndo();
@@ -54,9 +55,17 @@ describe('StateManager', function() {
         self.stateManager.pushStateToHistory(nextState);
     };
 
+    before(() => {
+        self.getSelectionSpy = window.getSelection = spy();
+    });
+
     beforeEach(() => {
         self.tome = new MockTome();
         self.stateManager = new StateManager(self.tome);
+    });
+
+    after(() => {
+        delete window.getSelection;
     });
 
     it('instantiates with no state or history', () => {
@@ -240,6 +249,36 @@ describe('StateManager', function() {
             assert.isTrue(consoleInfoStub.calledWith('REDO (1)'));
 
             consoleInfoStub.restore();
+        });
+    });
+
+    describe('#applyAction()', () => {
+        it('returns a new state for a provided action', () => {
+            self.mockInit();
+
+            const initialState = self.stateManager.state;
+
+            self.stateManager.applyAction({
+                type: ActionType.SET_SELECTION,
+                range: {
+                    from: 3,
+                    to: 3
+                }
+            });
+
+            const nextState = self.stateManager.state;
+
+            assert.deepEqual(initialState.selection, {
+                from: 0,
+                to: 0
+            });
+
+            assert.notEqual(initialState, nextState);
+
+            assert.deepEqual(nextState.selection, {
+                from: 3,
+                to: 3
+            });
         });
     });
 });

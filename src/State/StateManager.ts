@@ -17,6 +17,8 @@ import {
     isGreaterPath
 } from '../Shared/Util';
 
+const ERROR_INVALID_ACTION = 'ERROR_INVALID_ACTION';
+
 class StateManager {
     public historyIndex: number = -1;
 
@@ -92,24 +94,12 @@ class StateManager {
 
         let manipulation: HistoryManipulationType = HistoryManipulationType.PUSH;
 
-        if (action.type === ActionType.SET_SELECTION) {
-            // Detect new selection from browser API
+        try {
+            action.range = this.getActionRange(action);
+        } catch (err) {
+            if (err.message === ERROR_INVALID_ACTION) return;
 
-            const selection = window.getSelection();
-
-            if (!selection.anchorNode || !this.tome.dom.root.contains(selection.anchorNode)) return;
-
-            action.range = this.getRangeFromSelection(selection);
-
-            if (action.range.from === this.state.selection.from && action.range.to === this.state.selection.to) return;
-        } else if (action.range) {
-            // A range has been set, coerce to type
-
-            action.range = Object.assign(new TomeSelection(), action.range);
-        } else {
-            // Use previous range
-
-            action.range = this.state.selection;
+            throw err;
         }
 
         manipulation = this.getManipulationTypeForActionType(action);
@@ -174,6 +164,36 @@ class StateManager {
         if (this.tome.config.debug.enable) {
             console.info(`${manipulation} (${this.historyIndex}): ${action.type}`);
         }
+    }
+
+    private getActionRange(action: Action): TomeSelection {
+        if (action.type === ActionType.SET_SELECTION) {
+            // Detect new selection from browser API
+
+            const selection = window.getSelection();
+
+            if (
+                !selection.anchorNode ||
+                !this.tome.dom.root.contains(selection.anchorNode)
+            ) throw new Error(ERROR_INVALID_ACTION);
+
+            const range = this.getRangeFromSelection(selection);
+
+            if (
+                range.from === this.state.selection.from &&
+                range.to === this.state.selection.to
+            ) throw new Error(ERROR_INVALID_ACTION);
+
+            return range;
+        } else if (action.range) {
+            // A range has been provided, coerce to type
+
+            return Object.assign(new TomeSelection(), action.range);
+        }
+
+        // Use previous range
+
+        return this.state.selection;
     }
 
     private resetCanPushTimer() {
