@@ -1,16 +1,16 @@
-import Config       from '../../Config/Root';
-import EventManager from '../../Events/EventManager';
-import State        from '../../State/State';
-import StateManager from '../../State/StateManager';
-import Tree         from '../../Tree/Tree';
-import Dom          from '../Dom';
+import Config        from '../../Config/Root';
+import IEventManager from '../../Events/Interfaces/IEventManager';
+import State         from '../../State/State';
+import StateManager  from '../../State/StateManager';
+import ITree         from '../../Tree/Interfaces/ITree';
+import Dom           from '../Dom';
 
 interface ITome {
     config: Config;
     dom: Dom;
-    eventManager: EventManager;
+    eventManager: IEventManager;
     stateManager: StateManager;
-    tree: Tree;
+    tree: ITree;
 
     addInlineLink(): void;
     redo(): void;

@@ -7,6 +7,7 @@ import MutationType  from './Constants/MutationType';
 import EventBinding  from './EventBinding';
 import IMEParser     from './IMEParser';
 import IEventBinding from './Interfaces/IEventBinding';
+import IEventManager from './Interfaces/IEventManager';
 import IInputEvent   from './Interfaces/IInputEvent';
 import bindEvent     from './Util/bindEvent';
 
@@ -34,7 +35,7 @@ const EVENTS: Array<string|IEventBinding> = [
     }
 ];
 
-class EventManager {
+class EventManager implements IEventManager {
     private tome:               ITome            = null;
     private observer:           MutationObserver = null;
     private isComposing:        boolean          = false;

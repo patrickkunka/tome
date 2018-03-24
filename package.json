@@ -30,6 +30,7 @@
       "**/*.d.ts",
       "**/**.test.ts",
       "**/Interfaces",
+      "**/Constants",
       "dist",
       "coverage"
     ],
@@ -39,6 +40,7 @@
     "@types/chai": "^4.0.5",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
+    "@types/sinon": "^4.3.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "chai-shallow-deep-equal": "^1.4.0",

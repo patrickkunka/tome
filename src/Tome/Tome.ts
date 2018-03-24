@@ -3,6 +3,7 @@ import merge from 'helpful-merge';
 import IConfig        from '../Config/Interfaces/IConfig';
 import Config         from '../Config/Root';
 import EventManager   from '../Events/EventManager';
+import IEventManager  from '../Events/Interfaces/IEventManager';
 import IAnchorData    from '../Shared/Interfaces/IAnchorData';
 import ActionType     from '../State/Constants/ActionType';
 import MarkupTag      from '../State/Constants/MarkupTag';
@@ -12,6 +13,7 @@ import IMarkupLocator from '../State/Interfaces/IMarkupLocator';
 import IValue         from '../State/Interfaces/IValue';
 import State          from '../State/State';
 import StateManager   from '../State/StateManager';
+import ITree          from '../Tree/Interfaces/ITree';
 import Tree           from '../Tree/Tree';
 import Dom            from './Dom';
 import ITome          from './Interfaces/ITome';
@@ -24,11 +26,11 @@ import {
 } from '../Shared/Util';
 
 class Tome implements ITome {
-    public dom:          Dom          = new Dom();
-    public config:       Config       = new Config();
-    public tree:         Tree         = new Tree(this);
-    public stateManager: StateManager = new StateManager(this);
-    public eventManager: EventManager = new EventManager(this);
+    public dom:          Dom           = new Dom();
+    public config:       Config        = new Config();
+    public tree:         ITree          = new Tree(this);
+    public stateManager: StateManager  = new StateManager(this);
+    public eventManager: IEventManager = new EventManager(this);
 
     constructor(el: HTMLElement, config: IConfig) {
         this.init(el, config);
@@ -181,8 +183,6 @@ class Tome implements ITome {
         this.dom.root = el;
 
         this.stateManager.init(this.config.value);
-
-        this.tree.render(true);
 
         this.eventManager.bindEvents();
     }

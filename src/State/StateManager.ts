@@ -18,9 +18,10 @@ import {
 } from '../Shared/Util';
 
 class StateManager {
+    public historyIndex: number = -1;
+
     private lastActionType:   ActionType = null;
     private history:          State[]    = [];
-    private historyIndex:     number     = -1;
     private tome:             ITome      = null;
     private canPushState:     boolean    = true;
     private timerIdBlockPush: number     = null;
@@ -30,7 +31,7 @@ class StateManager {
     private static DURATION_BACKUP     = 2000;
 
     public get state(): State {
-        return this.history[this.historyIndex];
+        return this.history[this.historyIndex] || null;
     }
 
     constructor(tome: ITome) {
@@ -39,6 +40,8 @@ class StateManager {
 
     public init(initialValue: IValue) {
         this.pushStateToHistory(new State(initialValue));
+
+        this.renderTreeToDom(null);
     }
 
     public undo(): void {

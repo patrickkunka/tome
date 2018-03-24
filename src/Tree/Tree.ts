@@ -6,13 +6,14 @@ import State                from '../State/State';
 import Tome                 from '../Tome/Tome';
 import RenderMode           from './Constants/RenderMode';
 import ICustomBlockInstance from './Interfaces/ICustomBlockInstance';
+import ITree                from './Interfaces/ITree';
 import Renderer             from './Renderer';
 import TomeNode             from './TomeNode';
 import TreeBuilder          from './TreeBuilder';
 import TreeDiff             from './TreeDiff';
 import TreePatch            from './TreePatch';
 
-class Tree {
+class Tree implements ITree {
     public root:     TomeNode = null;
     public renderer: Renderer  = new Renderer();
 
