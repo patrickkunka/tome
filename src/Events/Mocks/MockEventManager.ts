@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
 
-import IEventManager from '../Events/Interfaces/IEventManager';
+import IEventManager from '../Interfaces/IEventManager';
 
 const {spy} = sinon;
 

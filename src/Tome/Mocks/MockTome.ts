@@ -1,9 +1,9 @@
 import * as sinon from 'sinon';
 
-import Config           from '../Config/Root';
-import ITome            from '../Tome/Interfaces/ITome';
-import MockEventManager from './MockEventManager';
-import MockTree         from './MockTree';
+import Config           from '../../Config/Root';
+import MockEventManager from '../../Events/Mocks/MockEventManager';
+import MockTree         from '../../Tree/Mocks/MockTree';
+import ITome            from '../Interfaces/ITome';
 
 const {spy} = sinon;
 

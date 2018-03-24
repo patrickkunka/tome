@@ -48,7 +48,7 @@ describe('createStateFromAction()', function() {
             self.toggleInline
         );
 
-        self.testAction = (actionType, spy) => {
+        self.testAction = (actionType, actionSpy) => {
             const prevState = new State();
 
             self.createStateFromAction(
@@ -56,7 +56,7 @@ describe('createStateFromAction()', function() {
                 Object.assign(new Action(), {type: actionType})
             );
 
-            assert.isTrue(spy.called);
+            assert.isTrue(actionSpy.called);
         };
     });
 

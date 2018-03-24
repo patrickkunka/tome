@@ -4,8 +4,8 @@ import * as chai      from 'chai';
 import * as deepEqual from 'chai-shallow-deep-equal';
 import * as sinon     from 'sinon';
 
-import MockTome     from '../Mock/MockTome';
 import ITome        from '../Tome/Interfaces/ITome';
+import MockTome     from '../Tome/Mocks/MockTome';
 import ActionType   from './Constants/ActionType';
 import MarkupTag    from './Constants/MarkupTag';
 import IValue       from './Interfaces/IValue';

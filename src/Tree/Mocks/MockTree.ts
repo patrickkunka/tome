@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
 
-import ITree from '../Tree/Interfaces/ITree';
+import ITree from '../Interfaces/ITree';
 
 const {spy} = sinon;
 
