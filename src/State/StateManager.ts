@@ -17,17 +17,16 @@ import {
     isGreaterPath
 } from '../Shared/Util';
 
-const ERROR_INVALID_ACTION = 'ERROR_INVALID_ACTION';
-
 class StateManager {
     public historyIndex: number = -1;
 
-    private lastActionType:   ActionType = null;
-    private history:          State[]    = [];
-    private tome:             ITome      = null;
-    private canPushState:     boolean    = true;
-    private timerIdBlockPush: number     = null;
-    private timerIdBackup:    number     = null;
+    private lastActionType:        ActionType = null;
+    private history:               State[]    = [];
+    private tome:                  ITome      = null;
+    private canPushState:          boolean    = true;
+    private timerIdBlockPush:      number     = null;
+    private timerIdBackup:         number     = null;
+    private createStateFromAction: (prevState: State, action: IAction) => State = null;
 
     private static DURATION_BLOCK_PUSH = 750;
     private static DURATION_BACKUP     = 2000;
@@ -36,8 +35,9 @@ class StateManager {
         return this.history[this.historyIndex] || null;
     }
 
-    constructor(tome: ITome) {
+    constructor(tome: ITome, creator = createStateFromAction) {
         this.tome = tome;
+        this.createStateFromAction = creator;
     }
 
     public init(initialValue: IValue) {
@@ -92,20 +92,15 @@ class StateManager {
         const action: Action = Object.assign(new Action(), actionRaw);
         const fn = this.tome.config.callbacks.onStateChange;
 
-        let manipulation: HistoryManipulationType = HistoryManipulationType.PUSH;
+        action.range = this.getActionRange(action);
 
-        try {
-            action.range = this.getActionRange(action);
-        } catch (err) {
-            if (err.message === ERROR_INVALID_ACTION) return;
+        // If action is invalid or futile, abort and preserve current state
 
-            throw err;
-        }
+        if (action.range === null) return;
 
-        manipulation = this.getManipulationTypeForActionType(action);
-
+        const manipulation: HistoryManipulationType = this.getManipulationTypeForActionType(action);
         const prevState = this.state;
-        const nextState = createStateFromAction(prevState, action);
+        const nextState = this.createStateFromAction(prevState, action);
 
         if (!(nextState instanceof State)) {
             throw new TypeError(`[Tome] Action type "${action.type.toString()}" did not return a valid state object`);
@@ -175,14 +170,22 @@ class StateManager {
             if (
                 !selection.anchorNode ||
                 !this.tome.dom.root.contains(selection.anchorNode)
-            ) throw new Error(ERROR_INVALID_ACTION);
+            ) {
+                // Invalid selection, abort
+
+                return null;
+            }
 
             const range = this.getRangeFromSelection(selection);
 
             if (
                 range.from === this.state.selection.from &&
                 range.to === this.state.selection.to
-            ) throw new Error(ERROR_INVALID_ACTION);
+            ) {
+                // Futile action, abort
+
+                return null;
+            }
 
             return range;
         } else if (action.range) {
@@ -240,7 +243,7 @@ class StateManager {
                         ActionType.DELETE,
                         ActionType.BACKSPACE,
                         ActionType.CUT
-                    ].indexOf(this.lastActionType) > -1 ||
+                    ].includes(this.lastActionType) ||
                     this.canPushState
                 ) {
                     break;
@@ -255,7 +258,7 @@ class StateManager {
                     [
                         ActionType.INSERT,
                         ActionType.PASTE
-                    ].indexOf(this.lastActionType) > -1 ||
+                    ].includes(this.lastActionType) ||
                     this.canPushState
                 ) {
                     break;
