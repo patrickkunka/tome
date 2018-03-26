@@ -1,21 +1,14 @@
 import ITome                   from '../Tome/Interfaces/ITome';
-import Caret                   from '../Tree/Caret';
 import TomeNode                from '../Tree/TomeNode';
 import Action                  from './Action';
 import ActionType              from './Constants/ActionType';
 import HistoryManipulationType from './Constants/HistoryManipulationType';
-import SelectionDirection      from './Constants/SelectionDirection';
 import createStateFromAction   from './createStateFromAction';
 import IAction                 from './Interfaces/IAction';
 import IValue                  from './Interfaces/IValue';
 import State                   from './State';
 import TomeSelection           from './TomeSelection';
-
-import {
-    getNodeByPath,
-    getPathFromDomNode,
-    isGreaterPath
-} from '../Shared/Util';
+import getRangeFromSelection   from './Util/getRangeFromSelection';
 
 class StateManager {
     public historyIndex: number = -1;
@@ -27,6 +20,7 @@ class StateManager {
     private timerIdBlockPush:      number     = null;
     private timerIdBackup:         number     = null;
     private createStateFromAction: (prevState: State, action: IAction) => State = null;
+    private getRangeFromSelection: (selection: Selection, root: TomeNode) => TomeSelection;
 
     private static DURATION_BLOCK_PUSH = 750;
     private static DURATION_BACKUP     = 2000;
@@ -35,9 +29,14 @@ class StateManager {
         return this.history[this.historyIndex] || null;
     }
 
-    constructor(tome: ITome, creator = createStateFromAction) {
+    constructor(
+        tome: ITome,
+        stateCreator = createStateFromAction,
+        rangeCreator = getRangeFromSelection
+    ) {
         this.tome = tome;
-        this.createStateFromAction = creator;
+        this.createStateFromAction = stateCreator;
+        this.getRangeFromSelection = rangeCreator;
     }
 
     public init(initialValue: IValue) {
@@ -98,7 +97,14 @@ class StateManager {
 
         if (action.range === null) return;
 
-        const manipulation: HistoryManipulationType = this.getManipulationTypeForActionType(action);
+        const manipulation: HistoryManipulationType = StateManager.getManipulationTypeForAction(
+            action,
+            this.lastActionType,
+            this.canPushState
+        );
+
+        this.resetCanPushTimer();
+
         const prevState = this.state;
         const nextState = this.createStateFromAction(prevState, action);
 
@@ -176,7 +182,7 @@ class StateManager {
                 return null;
             }
 
-            const range = this.getRangeFromSelection(selection);
+            const range = this.getRangeFromSelection(selection, this.tome.tree.root);
 
             if (
                 range.from === this.state.selection.from &&
@@ -200,6 +206,9 @@ class StateManager {
     }
 
     private resetCanPushTimer() {
+        // Prevent multiple pushing of actions that
+        // happen within 750ms of each other
+
         clearTimeout(this.timerIdBlockPush);
 
         this.canPushState = false;
@@ -208,6 +217,8 @@ class StateManager {
             () => this.allowPush(),
             StateManager.DURATION_BLOCK_PUSH
         );
+
+        // But push at least every 2 seconds to "backup"
 
         if (this.timerIdBackup !== null) return;
 
@@ -235,36 +246,50 @@ class StateManager {
         }
     }
 
-    private getManipulationTypeForActionType(action: Action): HistoryManipulationType {
+    private renderTreeToDom(prevState: State) {
+        try {
+            this.tome.tree.render(true);
+
+            this.tome.tree.positionCaret(this.state.selection);
+        } catch (err) {
+            if (this.tome.config.debug.enable) {
+                console.error('[StateManager] Error while transitioning between states:', prevState, this.state);
+            }
+
+            throw err;
+        }
+    }
+
+    private static getManipulationTypeForAction(
+        action: IAction,
+        lastActionType: ActionType,
+        canPushState: boolean
+    ): HistoryManipulationType {
         switch (action.type) {
             case ActionType.INSERT:
                 if (
+                    canPushState ||
                     [
                         ActionType.DELETE,
                         ActionType.BACKSPACE,
                         ActionType.CUT
-                    ].includes(this.lastActionType) ||
-                    this.canPushState
+                    ].includes(lastActionType)
                 ) {
                     break;
                 }
-
-                this.resetCanPushTimer();
 
                 return HistoryManipulationType.REPLACE;
             case ActionType.DELETE:
             case ActionType.BACKSPACE:
                 if (
+                    canPushState ||
                     [
                         ActionType.INSERT,
                         ActionType.PASTE
-                    ].includes(this.lastActionType) ||
-                    this.canPushState
+                    ].includes(lastActionType)
                 ) {
                     break;
                 }
-
-                this.resetCanPushTimer();
 
                 return HistoryManipulationType.REPLACE;
             case ActionType.SET_SELECTION:
@@ -283,94 +308,7 @@ class StateManager {
                 return HistoryManipulationType.PUSH;
         }
 
-        this.resetCanPushTimer();
-
         return HistoryManipulationType.PUSH;
-    }
-
-    private getRangeFromSelection(selection: Selection): TomeSelection {
-        const anchorPath = getPathFromDomNode(selection.anchorNode, this.tome.dom.root);
-        const {root} = this.tome.tree;
-        const from = new Caret();
-        const to = new Caret();
-
-        let virtualAnchorNode = getNodeByPath(anchorPath, root);
-        let anchorOffset = selection.anchorOffset;
-        let extentOffset = selection.extentOffset;
-
-        if ((virtualAnchorNode.isBlock || virtualAnchorNode.isListItem) && anchorOffset > 0) {
-            // Caret is lodged between a safety <br> and
-            // the end of block
-
-            const childIndex = Math.min(virtualAnchorNode.childNodes.length - 1, anchorOffset);
-
-            virtualAnchorNode = virtualAnchorNode.childNodes[childIndex];
-            anchorOffset = virtualAnchorNode.text.length;
-        }
-
-        if (virtualAnchorNode.isText && virtualAnchorNode.parent === root && anchorOffset > 0) {
-            // Caret is lodged in a block break between blocks
-
-            const [index] = anchorPath;
-
-            virtualAnchorNode = root.childNodes[index + 1];
-            anchorOffset = 0;
-        }
-
-        let extentPath = anchorPath;
-        let virtualExtentNode: TomeNode = virtualAnchorNode;
-        let isRtl = false;
-        let rangeFrom = -1;
-        let rangeTo = -1;
-
-        if (!selection.isCollapsed) {
-            extentPath = getPathFromDomNode(selection.extentNode, this.tome.dom.root);
-            virtualExtentNode = getNodeByPath(extentPath, root);
-
-            if ((virtualExtentNode.isBlock || virtualExtentNode.isListItem) && extentOffset > 0) {
-                const childIndex = Math.min(virtualExtentNode.childNodes.length - 1, extentOffset);
-
-                virtualExtentNode = virtualExtentNode.childNodes[childIndex];
-                extentOffset = virtualExtentNode.text.length;
-            }
-        }
-
-        // If the anchor is greater than the extent, or both paths are equal
-        // but the anchor offset is greater than the extent offset, the range
-        // should be considered "RTL"
-
-        isRtl =
-            isGreaterPath(anchorPath, extentPath) ||
-            (!isGreaterPath(extentPath, anchorPath) && selection.anchorOffset > selection.extentOffset);
-
-        from.node   = to.node = isRtl ? virtualExtentNode : virtualAnchorNode;
-        from.offset = to.offset = isRtl ? extentOffset : anchorOffset;
-        from.path   = to.path = isRtl ? extentPath : anchorPath;
-
-        if (!selection.isCollapsed) {
-            to.node   = isRtl ? virtualAnchorNode : virtualExtentNode;
-            to.offset = isRtl ? anchorOffset : extentOffset;
-            to.path   = isRtl ? anchorPath : extentPath;
-        }
-
-        rangeFrom = Math.min(from.node.start + from.offset, from.node.end);
-        rangeTo = Math.min(to.node.start + to.offset, to.node.end);
-
-        return new TomeSelection(rangeFrom, rangeTo, isRtl ? SelectionDirection.RTL : SelectionDirection.LTR);
-    }
-
-    private renderTreeToDom(prevState: State) {
-        try {
-            this.tome.tree.render(true);
-
-            this.tome.tree.positionCaret(this.state.selection);
-        } catch (err) {
-            if (this.tome.config.debug.enable) {
-                console.error('[StateManager] Error while transitioning between states:', prevState, this.state);
-            }
-
-            throw err;
-        }
     }
 }
 
