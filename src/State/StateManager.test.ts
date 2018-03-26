@@ -34,7 +34,7 @@ interface ITestContext {
     mockUndo();
 }
 
-describe.only('StateManager', function() {
+describe('StateManager', function() {
     // @ts-ignore
     const self: ITestContext = this;
 
