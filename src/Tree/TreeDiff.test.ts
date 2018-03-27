@@ -1,11 +1,8 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import NodeChangeType from './Constants/NodeChangeType';
 import TomeNode       from './TomeNode';
 import TreeDiff       from './TreeDiff';
-
-chai.use(deepEqual);
 
 const assert = chai.assert;
 

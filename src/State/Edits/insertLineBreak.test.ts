@@ -1,12 +1,9 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import MarkupTag             from '../Constants/MarkupTag';
 import Markup                from '../Markup';
 import State                 from '../State';
 import insertLineBreak from './insertLineBreak';
-
-chai.use(deepEqual);
 
 const assert = chai.assert;
 

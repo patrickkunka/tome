@@ -1,9 +1,6 @@
 import * as chai          from 'chai';
-import * as deepEqual     from 'chai-shallow-deep-equal';
 import ActionType         from '../State/Constants/ActionType';
 import IMEParser          from './IMEParser';
-
-chai.use(deepEqual);
 
 const assert = chai.assert;
 

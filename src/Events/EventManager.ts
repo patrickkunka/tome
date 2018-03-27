@@ -48,6 +48,8 @@ class EventManager implements IEventManager {
     }
 
     constructor(tome: ITome) {
+        const MutationObserver = (window as any).MutationObserver;
+
         this.tome = tome;
         this.observer = new MutationObserver((this.handleMutation.bind(this)));
     }

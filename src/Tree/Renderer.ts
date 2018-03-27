@@ -14,7 +14,7 @@ import createAttributesDomString from './Util/createAttributesDomString';
 const NON_BREAKING_SPACE = String.fromCharCode(HtmlEntity.NON_BREAKING_SPACE);
 
 class Renderer {
-    private customBlocks: ICustomBlockRenderers = {};
+    public customBlocks: ICustomBlockRenderers = {};
 
     constructor(customBlocks: ICustomBlockRenderers = {}) {
         this.customBlocks = customBlocks;

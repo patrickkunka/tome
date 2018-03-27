@@ -1,11 +1,8 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import MarkupTag  from './Constants/MarkupTag';
 import Markup     from './Markup';
 import MarkupsMap from './MarkupsMap';
-
-chai.use(deepEqual);
 
 const {assert} = chai;
 

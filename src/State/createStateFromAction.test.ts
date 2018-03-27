@@ -1,13 +1,10 @@
 import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
 import * as sinon     from 'sinon';
 
 import Action                from './Action';
 import ActionType            from './Constants/ActionType';
 import {createBoundCreateStateFromAction} from './createStateFromAction';
 import State                 from './State';
-
-chai.use(deepEqual);
 
 const {assert} = chai;
 const {spy}    = sinon;

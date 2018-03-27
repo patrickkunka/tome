@@ -1,10 +1,7 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import SelectionDirection from './Constants/SelectionDirection';
 import TomeSelection      from './TomeSelection';
-
-chai.use(deepEqual);
 
 const {assert} = chai;
 

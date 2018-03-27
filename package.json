@@ -27,6 +27,7 @@
       "src"
     ],
     "exclude": [
+      "**/index.ts",
       "**/*.d.ts",
       "**/**.test.ts",
       "**/Interfaces",
@@ -43,7 +44,6 @@
     "@types/sinon": "^4.3.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
-    "chai-shallow-deep-equal": "^1.4.0",
     "json-loader": "^0.5.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",

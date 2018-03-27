@@ -1,9 +1,6 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import TextDiff from './TextDiff';
-
-chai.use(deepEqual);
 
 const assert = chai.assert;
 

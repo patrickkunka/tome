@@ -1,13 +1,10 @@
-import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
+import * as chai from 'chai';
 
 import HtmlEntity     from '../State/Constants/HtmlEntity';
 import MarkupTag      from '../State/Constants/MarkupTag';
 import Markup         from '../State/Markup';
 import TomeNode       from './TomeNode';
 import TreeBuilder    from './TreeBuilder';
-
-chai.use(deepEqual);
 
 const assert = chai.assert;
 

@@ -5,6 +5,7 @@ import Renderer              from './Renderer';
 import TomeNode              from './TomeNode';
 
 class RendererFacade {
+    public customBlocks:         ICustomBlockRenderers;
     public renderValueToHtml:    (value: IValue)  => string;
     public renderTreeToHtml:     (root: TomeNode) => string;
     public renderValueToModules: (value: IValue)  => IModule[];
@@ -12,6 +13,12 @@ class RendererFacade {
 
     constructor(customBlocks: ICustomBlockRenderers) {
         const _ = new Renderer(customBlocks);
+
+        Object.defineProperties(this, {
+            customBlocks: {
+                get: () => ({..._.customBlocks})
+            }
+        });
 
         this.renderValueToHtml    = _.renderValueToHtml.bind(_);
         this.renderTreeToHtml     = _.renderTreeToHtml.bind(_);

@@ -1,7 +1,6 @@
 import 'jsdom-global/register';
 
 import * as chai      from 'chai';
-import * as deepEqual from 'chai-shallow-deep-equal';
 import * as sinon     from 'sinon';
 
 import ITome                   from '../Tome/Interfaces/ITome';
@@ -14,8 +13,6 @@ import IValue                  from './Interfaces/IValue';
 import State                   from './State';
 import StateManager            from './StateManager';
 import TomeSelection           from './TomeSelection';
-
-chai.use(deepEqual);
 
 // @ts-ignore
 const {DURATION_BLOCK_PUSH, DURATION_BACKUP} = StateManager;
@@ -555,6 +552,8 @@ describe('StateManager', function() {
         async () => {
             // @ts-ignore
             const durationBackup = StateManager.DURATION_BACKUP = 100;
+            // @ts-ignore
+            StateManager.DURATION_BLOCK_PUSH = 150;
 
             let iterations = 4;
 
