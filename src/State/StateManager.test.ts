@@ -552,12 +552,7 @@ describe('StateManager', function() {
         async () => {
             // @ts-ignore
             const durationBackup = StateManager.DURATION_BACKUP = 100;
-            // @ts-ignore
-            StateManager.DURATION_BLOCK_PUSH = 150;
-
-            let iterations = 4;
-
-            const delay = durationBackup / iterations;
+            const delay = durationBackup / 4;
 
             const applyActionAndWait = async () => {
                 self.stateManager.applyAction(self.nextAction);
@@ -566,9 +561,8 @@ describe('StateManager', function() {
 
                 await new Promise(resolve => setTimeout(resolve, delay));
 
-                iterations--;
-
-                await (iterations > 0 ? applyActionAndWait() : null);
+                // @ts-ignore
+                if (!self.stateManager.canPushState) await applyActionAndWait();
             };
 
             self.mockInit();
