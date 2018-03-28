@@ -2,15 +2,17 @@ import * as chai from 'chai';
 
 const {assert} = chai;
 
-import IValue     from '../State/Interfaces/IValue';
-import RenderMode from './Constants/RenderMode';
-import Renderer   from './Renderer';
-import TomeNode   from './TomeNode';
+import IValue          from '../State/Interfaces/IValue';
+import RenderMode      from './Constants/RenderMode';
+import IRendererParams from './Interfaces/IRendererParams';
+import Renderer        from './Renderer';
+import TomeNode        from './TomeNode';
 
 interface ITestContext {
     renderer: Renderer;
     mockRoot: TomeNode;
     mockValue: IValue;
+    mockValueWithCustomBlock: IValue;
 }
 
 const createNode = data => {
@@ -66,6 +68,15 @@ describe('Renderer', function() {
                 ['em', 1, 3]
             ]
         };
+
+        self.mockValueWithCustomBlock = {
+            text: 'foo\n\n',
+            markups: [
+                ['p', 0, 3],
+                ['em', 1, 3],
+                ['CustomBlock', 5, 5, {foo: 'bar'}]
+            ]
+        };
     });
 
     it('accepts a consumer-provided "custom block" hash object', () => {
@@ -79,7 +90,7 @@ describe('Renderer', function() {
             const html = self.renderer.renderValueToHtml(self.mockValue);
 
             assert.equal(html, '<p>f<em>oo</em></p>');
-        })
+        });
     });
 
     describe('#renderTreeToHtml()', () => {
@@ -87,7 +98,7 @@ describe('Renderer', function() {
             const html = self.renderer.renderTreeToHtml(self.mockRoot);
 
             assert.equal(html, '<p>f<em>oo</em></p>');
-        })
+        });
     });
 
     describe('#renderValueToModules()', () => {
@@ -102,7 +113,26 @@ describe('Renderer', function() {
                     }
                 }
             ]);
-        })
+        });
+
+        it('renders a give `IValue` including custom blocks to a list of "modules"', () => {
+            const modules = self.renderer.renderValueToModules(self.mockValueWithCustomBlock);
+
+            assert.deepEqual(modules, [
+                {
+                    name: 'p',
+                    data: {
+                        content: 'f<em>oo</em>'
+                    }
+                },
+                {
+                    name: 'CustomBlock',
+                    data: {
+                        foo: 'bar'
+                    }
+                }
+            ]);
+        });
     });
 
     describe('#renderTreeToModules()', () => {
@@ -117,7 +147,7 @@ describe('Renderer', function() {
                     }
                 }
             ]);
-        })
+        });
     });
 
     describe('#renderNodeToHtml()', () => {
@@ -259,6 +289,30 @@ describe('Renderer', function() {
             assert.equal(content, '<br>');
         });
 
+        it('renders nothing for an empty text node in consumer mode', () => {
+            const root: TomeNode = createNode({
+                tag: 'p',
+                start: 0,
+                end: 0,
+                childNodes: [
+                    createNode({
+                        tag: '#text',
+                        start: 0,
+                        end: 0,
+                        text: ''
+                    })
+                ]
+            });
+
+            const content = self.renderer.renderNodeContent(
+                {mode: RenderMode.CONSUMER},
+                root.childNodes[0],
+                root
+            );
+
+            assert.equal(content, '');
+        });
+
         it('inserts <br> tags into text nodes with a trailing space when in editor mode', () => {
             const root: TomeNode = createNode({
                 tag: 'p',
@@ -352,6 +406,88 @@ describe('Renderer', function() {
             );
 
             assert.equal(content, `${String.fromCharCode(0xa0)}foo`);
+        });
+    });
+
+    describe('#renderCustomBlock()', () => {
+        it('pushes an `ICustomBlockInstance` into the provided params array, when in editor mode', () => {
+            const params: IRendererParams = {
+                customBlockInstances: [],
+                mode: RenderMode.EDITOR
+            };
+
+            const customBlock = createNode({
+                tag: 'foo',
+                path: [0, 1, 2],
+                data: {
+                    bar: 'baz'
+                }
+            });
+
+            self.renderer.renderCustomBlockToHtml(params, customBlock);
+
+            assert.deepEqual(params.customBlockInstances, [
+                {
+                    path: customBlock.path,
+                    type: customBlock.tag,
+                    data: customBlock.data
+                }
+            ]);
+        });
+
+        it('returns an empty `<div>` with a `contenteditable="false" attribute` when in editor mode', () => {
+            const params: IRendererParams = {
+                customBlockInstances: [],
+                mode: RenderMode.EDITOR
+            };
+
+            const customBlock = createNode({
+                tag: 'foo',
+                path: [0, 1, 2],
+                data: {
+                    bar: 'baz'
+                }
+            });
+
+            const html = self.renderer.renderCustomBlockToHtml(params, customBlock);
+
+            assert.equal(html, '<div contenteditable="false"></div>');
+        });
+
+        it('invokes a consumer-provided render function when in consumer mode', () => {
+            const renderer = new Renderer({
+                foo: (type, data) => `<div class="${type}">${data.bar}</div>`
+            });
+
+            const customBlock = createNode({
+                tag: 'foo',
+                path: [0, 1, 2],
+                data: {
+                    bar: 'baz'
+                }
+            });
+
+            const html = renderer.renderCustomBlockToHtml({
+                mode: RenderMode.CONSUMER
+            }, customBlock);
+
+            assert.equal(html, '<div class="foo">baz</div>');
+        });
+
+        it('throws a `TypeError` when no consumer render function is available', () => {
+            const customBlock = createNode({
+                tag: 'foo',
+                path: [0, 1, 2],
+                data: {
+                    bar: 'baz'
+                }
+            });
+
+            assert.throws(() => {
+                self.renderer.renderCustomBlockToHtml({
+                    mode: RenderMode.CONSUMER
+                }, customBlock);
+            }, TypeError);
         });
     });
 });
