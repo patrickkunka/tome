@@ -10,7 +10,7 @@ class Markup {
     public 3?: any;
 
     constructor(arr: IMarkup) {
-        this[0] = arr[0];
+        this[0] = (arr[0] as MarkupTag);
         this[1] = arr[1];
         this[2] = arr[2];
 

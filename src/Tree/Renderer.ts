@@ -56,7 +56,6 @@ class Renderer {
         const isEditorMode = params.mode === RenderMode.EDITOR;
         const isCustomBlock = node.isCustomBlock;
         const isLastChild = node === parent.childNodes[parent.childNodes.length - 1];
-        const isText = node.isText;
 
         let html = '';
 
@@ -68,7 +67,7 @@ class Renderer {
             return html;
         }
 
-        if (!isText) {
+        if (!node.isText) {
             const attributesList = createAttributesDomString(
                 params.mode,
                 node.tag,
@@ -80,9 +79,7 @@ class Renderer {
 
         html += this.renderNodeContent(params, node, parent);
 
-        if (isCustomBlock) {
-            html += `</${MarkupTag.DIV}>`;
-        } else if (!isText && !node.isSelfClosing) {
+        if (!node.isText && !node.isSelfClosing) {
             html += `</${node.tag}>`;
         }
 
@@ -91,12 +88,13 @@ class Renderer {
 
     public renderNodeContent(params, node, parent): string {
         const isEditorMode = params.mode === RenderMode.EDITOR;
+        const isLastChild = node === parent.childNodes[parent.childNodes.length - 1];
 
         let content: string = '';
 
         if (node.childNodes.length) {
             content += this.renderNodesToHtml(params, node.childNodes, node);
-        } else if (!node.isSelfClosing || node.end === parent.end - 1) {
+        } else if (node.text.length > 0) {
             // At #text leaf node, or at line break node at end of parent block
 
             let text = node.text
@@ -113,16 +111,18 @@ class Renderer {
                 text = HtmlEntity.LINE_BREAK;
             }
 
+            content += text;
+        } else if (isEditorMode) {
             // If text node is empty, add an anchor break instead
 
-            content += (text.length === 0 && isEditorMode) ? `<${MarkupTag.BR}>` : text;
+            content += `<${MarkupTag.BR}>`;
         }
 
         if (
             isEditorMode &&
             parent &&
             parent.isBlock &&
-            parent.childNodes[parent.childNodes.length - 1] === node &&
+            isLastChild &&
             content.match(/ $/)
         ) {
             // If last child of block parent and a trailing space, add an anchor break
