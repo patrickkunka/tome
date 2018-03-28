@@ -5,10 +5,10 @@
   "main": "./dist/rte.js",
   "scripts": {
     "lint": "tslint --project tsconfig.json -c tslint.json './src/**/*.ts'",
-    "test": "mocha -r ts-node/register **/*.test.ts",
-    "test:watch": "mocha -r ts-node/register **/*.test.ts --watch",
-    "watch": "webpack --watch",
-    "build": "npm run lint && npm run test && webpack",
+    "test": "mocha --opts ./config/mocha.opts",
+    "test:watch": "mocha --opts ./config/mocha.opts --watch",
+    "watch": "webpack --config ./config/webpack.config.ts --watch",
+    "build": "npm run lint && npm run test && webpack --config ./config/webpack.config.ts",
     "cover": "nyc mocha **/*.test.ts"
   },
   "nyc": {

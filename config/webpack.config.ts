@@ -5,7 +5,7 @@ module.exports = {
     entry: './src/index.ts',
     output: {
         filename: 'tome.js',
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, '../', 'dist'),
         library: 'tome',
         libraryTarget: 'umd'
     },
@@ -19,7 +19,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(ts|js)/,
+                test: /\.ts/,
                 exclude: /node_modules/,
                 loader: 'ts-loader'
             }

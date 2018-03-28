@@ -3,7 +3,6 @@
     "extends": [
         "tslint:recommended"
     ],
-    "jsRules": {},
     "rules": {
         "quotemark": [true, "single"],
         "import-spacing": false,
@@ -36,5 +35,5 @@
             ]
         }]
     },
-    "rulesDirectory": []
+    "rulesDirectory": [],
 }
