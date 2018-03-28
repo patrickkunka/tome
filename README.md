@@ -6,6 +6,8 @@ In progress..
 #### Todos
 
 - toggle inline bug while selection across blocks
+- fix tree diff patch optimisation
+- render space after line break
 - additional IME mutation detection work
 
 ---
