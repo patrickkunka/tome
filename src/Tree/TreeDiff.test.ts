@@ -1,5 +1,6 @@
 import * as chai from 'chai';
 
+import MarkupTag      from '../State/Constants/MarkupTag';
 import NodeChangeType from './Constants/NodeChangeType';
 import TomeNode       from './TomeNode';
 import TreeDiff       from './TreeDiff';
@@ -90,8 +91,8 @@ describe('TreeDiff', () => {
     describe('#diff()', () => {
         testCases.forEach(({prev, next, diffs}, i) => {
             it('should build up an accurate list of diff commands', () => {
-                const prevNode = createNode({childNodes: prev.map(text => createNode({text}))});
-                const nextNode = createNode({childNodes: next.map(text => createNode({text}))});
+                const prevNode = createNode({childNodes: prev.map(text => createNode({text, tag: MarkupTag.TEXT}))});
+                const nextNode = createNode({childNodes: next.map(text => createNode({text, tag: MarkupTag.TEXT}))});
                 const command = TreeDiff.diff(prevNode, nextNode);
 
                 try {
@@ -106,5 +107,100 @@ describe('TreeDiff', () => {
                 }
             });
         });
+
+        it(
+            'should return an `UPDATE_NODE` command for two equivalent custom ' +
+            'blocks with different data',
+            () => {
+                const prevNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: 'foo',
+                            data: {}
+                        })
+                    ]
+                });
+
+                const nextNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: 'foo',
+                            data: {}
+                        })
+                    ]
+                });
+
+                const command = TreeDiff.diff(prevNode, nextNode);
+
+                assert.deepEqual(
+                    command.childCommands[0].type,
+                    NodeChangeType.UPDATE_NODE
+                );
+            }
+        );
+
+        it(
+            'should return an `UPDATE_TAG` command for two equivalent block nodes ' +
+            'blocks with a different tag',
+            () => {
+                const prevNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: MarkupTag.H1
+                        })
+                    ]
+                });
+
+                const nextNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: MarkupTag.H2
+                        })
+                    ]
+                });
+
+                const command = TreeDiff.diff(prevNode, nextNode);
+
+                assert.deepEqual(
+                    command.childCommands[0].type,
+                    NodeChangeType.UPDATE_TAG
+                );
+            }
+        );
+
+        it(
+            'should return an `UPDATE_NODE` command for two equivalent block nodes ' +
+            'blocks with a different tag and different children',
+            () => {
+                const prevNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: MarkupTag.H1
+                        })
+                    ]
+                });
+
+                const nextNode = createNode({
+                    childNodes: [
+                        createNode({
+                            tag: MarkupTag.H2,
+                            childNodes: [
+                                createNode({
+                                    tag: MarkupTag.TEXT,
+                                    text: 'foo'
+                                })
+                            ]
+                        })
+                    ]
+                });
+
+                const command = TreeDiff.diff(prevNode, nextNode);
+
+                assert.deepEqual(
+                    command.childCommands[0].type,
+                    NodeChangeType.UPDATE_NODE
+                );
+            }
+        );
     });
 });

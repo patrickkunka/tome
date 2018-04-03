@@ -55,7 +55,7 @@ class TreeDiff {
             return TreeDiff.createAddCommand(nextNode);
         } else if (
             prevNode && nextNode &&
-            prevNode.childNodes.length === 0 && nextNode.childNodes.length === 0
+            prevNode.isText && nextNode.isText
         ) {
             // Text nodes
 
