@@ -56,21 +56,14 @@ class TreeBuilder {
                 hasOpened = true;
             }
 
-            if (hasOpened) {
-                // A markup has been opened at index
+            if (hasOpened && !textNode && !node.isSelfClosing) {
+                // A markup has been opened at index, a text node does
+                // not exist and we are now at a leaf, so create a new
+                // text node
 
-                if (textNode) {
-                    // A text node exists, close it
+                textNode = TreeBuilder.createTextNode(node, node.start);
 
-                    textNode = TreeBuilder.closeTextNode(textNode, text, characterIndex);
-                } else if (!node.isSelfClosing) {
-                    // A text node does not exist and we are now at a leaf,
-                    // so create one
-
-                    textNode = TreeBuilder.createTextNode(node, node.start);
-
-                    node.childNodes.push(textNode);
-                }
+                node.childNodes.push(textNode);
             }
 
             for (j = markups.length - 1; (markup = markups[j]); j--) {

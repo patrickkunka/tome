@@ -260,4 +260,28 @@ describe('TreeBuilder', () => {
         assert.equal(pNode.childNodes[0].tag, MarkupTag.BR);
         assert.equal(pNode.childNodes[0].childNodes.length, 0);
     });
+
+    it('should correctly map an inline markup partially spanning the contents of a block', () => {
+        const text = 'Line one.';
+        const markups = [
+            new Markup([MarkupTag.P, 0, 9]),
+            new Markup([MarkupTag.EM, 3, 5])
+        ];
+
+        // <p>Lin<em>e </em>one.</p>
+
+        const root = new TomeNode();
+
+        TreeBuilder.build(root, text, markups);
+
+        assert.equal(root.childNodes.length, 1);
+
+        const pNode = root.childNodes[0];
+
+        assert.equal(pNode.tag, MarkupTag.P);
+        assert.equal(pNode.childNodes.length, 3);
+        assert.equal(pNode.childNodes[0].tag, MarkupTag.TEXT);
+        assert.equal(pNode.childNodes[1].tag, MarkupTag.EM);
+        assert.equal(pNode.childNodes[2].tag, MarkupTag.TEXT);
+    });
 });
