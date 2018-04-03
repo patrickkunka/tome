@@ -172,7 +172,7 @@ class Renderer {
                 break;
             case MarkupType.BLOCK:
                 if (node.length > 0 || !isLastChild) {
-                    // Don't render trailing empty <p> tags
+                    // Only render if non-empty, or empty and not last child
 
                     modules.push(this.createBlockModule(node));
                 }

@@ -115,7 +115,7 @@ describe('Renderer', function() {
             ]);
         });
 
-        it('renders a give `IValue` including custom blocks to a list of "modules"', () => {
+        it('renders a given `IValue` including custom blocks to a list of "modules"', () => {
             const modules = self.renderer.renderValueToModules(self.mockValueWithCustomBlock);
 
             assert.deepEqual(modules, [
@@ -147,6 +147,53 @@ describe('Renderer', function() {
                     }
                 }
             ]);
+        });
+
+        it('will not create a module for a trailing empty `<p>` tag', () => {
+            const root: TomeNode = createNode({
+                childNodes: [
+                    createNode({
+                        tag: 'p',
+                        start: 0,
+                        end: 5
+                    }),
+                    createNode({
+                        tag: 'p',
+                        start: 7,
+                        end: 7
+                    })
+                ]
+            });
+
+            const modules = self.renderer.renderTreeToModules(root);
+
+            assert.equal(modules.length, 1);
+        });
+
+        it('will create a module for an `<p>` tag if not the last block', () => {
+            const root: TomeNode = createNode({
+                childNodes: [
+                    createNode({
+                        tag: 'p',
+                        start: 0,
+                        end: 5
+                    }),
+                    createNode({
+                        tag: 'p',
+                        start: 7,
+                        end: 7
+                    }),
+                    createNode({
+                        tag: 'p',
+                        start: 9,
+                        end: 11
+                    })
+                ]
+            });
+
+            const modules = self.renderer.renderTreeToModules(root);
+
+            assert.equal(modules.length, 3);
         });
     });
 
