@@ -16,7 +16,7 @@ function addInlineMarkup(
     markup:    Markup = null
 ): State {
     const nextState: State = preCloneState(prevState, true);
-    const enveloped = prevState.envelopedBlockMarkups || [];
+    const enveloped = prevState.envelopedBlockMarkups;
 
     let insertIndex = -1;
 
@@ -52,8 +52,8 @@ function addInlineMarkup(
         // ensure range does not extend over breaks
         // around markups
 
-        from = from < markup[1] ? markup[1] : from;
-        to = to > markup[2] ? markup[2] : to;
+        from = Math.max(from, markup[1]);
+        to = Math.min(to, markup[2]);
     }
 
     // Remove all existing inline markups of type within range
