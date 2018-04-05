@@ -13,13 +13,11 @@ function insertBlockBreak(prevState: State, range: TomeSelection): State {
     let listItemAtIndex: Markup = null;
 
     if (range.isCollapsed) {
-        const listItemLocatorAtIndex = getMarkupOfTypeAtIndex(
+        listItemAtIndex = getMarkupOfTypeAtIndex(
             prevState.markups,
             MarkupType.LIST_ITEM,
             range.from
-        );
-
-        if (listItemLocatorAtIndex) listItemAtIndex = listItemLocatorAtIndex.markup;
+        ).markup;
     }
 
     if (listItemAtIndex && listItemAtIndex.isEmpty) {

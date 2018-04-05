@@ -9,6 +9,36 @@ import insertBlockBreak      from './insertBlockBreak';
 const assert = chai.assert;
 
 describe('insertBlockBreak()', () => {
+    it('should insert a block break at the selection', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const nextState = insertBlockBreak(prevState, new TomeSelection(4, 4));
+
+        assert.equal(nextState.text, 'Line\n\n one.');
+        assert.equal(nextState.selection.from, 6);
+        assert.equal(nextState.selection.to, 6);
+    });
+
+    it('should replace the selection with a block break', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const nextState = insertBlockBreak(prevState, new TomeSelection(4, 5));
+
+        assert.equal(nextState.text, 'Line\n\none.');
+        assert.equal(nextState.selection.from, 6);
+        assert.equal(nextState.selection.to, 6);
+    });
+
     it('should insert a new empty block and select the first character of the block', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.',

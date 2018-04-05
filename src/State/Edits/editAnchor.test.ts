@@ -1,10 +1,10 @@
 import * as chai from 'chai';
 
-import MarkupTag     from '../Constants/MarkupTag';
-import Markup        from '../Markup';
-import State         from '../State';
-import editAnchor from './editAnchor';
+import MarkupTag  from '../Constants/MarkupTag';
+import Markup     from '../Markup';
 import MarkupsMap from '../MarkupsMap';
+import State      from '../State';
+import editAnchor from './editAnchor';
 
 const assert = chai.assert;
 
