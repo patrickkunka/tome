@@ -59,9 +59,9 @@ function changeBlockType(
                 firstListItemIndex = i;
             }
 
-            // If markup is enveloped, change its tag
+            // Markup is enveloped, change its tag
 
-            if (nextMarkup === prevMarkup) nextMarkup = cloneMarkup(prevMarkup);
+            nextMarkup = cloneMarkup(prevMarkup);
 
             nextMarkup[0] = newTag;
         }

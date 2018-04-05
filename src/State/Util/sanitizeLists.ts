@@ -12,6 +12,13 @@ function sanitizeLists(markups: Markup[]): void {
         if (markup.isInline) continue;
 
         switch (true) {
+            case lastWrappingList && markup.isList:
+                // back to back lists
+                if (lastWrappingList.tag === markup.tag) {
+                    i = deleteWrappingList(markups, i);
+                }
+
+                break;
             case markup.isList:
                 // Wrapping list found
 
@@ -58,6 +65,8 @@ function sanitizeLists(markups: Markup[]): void {
                 markups.splice(i, 0, lastWrappingList);
 
                 break;
+            default:
+                lastWrappingList = lastListItem = null;
         }
     }
 }
