@@ -9,6 +9,9 @@ function editAnchor(prevState: State, data: IAnchorData) {
     nextState.markups = prevState.markups.slice();
 
     const anchor = nextState.activeInlineMarkups.allOfTag(MarkupTag.A)[0];
+
+    if (!anchor) return prevState;
+
     const index = nextState.markups.indexOf(anchor);
     const newAnchor = cloneMarkup(anchor);
 
