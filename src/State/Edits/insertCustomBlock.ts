@@ -37,10 +37,10 @@ function insertCustomBlock(
         nextState.selection.from
     );
 
-    const markupAtIndex = markupLocatorAtIndex.markup;
-    const markupIndex = markupLocatorAtIndex.index;
-
-    if (!markupAtIndex) return nextState;
+    const {
+        markup: markupAtIndex,
+        index: markupIndex
+    } = markupLocatorAtIndex;
 
     if (
         markupAtIndex.end === selection.from &&
@@ -75,11 +75,11 @@ function insertCustomBlock(
         );
 
         if (markupAtIndex.end === selection.from) {
-            // At end of markup
+            // Selection at end of markup
 
             replaceIndex = getNextMarkupOfType(nextState.markups, markup => markup.isBlock, markupIndex).index;
-        } else if (markupAtIndex.start === selection.from) {
-            // At start of markup
+        } else {
+            // Selection at start of markup (markupAtIndex.start === selection.from)
 
             replaceIndex = markupIndex;
         }
@@ -108,7 +108,11 @@ function insertCustomBlock(
         nextState.markups.splice(replaceIndex + 1, totalRedundantInlineMarkups);
     }
 
-    nextState.selection.from = nextState.selection.to = nextBlockLocator.markup.start;
+    nextState.selection.from =
+    nextState.selection.to   =
+        nextBlockLocator.markup ?
+            nextBlockLocator.markup.start :
+            nextState.text.length;
 
     return nextState;
 }

@@ -137,6 +137,27 @@ describe('insertCustomBlock()', () => {
         assert.deepEqual(nextState.markups[2], new Markup([customTag, 11, 11, {}]));
     });
 
+    it('inserts a custom block at the end of an inline markup', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.STRONG, 5, 9])
+            ]
+        });
+
+        const nextState = insertCustomBlock(prevState, new TomeSelection(9, 9), {
+            type: customTag,
+            data: {}
+        });
+
+        assert.equal(nextState.text, 'Line one.\n\n');
+        assert.equal(nextState.selection.from, 11);
+        assert.equal(nextState.selection.to, 11);
+        assert.equal(nextState.markups.length, 3);
+        assert.deepEqual(nextState.markups[2], new Markup([customTag, 11, 11, {}]));
+    });
+
     it('inserts a custom block before an existing custom block', () => {
         const prevState = Object.assign(new State(), {
             text: 'Line one.\n\n\n\nLine two.',
@@ -157,5 +178,22 @@ describe('insertCustomBlock()', () => {
         assert.deepEqual(nextState.markups[1], new Markup([customTag, 11, 11, {}]));
         assert.deepEqual(nextState.markups[2], new Markup([customTag, 13, 13, {}]));
         assert.deepEqual(nextState.markups[3], new Markup([MarkupTag.P, 15, 24]));
+    });
+
+    it('clears the selection before inserting a custom block', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9])
+            ]
+        });
+
+        const nextState = insertCustomBlock(prevState, new TomeSelection(5, 9), {
+            type: customTag,
+            data: {}
+        });
+
+        assert.equal(nextState.markups.length, 3);
+        assert.equal(nextState.text, 'Line \n\n\n\n');
     });
 });
