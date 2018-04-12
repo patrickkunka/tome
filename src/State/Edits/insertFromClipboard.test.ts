@@ -159,4 +159,35 @@ describe('removeInlineMarkup()', () => {
 
         assert.deepEqual(nextState.selection, new TomeSelection(32, 32));
     });
+
+    it('should extend any active inline markups when pasting', () => {
+        const prevState = Object.assign(new State(), {
+            text: 'Line one.\n\nLine two.',
+            markups: [
+                new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.EM, 2, 4]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.P, 11, 20]),
+                new Markup([MarkupTag.STRONG, 16, 20])
+            ],
+            selection: new TomeSelection(19, 19)
+        });
+
+        setActiveMarkups(prevState, prevState.selection);
+
+        const nextState = insertFromClipboard(prevState, {
+            text: 'foo',
+            html: ''
+        }, {from: 19, to: 19});
+
+        assert.equal(nextState.text, 'Line one.\n\nLine twofoo.');
+
+        assert.deepEqual(nextState.markups, [
+            new Markup([MarkupTag.P, 0, 9]),
+                new Markup([MarkupTag.EM, 2, 4]),
+                new Markup([MarkupTag.STRONG, 5, 9]),
+                new Markup([MarkupTag.P, 11, 23]),
+                new Markup([MarkupTag.STRONG, 16, 23])
+        ]);
+    });
 });

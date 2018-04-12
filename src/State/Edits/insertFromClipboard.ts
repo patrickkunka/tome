@@ -26,7 +26,7 @@ function insertFromClipboard(
 
     let nextState: State = insert(prevState, range, clipboardData.text, true);
 
-    // iterate through next state markups, which will have been adjusted for the insertion.
+    // iterate through next state's markups, which will have been adjusted for the insertion.
     // once we arrive at the block markup containing the `from` index, insert new clipboard
     // markups
 
@@ -77,13 +77,9 @@ function insertFromClipboard(
         while (hasInsertedClipboardMarkups && inlineMarkups.length > 0) {
             const inlineMarkup = inlineMarkups.shift();
 
-            if (inlineMarkup.start >= markup.start && inlineMarkup.end <= markup.end) {
-                // inline markup falls within block markup
+            nextState.markups.splice(insertionIndex, 0, inlineMarkup);
 
-                nextState.markups.splice(insertionIndex, 0, inlineMarkup);
-
-                insertionIndex++;
-            }
+            insertionIndex++;
         }
 
         if (hasInsertedClipboardMarkups && inlineMarkups.length < 1) {
