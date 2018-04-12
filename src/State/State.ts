@@ -37,7 +37,7 @@ class State {
         Object.seal(this);
     }
 
-    get length(): number {
+    public get length(): number {
         return this.text.length;
     }
 

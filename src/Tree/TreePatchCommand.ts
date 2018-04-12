@@ -13,7 +13,7 @@ class TreePatchCommand {
     public prevNode:         TomeNode             = null;
     public followingCommand: TreePatchCommand     = null;
 
-    get isNone(): boolean {
+    public get isNone(): boolean {
         return this.type === NodeChangeType.NONE;
     }
 }

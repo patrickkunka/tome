@@ -1,22 +1,15 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "tslint:recommended"
+        "tslint:recommended",
+        "tslint-eslint-rules"
     ],
     "rules": {
-        "quotemark": [true, "single"],
-        "import-spacing": false,
-        "no-conditional-assignment": false,
+        "arrow-parens": false,
         "curly": false,
         "eofline": false,
-        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
-        "object-literal-sort-keys": false,
-        "arrow-parens": false,
-        "typedef-whitespace": false,
-        "radix": false,
         "forin": false,
-        "no-console": [true, "log"],
-        "max-classes-per-file": false,
+        "import-spacing": false,
         "member-ordering": [true, {
             "order": [
                 "public-instance-field",
@@ -33,7 +26,17 @@
                 "protected-static-method",
                 "private-static-method"
             ]
-        }]
+        }],
+        "member-access": [true, "check-accessor"],
+        "newline-before-return": true,
+        "no-conditional-assignment": false,
+        "no-console": [true, "log"],
+        "object-curly-spacing": [true, "never"],
+        "object-literal-sort-keys": false,
+        "quotemark": [true, "single", "jsx-double"],
+        "radix": false,
+        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+        "typedef-whitespace": false
     },
     "rulesDirectory": []
 }

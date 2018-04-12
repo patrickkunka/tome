@@ -467,7 +467,7 @@ describe('StateManager', function() {
 
             self.stateManager.applyAction({
                 type: ActionType.SET_SELECTION,
-                data: { type: null }
+                data: {type: null}
             });
 
             assert.deepEqual(self.stateManager.state.selection, mockRange);

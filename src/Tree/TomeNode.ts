@@ -13,39 +13,39 @@ class TomeNode {
     public data:       any        = null;
     public index:      number     = -1;
 
-    get type(): MarkupType {
+    public get type(): MarkupType {
         return getMarkupType(this.tag);
     }
 
-    get isBlock(): boolean {
+    public get isBlock(): boolean {
         return [MarkupType.BLOCK, MarkupType.CUSTOM_BLOCK].includes(this.type);
     }
 
-    get isCustomBlock(): boolean {
+    public get isCustomBlock(): boolean {
         return this.type === MarkupType.CUSTOM_BLOCK;
     }
 
-    get isListItem(): boolean {
+    public get isListItem(): boolean {
         return this.type === MarkupType.LIST_ITEM;
     }
 
-    get isInline(): boolean {
+    public get isInline(): boolean {
         return this.type === MarkupType.INLINE;
     }
 
-    get isText(): boolean {
+    public get isText(): boolean {
         return this.tag === MarkupTag.TEXT;
     }
 
-    get isSelfClosing(): boolean {
+    public get isSelfClosing(): boolean {
         return this.tag === MarkupTag.BR;
     }
 
-    get length(): number {
+    public get length(): number {
         return this.end - this.start;
     }
 
-    get lastChild(): TomeNode {
+    public get lastChild(): TomeNode {
         return this.childNodes[this.childNodes.length - 1] || null;
     }
 }

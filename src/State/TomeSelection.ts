@@ -16,23 +16,23 @@ class TomeSelection implements ISelection {
         this.direction  = direction;
     }
 
-    get isCollapsed(): boolean {
+    public get isCollapsed(): boolean {
         return this.from === this.to;
     }
 
-    get isLtr(): boolean {
+    public get isLtr(): boolean {
         return this.direction === SelectionDirection.LTR;
     }
 
-    get isRtl(): boolean {
+    public get isRtl(): boolean {
         return this.direction === SelectionDirection.RTL;
     }
 
-    get isUnselected(): boolean {
+    public get isUnselected(): boolean {
         return this.from < 0 || this.to < 0;
     }
 
-    get anchor(): number {
+    public get anchor(): number {
         if (this.isLtr) {
             return this.from;
         }
@@ -40,7 +40,7 @@ class TomeSelection implements ISelection {
         return this.to;
     }
 
-    get extent(): number {
+    public get extent(): number {
         if (this.isLtr) {
             return this.to;
         }
