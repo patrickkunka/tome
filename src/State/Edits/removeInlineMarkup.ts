@@ -5,7 +5,7 @@ import preCloneState from '../Util/preCloneState';
 
 function removeInlineMarkup(prevState: State, tag: MarkupTag, from: number, to: number): State {
     const nextState = preCloneState(prevState, true);
-    const enveloped = prevState.envelopedBlockMarkups || [];
+    const enveloped = prevState.envelopedBlockMarkups;
 
     if (enveloped.length > 1) {
         // Split and delegate the command for multiple enveloped blocks

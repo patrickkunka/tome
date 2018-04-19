@@ -25,8 +25,13 @@ function toggleInline(prevState: State, action: Action) {
         nextState.activeInlineMarkups = Object.assign(new MarkupsMap(), prevState.activeInlineMarkups);
 
         const {overrides} = nextState.activeInlineMarkups;
+        const overrideIndex = overrides.indexOf(action.tag);
 
-        if (!overrides.includes(action.tag)) overrides.push(action.tag);
+        if (overrideIndex < 0) {
+            overrides.push(action.tag);
+        } else {
+            overrides.splice(overrideIndex, 1);
+        }
 
         return nextState;
     }

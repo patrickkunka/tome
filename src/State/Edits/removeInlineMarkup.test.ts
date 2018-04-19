@@ -34,7 +34,7 @@ describe('removeInlineMarkup()', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',
             markups: [
-                new Markup([MarkupTag.P, 0, 50]),
+                new Markup([MarkupTag.P, 0, 28]),
                 new Markup([MarkupTag.STRONG, 6, 17])
             ]
         });
@@ -49,7 +49,7 @@ describe('removeInlineMarkup()', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',
             markups: [
-                new Markup([MarkupTag.P, 0, 50]),
+                new Markup([MarkupTag.P, 0, 28]),
                 new Markup([MarkupTag.STRONG, 6, 17])
             ]
         });
@@ -65,7 +65,7 @@ describe('removeInlineMarkup()', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',
             markups: [
-                new Markup([MarkupTag.P, 0, 50]),
+                new Markup([MarkupTag.P, 0, 28]),
                 new Markup([MarkupTag.STRONG, 6, 17])
             ]
         });
@@ -81,7 +81,7 @@ describe('removeInlineMarkup()', () => {
         const state = Object.assign(new State(), {
             text: 'Lorem ipsum dolor. Sit amet.',
             markups: [
-                new Markup([MarkupTag.P, 0, 50]),
+                new Markup([MarkupTag.P, 0, 28]),
                 new Markup([MarkupTag.STRONG, 6, 17])
             ]
         });
@@ -92,5 +92,29 @@ describe('removeInlineMarkup()', () => {
         assert.equal(newState.markups.length, 3);
         assert.deepEqual(newState.markups[1], new Markup([MarkupTag.STRONG, 6, 12]));
         assert.deepEqual(newState.markups[2], new Markup([MarkupTag.STRONG, 14, 17]));
+    });
+
+    it('should remove inline markups over multiple blocks', () => {
+        const blockOne = new Markup([MarkupTag.P, 0, 28]);
+        const blockTwo = new Markup([MarkupTag.P, 30, 58]);
+
+        const state = Object.assign(new State(), {
+            text: 'Lorem ipsum dolor. Sit amet.\n\nLorem ipsum dolor. Sit amit.',
+            markups: [
+                blockOne,
+                new Markup([MarkupTag.STRONG, 6, 17]),
+                blockTwo,
+                new Markup([MarkupTag.STRONG, 36, 47])
+            ],
+            envelopedBlockMarkups: [
+                blockOne,
+                blockTwo
+            ]
+        });
+
+        const newState = removeInlineMarkup(state, MarkupTag.STRONG, 0, 47);
+
+        assert.equal(newState.text, state.text);
+        assert.equal(newState.markups.length, 2);
     });
 });
