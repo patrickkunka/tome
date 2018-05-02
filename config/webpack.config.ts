@@ -1,7 +1,9 @@
-import * as path from 'path';
-// import * as webpack from 'webpack';
+// tslint:disable:no-var-requires
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
+    mode: 'production',
     entry: './src/index.ts',
     output: {
         filename: 'tome.js',
@@ -10,9 +12,9 @@ module.exports = {
         libraryTarget: 'umd'
     },
     devtool: 'source-map',
-    plugins: [
-        // new webpack.optimize.UglifyJsPlugin()
-    ],
+    optimization: {
+        // minimize: true
+    },
     resolve: {
         extensions: ['.ts', '.js']
     },
