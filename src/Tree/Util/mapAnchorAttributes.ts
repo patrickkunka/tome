@@ -7,7 +7,7 @@ function mapAnchorAttributes(mode, {href, target, title}: IAnchorData): IAttribu
 
     switch (mode) {
         case RenderMode.CONSUMER:
-            attributesMap.href = href;
+            attributesMap.href = href || '';
 
             if (target) {
                 attributesMap.target = target;

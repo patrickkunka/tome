@@ -7,9 +7,9 @@
     "lint": "tslint --project tsconfig.json -c tslint.json './src/**/*.ts'",
     "test": "mocha --opts ./config/mocha.opts",
     "test:watch": "mocha --opts ./config/mocha.opts --watch",
+    "test:cover": "nyc mocha **/*.test.ts",
     "watch": "webpack --config ./config/webpack.config.ts --watch",
-    "build": "npm run lint && npm run test && webpack --config ./config/webpack.config.ts",
-    "cover": "nyc mocha **/*.test.ts"
+    "build": "npm run lint && npm run test && webpack --config ./config/webpack.config.ts"
   },
   "nyc": {
     "require": [
