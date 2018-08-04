@@ -9,7 +9,7 @@ function getNodeByPath<T extends INodeLike>(path: number[], root: T): T {
     let index = -1;
     let i = 0;
 
-    while (typeof (index = path[i]) === 'number') {
+    while (typeof (index = path[i]) === 'number' && typeof node !== 'undefined') {
         node = node.childNodes[index];
 
         i++;
