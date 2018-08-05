@@ -6,7 +6,7 @@ interface ITestContext {
     root: HTMLDivElement;
 }
 
-describe('getNodeByPath()', function () {
+describe('getNodeByPath()', function() {
     // @ts-ignore
     const self: ITestContext = this;
 

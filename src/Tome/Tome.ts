@@ -21,8 +21,7 @@ import ITome          from './Interfaces/ITome';
 import {
     getMarkupType,
     getNodeByPath,
-    getPathFromDomNode,
-    mapMarkupToArray
+    getPathFromDomNode
 } from '../Shared/Util';
 
 class Tome implements ITome {
@@ -60,7 +59,7 @@ class Tome implements ITome {
 
         return {
             text: state.text,
-            markups: state.markups.map(mapMarkupToArray)
+            markups: state.markups.map(markup => markup.toArray())
         };
     }
 
