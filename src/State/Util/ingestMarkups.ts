@@ -37,13 +37,9 @@ function ingestMarkups(markups: Markup[], tag: MarkupTag, from: number, to: numb
             }
 
             markup[2] = from;
-        } else if (markup.start > from && markup.start < to) {
+        } else if (markup.start >= from && markup.start < to) {
             // Markup overlaps end, shorten by moving start to
             // end of selection
-
-            markup[1] = to;
-        } else if (markup.start === from && markup.end > to) {
-            // Markup envelops range from start
 
             markup[1] = to;
         }
