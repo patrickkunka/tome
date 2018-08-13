@@ -12,30 +12,7 @@
     "build": "npm run lint && npm run test && webpack --config ./config/webpack.config.ts"
   },
   "nyc": {
-    "require": [
-      "ts-node/register",
-      "source-map-support/register"
-    ],
-    "reporter": [
-      "lcov",
-      "text"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "include": [
-      "src"
-    ],
-    "exclude": [
-      "**/index.ts",
-      "**/*.d.ts",
-      "**/**.test.ts",
-      "**/Interfaces",
-      "**/Constants",
-      "dist",
-      "coverage"
-    ],
-    "all": true
+    "extends": "./config/.nycrc.json"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",

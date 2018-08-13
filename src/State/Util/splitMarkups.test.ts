@@ -32,12 +32,13 @@ describe('splitMarkups()', () => {
             new Markup([MarkupTag.UL, 0, 40]),
             new Markup([MarkupTag.LI, 0, 12]),
             new Markup([MarkupTag.LI, 14, 26]),
-            new Markup([MarkupTag.LI, 28, 40])
+            new Markup([MarkupTag.LI, 28, 40]),
+            new Markup([MarkupTag.P, 42, 50])
         ];
 
         const newMarkups = splitMarkups(markups, 33);
 
-        assert.equal(newMarkups.length, 5);
+        assert.equal(newMarkups.length, 6);
 
         const originalListItem = markups[3];
         const newListItem = markups[4];

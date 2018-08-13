@@ -60,18 +60,18 @@ function parseClipboardToMarkups(plainText: string): Markup[] {
         for (let j = lastInsertionIndex; j < markups.length; j++) {
             const markup = markups[j];
 
-            if (j === markups.length - 1) {
-                // At end
-
-                markups.push(lineBreakMarkup);
-
-                break;
-            } else if (markup.isBlock && markup.start > lineBreak.from) {
+            if (markup.isBlock && markup.start > lineBreak.from) {
                 // Markup starts after line break
 
                 markups.splice(j, 0, lineBreakMarkup);
 
                 lastInsertionIndex = j;
+
+                break;
+            } else if (j === markups.length - 1) {
+                // At end
+
+                markups.push(lineBreakMarkup);
 
                 break;
             }
