@@ -1,6 +1,11 @@
 import MarkupTag from '../Constants/MarkupTag';
 import Markup    from '../Markup';
 
+/**
+ * Sanitizes and makes-valid, potentially malformed
+ * combinations of <ul>, <ol> and <li>.
+ */
+
 function sanitizeLists(markups: Markup[]): void {
     let lastWrappingList = null;
     let lastWrappingListTag = MarkupTag.UL;
@@ -13,8 +18,11 @@ function sanitizeLists(markups: Markup[]): void {
 
         switch (true) {
             case lastWrappingList && markup.isList:
-                // back to back lists
-                if (lastWrappingList.tag === markup.tag) {
+                // back to back lists, or nested lists
+                if (
+                    lastWrappingList.tag === markup.tag ||
+                    markup.start <= lastWrappingList.end
+                ) {
                     i = deleteWrappingList(markups, i);
                 }
 
@@ -23,14 +31,7 @@ function sanitizeLists(markups: Markup[]): void {
                 // Wrapping list found
 
                 lastWrappingListTag = markup.tag;
-
-                if (lastWrappingList && markup.start <= lastWrappingList.end) {
-                    // Unnecessary list, delete
-
-                    i = deleteWrappingList(markups, i);
-                } else {
-                    lastWrappingList = markup;
-                }
+                lastWrappingList = markup;
 
                 break;
             case lastWrappingList && markup.isListItem:
@@ -50,8 +51,6 @@ function sanitizeLists(markups: Markup[]): void {
                     // Unneccessary list, delete
 
                     i = deleteWrappingList(markups, i, -1);
-                } else if (lastWrappingList.end !== lastListItem.end) {
-                    lastWrappingList[2] = lastListItem.end;
                 }
 
                 lastWrappingList = lastListItem = null;
